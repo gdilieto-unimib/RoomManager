@@ -50,7 +50,31 @@
 #define LIGHT_CONFIG_AUTO 2
 #define NUMBER_OF_LIGHT_CONFIGS 3
 
+#include <SPI.h>
+#include <WiFi101.h>
+#include <WiFiUdp.h>
+
 #include "rgb_lcd.h"
+#include "secrets.h"
+
+// WiFi cfg
+char ssid[] = SECRET_SSID;   // your network SSID (name)
+char pass[] = SECRET_PASS;   // your network password
+#ifdef IP
+IPAddress ip(IP);
+IPAddress subnet(SUBNET);
+IPAddress dns(DNS);
+IPAddress gateway(GATEWAY);
+#endif
+WiFiClient client;
+
+// NTP cfg
+const char* ntpServerName = "time.nist.gov";   // it.pool.ntp.org";   // NTP server name
+const int NTP_PACKET_SIZE = 48;                // NTP time stamp is in the first 48 bytes of the message
+byte packetBuffer[NTP_PACKET_SIZE];            // buffer to hold I/O NTP packets
+IPAddress timeServerIP;                        // dynamically resolved IP of the NTP server
+WiFiUDP udp;                                   // UDP instance to send and receive packets
+unsigned int localPort = 2390; 
 
 rgb_lcd lcd;
 int screen = 0;
@@ -62,9 +86,13 @@ int last_light=0;
 int last_temperature=0;
 boolean too_hot_alarm=false;
 boolean too_cold_alarm=false;
+long time;
 
 void setup()
 {
+  time=millis();
+  udp.begin(localPort);
+  
   // set buzzer pin as output
   pinMode(BUZZER_GROVE, OUTPUT);
 
@@ -97,6 +125,24 @@ void setup()
 
 void loop()
 {
+
+
+
+
+  // connect to WiFi (if not already connected)
+  if (millis()-time >10000 && WiFi.status() != WL_CONNECTED) {
+    time=millis();
+    Serial.print("ATTEMPTIONNNNNNN");
+   
+#ifdef IP
+    WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
+#endif
+    WiFi.begin(ssid, pass);
+  }
+
+
+
+  
   int pressedButton = getPressedButton();
 
   if (navigationMode)
@@ -263,26 +309,28 @@ void updateScreen()
         }else{
           too_hot_alarm=false;
         }
-        if(too_hot_alarm==false){
-          lcd.setRGB(0, 255, 0);
-        }else{
-          lcd.setRGB(255, 0, 0);
+        if(!too_cold_alarm) {
+          if(too_hot_alarm==false){
+            lcd.setRGB(50, 50, 50);
+          }else{
+            lcd.setRGB(255, 0, 0);
+          }
         }
-
-
-
+        
         if(getTemperature()<25){
           too_cold_alarm=true;
         }else{
           too_cold_alarm=false;
         }
-        if(too_cold_alarm==false){
-          lcd.setRGB(0, 255, 0);
-        }else{
-          lcd.setRGB(0, 0, 255);
+        if(!too_hot_alarm) {
+          if(too_cold_alarm==false){
+            lcd.setRGB(50, 50, 50);
+          }else{
+            lcd.setRGB(0, 0, 255);
+          }
         }
-
-        if(too_cold_alarm==true || too_hot_alarm==true){
+        
+        if(too_hot_alarm==true){
           digitalWrite(BUZZER_GROVE, HIGH);
         }else{
           digitalWrite(BUZZER_GROVE, LOW);
@@ -296,6 +344,14 @@ void updateScreen()
         lcd.setCursor(0, 1);
         lcd.print("LIGHT: "); // show text
         lcd.print(getLight());
+
+        if(WiFi.status() == WL_CONNECTED){
+          lcd.setCursor(10, 0);
+            lcd.print(" Wi-Fi");
+        }else{
+          lcd.setCursor(10, 0);
+            lcd.print(" NO Wi-Fi");
+        }
 
         break;
       }
