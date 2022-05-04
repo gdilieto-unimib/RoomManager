@@ -27,31 +27,58 @@
  *
  */
 
-//#include "rgb_lcd.h"
 #include "macros_room_manager.h"
 #include "rgb_lcd_controller_room_manager.h"
 #include "navigation_controller_room_manager.h"
 
-//rgb_lcd lcd;
+#include <SPI.h>
+#include <WiFi101.h>
+#include <WiFiUdp.h>
+
+#include "secrets.h"
+
+// WiFi cfg
+char ssid[] = SECRET_SSID;   // your network SSID (name)
+char pass[] = SECRET_PASS;   // your network password
+#ifdef IP
+IPAddress ip(IP);
+IPAddress subnet(SUBNET);
+IPAddress dns(DNS);
+IPAddress gateway(GATEWAY);
+#endif
+WiFiClient client;
+
+// NTP cfg
+const char* ntpServerName = "time.nist.gov";   // it.pool.ntp.org";   // NTP server name
+const int NTP_PACKET_SIZE = 48;                // NTP time stamp is in the first 48 bytes of the message
+byte packetBuffer[NTP_PACKET_SIZE];            // buffer to hold I/O NTP packets
+IPAddress timeServerIP;                        // dynamically resolved IP of the NTP server
+WiFiUDP udp;                                   // UDP instance to send and receive packets
+unsigned int localPort = 2390; 
+
 int screen = 0;
 boolean navigationMode = true;
 
 int lightStatus = STATUS_OFF;
 int lightConfig = CONFIG_OFF;
-int lightActivationThreshold = 0;
+int lightActivationThreshold = 500;
 
 int tempStatus = STATUS_OFF;
 int tempConfig = CONFIG_OFF;
-int tempActivationThreshold = 0;
+int tempActivationThreshold = 28;
 
 int displayRow = 0;
 int last_light=0;
 int last_temperature=0;
 boolean too_hot_alarm=false;
 boolean too_cold_alarm=false;
+long time;
 
 void setup()
 {
+  time=millis();
+  udp.begin(localPort);
+  
   // set buzzer pin as output
   pinMode(BUZZER_GROVE, OUTPUT);
 
@@ -83,6 +110,24 @@ void setup()
 
 void loop()
 {
+
+
+
+
+  // connect to WiFi (if not already connected)
+  if (millis()-time >10000 && WiFi.status() != WL_CONNECTED) {
+    time=millis();
+    Serial.print("ATTEMPTIONNNNNNN");
+   
+#ifdef IP
+    WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
+#endif
+    WiFi.begin(ssid, pass);
+  }
+
+
+
+  
   int pressedButton = getPressedButton();
 
   if (navigationMode){
@@ -174,11 +219,12 @@ void loop()
 
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight()+110 < (int)last_light || (int)getLight()-110 > (int)last_light)
-  {
+  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight()+110 < (int)last_light || (int)getLight()-110 > (int)last_light){
+    
     updateScreen();
     last_temperature=(int)getTemperature();
     last_light=(int)getLight();
+    
   }
   
 }
@@ -249,57 +295,45 @@ void updateScreen()
   switch (screen){
     case 0:{
         
+        boolean wifi = WiFi.status() == WL_CONNECTED;
+        int temp = getTemperature();
+        int light = getLight();
         
-        if(getTemperature()>30){
-          too_hot_alarm=true;
-        }else{
-          too_hot_alarm=false;
-        }
-        if(too_hot_alarm==false){
-          lcd.setRGB(0, 255, 0);
-        }else{
-          lcd.setRGB(255, 0, 0);
-        }
-
-
-
-        if(getTemperature()<25){
-          too_cold_alarm=true;
-        }else{
-          too_cold_alarm=false;
-        }
-        if(too_cold_alarm==false){
-          lcd.setRGB(0, 255, 0);
-        }else{
-          lcd.setRGB(0, 0, 255);
-        }
-
-        if(too_cold_alarm==true || too_hot_alarm==true){
+        if(temp>30){
+          //too hot 
+                
+          setTooHotAlarm(true);
           digitalWrite(BUZZER_GROVE, HIGH);
-        }else{
+          
+        } else if(temp<25){
+          //too cold         
+          
+          setTooColdAlarm(true);
+          
+        } else {
+          
+          setTooHotAlarm(false);
+          setTooColdAlarm(false);
           digitalWrite(BUZZER_GROVE, LOW);
+          
         }
 
-        
-        
-        lcd.clear();  // clear text
-        lcd.print("TEMP: "); // show text
-        lcd.print(getTemperature());
-        lcd.setCursor(0, 1);
-        lcd.print("LIGHT: "); // show text
-        lcd.print(getLight());
+        updateInfoScreenRows(temp, light, wifi);
 
-        
         break;
       }
     case 1:{
+      
         updateTempScreenRows(tempStatus, tempConfig, tempActivationThreshold);
         updateScreenCursor(!navigationMode, displayRow);
+        
         break;
       }
     case 2:{        
+      
         updateLightScreenRows(lightStatus, lightConfig, lightActivationThreshold);
         updateScreenCursor(!navigationMode, displayRow);
+        
         break;
       }
   }

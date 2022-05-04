@@ -15,22 +15,44 @@ void setNavigationMode(int active) {
   }
 }
 
-void updateInfoScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold) {
-  char tempScreenRows[2][16] = {"Temp: ", "Level: "};
-  
-  if (tempConfig == CONFIG_AUTO) {
-    strcat(tempScreenRows[0], tempStatus == STATUS_ON ? "AUTO +" : tempStatus == STATUS_OFF ? "AUTO -" : "AUTO x");
+void setTooHotAlarm(boolean active) {
+  if (!active){
+     lcd.setRGB(50, 50, 50); 
   } else {
-    strcat(tempScreenRows[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
+     lcd.setRGB(255, 0, 0); 
   }
-  
-  sprintf(tempScreenRows[1], tempScreenRows[1], tempActivationThreshold);
+}
 
-  updateScreenRowsText(tempScreenRows);
+void setTooColdAlarm(boolean active) {
+  if (!active){
+     lcd.setRGB(50, 50, 50); 
+  } else {
+     lcd.setRGB(0, 0, 255); 
+  }
+}
+
+
+void updateInfoScreenRows(int temp, int light, int wifi) {
+  
+      lcd.clear();  // clear text
+      lcd.print("TEMP: "); // show temp
+      lcd.print(temp);
+      lcd.setCursor(0, 1);
+      lcd.print("LIGHT: "); // show light
+      lcd.print(light);
+
+        
+      if(wifi){
+        lcd.setCursor(10, 0);
+          lcd.print(" Wi-Fi");
+      }else{
+        lcd.setCursor(10, 0);
+          lcd.print(" NO Wi-Fi");
+      }
 }
 
 void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold) {
-  char tempScreenRows[2][16] = {"Temp: ", "Level: "};
+  char tempScreenRows[2][16] = {"Temp: ", "Level: %d"};
   
   if (tempConfig == CONFIG_AUTO) {
     strcat(tempScreenRows[0], tempStatus == STATUS_ON ? "AUTO +" : tempStatus == STATUS_OFF ? "AUTO -" : "AUTO x");

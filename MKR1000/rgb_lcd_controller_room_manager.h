@@ -8,7 +8,11 @@ void setupLcd();
 
 void setNavigationMode(int active);
 
-void updateInfoScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold);
+void setTooHotAlarm(boolean active);
+
+void setTooColdAlarm(boolean active);
+
+void updateInfoScreenRows(int temp, int light, int wifi);
 
 void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold);
 
