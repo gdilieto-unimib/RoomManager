@@ -26,26 +26,38 @@
  *     - Nominal B-Constant -> 4250 ~ 4299K
  *
  */
-#define BUTTON_PIU 3  // D4, digital pin used to read the button state
-#define BUTTON_MENO 2 // D3, digital pin used to read the button state
-#define BUTTON_OK 1
+#define BUTTON_PIU 3  // D3, digital pin used to read the button state
+#define BUTTON_MENO 2 // D2, digital pin used to read the button state
+#define BUTTON_OK 1 // D1, digital pin used to read the button state
 #define BUZZER_GROVE 0  // D0, digital pin used to drive the buzzer
 #define TEMP A0 // A0, analog pin used to read the temperature
 #define LIGHT A1 // 1, analog pin used to read the light
-#define LED 4 // D4, digital pin used for the led
+#define LED_GROVE 4   // D4, digital pin used to drive the LED
 
-#define PIU 3
-#define MENO 2
-#define OK 1
-#define NO_OP 0
+#define PIU 3 // Action when button piu is pressed
+#define MENO 2 // Action when button meno is pressed
+#define OK 1 // Action when button ok is pressed
+#define NO_OP 0 // Action when no button is pressed
 #define NUMBER_OF_SCREENS 3
 #define B 4275  // B-constant of the thermistor
 #define R0 100000 // R0 = 100KOhm
+
+#define LIGHT_STATUS_OFF 0
+#define LIGHT_STATUS_ON 1
+
+#define LIGHT_CONFIG_OFF 0
+#define LIGHT_CONFIG_ON 1
+#define LIGHT_CONFIG_AUTO 2
+#define NUMBER_OF_LIGHT_CONFIGS 3
+
 #include "rgb_lcd.h"
 
 rgb_lcd lcd;
 int screen = 0;
 boolean navigationMode = true;
+int lightStatus = LIGHT_STATUS_OFF;
+int lightConfig = LIGHT_CONFIG_OFF;
+int displayRow = 0;
 
 void setup()
 {
@@ -118,17 +130,23 @@ void loop()
           {
             case MENO:
               {
-
+                if (displayRow == 0)
+                  lightConfig = (NUMBER_OF_LIGHT_CONFIGS + lightConfig - 1) % NUMBER_OF_LIGHT_CONFIGS;
                 break;
               }
             case PIU:
               {
-
+                if (displayRow == 0)
+                  lightConfig = (lightConfig + 1) % NUMBER_OF_LIGHT_CONFIGS;
                 break;
               }
             case OK:
               {
-                navigationMode = true;
+                displayRow = (displayRow + 1) % 2;
+            
+                if (displayRow == 0)
+                  navigationMode = true;
+                
                 break;
               }
           }
@@ -196,6 +214,11 @@ void navigate(int pressedButton)
 
 void updateScreen()
 {
+  if (navigationMode) {
+    lcd.setRGB(50,50,50);
+  } else {
+    lcd.setRGB(255,255,255);
+  }
   switch (screen)
   {
     case 0:
@@ -215,8 +238,25 @@ void updateScreen()
     case 2:
       {
         Serial.println("Schermata 2");
+        char lightScreenRows[2][16] = {"Light: ", "Level: 100"};
+        
+        if (lightConfig == LIGHT_CONFIG_AUTO) {
+          strcat(lightScreenRows[0], lightStatus == LIGHT_STATUS_ON ? "AUTO-ON" : "AUTO-OFF");
+        } else {
+          strcat(lightScreenRows[0], lightConfig == LIGHT_CONFIG_ON ? "ON" : "OFF");
+        }
         lcd.clear();  // clear text
-        lcd.print("Schermata 2"); // show text
+        lcd.setCursor(0,0);
+        lcd.print(lightScreenRows[0]); // show text
+        lcd.setCursor(0,1);
+        lcd.print(lightScreenRows[1]); // show text
+        
+        if (!navigationMode) {
+          lcd.setCursor(15, displayRow);
+          lcd.blink();
+        } else {
+          lcd.noBlink();
+        }
         break;
       }
   }
