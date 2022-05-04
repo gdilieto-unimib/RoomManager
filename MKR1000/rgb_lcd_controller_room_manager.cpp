@@ -52,7 +52,7 @@ void updateInfoScreenRows(int temp, int light, int wifi) {
 }
 
 void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold) {
-  char tempScreenRows[2][16] = {"Temp: ", "Level: %d"};
+  char tempScreenRows[2][16] = {"Temp: ", ""};
   
   if (tempConfig == CONFIG_AUTO) {
     strcat(tempScreenRows[0], tempStatus == STATUS_ON ? "AUTO +" : tempStatus == STATUS_OFF ? "AUTO -" : "AUTO x");
@@ -60,13 +60,13 @@ void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThre
     strcat(tempScreenRows[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
   }
   
-  sprintf(tempScreenRows[1], tempScreenRows[1], tempActivationThreshold);
-
+  sprintf(tempScreenRows[1], "Level: %d", tempActivationThreshold);
+  
   updateScreenRowsText(tempScreenRows);
 }
 
 void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivationThreshold) {
-  char lightScreenRows[2][16] = {"Light: ", "Level: %d"};
+  char lightScreenRows[2][16] = {"Light: ", ""};
         
   if (lightConfig == CONFIG_AUTO) {
     strcat(lightScreenRows[0], lightStatus == STATUS_ON ? "AUTO ON" : "AUTO OFF");
@@ -74,7 +74,7 @@ void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivation
     strcat(lightScreenRows[0], lightConfig == CONFIG_ON ? "ON" : "OFF");
   }
   
-  sprintf(lightScreenRows[1], lightScreenRows[1], lightActivationThreshold);
+  sprintf(lightScreenRows[1], "Level: %d", lightActivationThreshold);
   
   updateScreenRowsText(lightScreenRows);
 }
