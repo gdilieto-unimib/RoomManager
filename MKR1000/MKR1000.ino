@@ -26,37 +26,24 @@
  *     - Nominal B-Constant -> 4250 ~ 4299K
  *
  */
-#define BUTTON_PIU 3  // D3, digital pin used to read the button state
-#define BUTTON_MENO 2 // D2, digital pin used to read the button state
-#define BUTTON_OK 1 // D1, digital pin used to read the button state
-#define BUZZER_GROVE 0  // D0, digital pin used to drive the buzzer
-#define TEMP A0 // A0, analog pin used to read the temperature
-#define PHOTORESISTOR A1 // A1, analog pin used to read the light
-#define LED 4 // D4, digital pin used for the led
 
-#define PIU 3 // Action when button piu is pressed
-#define MENO 2 // Action when button meno is pressed
-#define OK 1 // Action when button ok is pressed
-#define NO_OP 0 // Action when no button is pressed
-#define NUMBER_OF_SCREENS 3
-#define B 4275  // B-constant of the thermistor
-#define R0 100000 // R0 = 100KOhm
+//#include "rgb_lcd.h"
+#include "macros_room_manager.h"
+#include "rgb_lcd_controller_room_manager.h"
+#include "navigation_controller_room_manager.h"
 
-#define LIGHT_STATUS_OFF 0
-#define LIGHT_STATUS_ON 1
-
-#define LIGHT_CONFIG_OFF 0
-#define LIGHT_CONFIG_ON 1
-#define LIGHT_CONFIG_AUTO 2
-#define NUMBER_OF_LIGHT_CONFIGS 3
-
-#include "rgb_lcd.h"
-
-rgb_lcd lcd;
+//rgb_lcd lcd;
 int screen = 0;
 boolean navigationMode = true;
-int lightStatus = LIGHT_STATUS_OFF;
-int lightConfig = LIGHT_CONFIG_OFF;
+
+int lightStatus = STATUS_OFF;
+int lightConfig = CONFIG_OFF;
+int lightActivationThreshold = 0;
+
+int tempStatus = STATUS_OFF;
+int tempConfig = CONFIG_OFF;
+int tempActivationThreshold = 0;
+
 int displayRow = 0;
 int last_light=0;
 int last_temperature=0;
@@ -87,9 +74,8 @@ void setup()
   pinMode(BUTTON_OK, INPUT);
 
   // set up the LCD
-  lcd.begin(16, 2); // 16 cols, 2 rows
-  lcd.setRGB(255, 255, 255);
-
+  setupLcd();
+  
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
 
@@ -99,12 +85,10 @@ void loop()
 {
   int pressedButton = getPressedButton();
 
-  if (navigationMode)
-  {
+  if (navigationMode){
     navigate(pressedButton);
   }
-  else
-  {
+  else{
     switch (screen)
     {
 
@@ -114,17 +98,33 @@ void loop()
           {
             case MENO:
               {
-
+                if (displayRow == 0){
+                  tempConfig = (NUMBER_OF_CONFIGS + tempConfig - 1) % NUMBER_OF_CONFIGS;
+                } else{
+                  if (tempActivationThreshold>0){
+                    tempActivationThreshold-=1;
+                  }
+                }
                 break;
               }
             case PIU:
               {
-
+                if (displayRow == 0) {
+                  tempConfig = (tempConfig + 1) % NUMBER_OF_CONFIGS;
+                } else {
+                  if (tempActivationThreshold<40){
+                    tempActivationThreshold+=1;
+                  }
+                }
                 break;
               }
             case OK:
               {
-                navigationMode = true;
+                displayRow = (displayRow + 1) % 2;
+            
+                if (displayRow == 0){
+                  navigationMode = true;
+                }
                 break;
               }
           }
@@ -137,14 +137,24 @@ void loop()
           {
             case MENO:
               {
-                if (displayRow == 0)
-                  lightConfig = (NUMBER_OF_LIGHT_CONFIGS + lightConfig - 1) % NUMBER_OF_LIGHT_CONFIGS;
+                if (displayRow == 0){
+                  lightConfig = (NUMBER_OF_CONFIGS + lightConfig - 1) % NUMBER_OF_CONFIGS;
+                } else{
+                  if (lightActivationThreshold>0){
+                    lightActivationThreshold-=10;
+                  }
+                }
                 break;
               }
             case PIU:
               {
-                if (displayRow == 0)
-                  lightConfig = (lightConfig + 1) % NUMBER_OF_LIGHT_CONFIGS;
+                if (displayRow == 0){
+                  lightConfig = (lightConfig + 1) % NUMBER_OF_CONFIGS;
+                } else{
+                  if (lightActivationThreshold<1000){
+                    lightActivationThreshold+=10;
+                  }
+                }
                 break;
               }
             case OK:
@@ -180,54 +190,44 @@ int getPressedButton()
   byte val_PIU = digitalRead(BUTTON_PIU); // read the button state
   byte val_OK = digitalRead(BUTTON_OK); // read the button state
 
-  if (val_MENO == HIGH)
-  {
+  if (val_MENO == HIGH){
     Serial.print("Bottone premuto1");
     delay(250);
     return MENO;
   }
-  else if (val_PIU == HIGH)
-  {
+  else if (val_PIU == HIGH){
     Serial.print("Bottone premuto2");
     delay(250);
     return PIU;
   }
-  else if (val_OK == HIGH)
-  {
+  else if (val_OK == HIGH){
     Serial.print("Bottone premuto3");
     delay(250);
     return OK;
   }
-  else
-  {
+  else{
     return NO_OP;
   }
 }
 
 void navigate(int pressedButton)
 {
-  switch (pressedButton)
-  {
-    case MENO:
-      {
+  switch (pressedButton){
+    case MENO:{
         screen = (NUMBER_OF_SCREENS + screen - 1) % NUMBER_OF_SCREENS;
         break;
       }
-    case PIU:
-      {
+    case PIU:{
         screen = (screen + 1) % NUMBER_OF_SCREENS;
         break;
       }
-    case OK:
-      {
+    case OK:{
         if (screen != 0)
           navigationMode = false;
         break;
       }
   }
 }
-
-
 
 int getTemperature(){
   int a = analogRead(TEMP);
@@ -239,23 +239,15 @@ int getTemperature(){
   return (int)temperature;
 }
 
-
 int getLight(){
   return analogRead(PHOTORESISTOR);
 }
 
-
 void updateScreen()
 {
-  if (navigationMode) {
-    lcd.setRGB(50,50,50);
-  } else {
-    lcd.setRGB(255,255,255);
-  }
-  switch (screen)
-  {
-    case 0:
-      {
+  setNavigationMode(navigationMode);
+  switch (screen){
+    case 0:{
         
         
         if(getTemperature()>30){
@@ -297,37 +289,17 @@ void updateScreen()
         lcd.print("LIGHT: "); // show text
         lcd.print(getLight());
 
+        
         break;
       }
-    case 1:
-      {
-        Serial.println("Schermata 1");
-        lcd.clear();  // clear text
-        lcd.print("Schermata 1"); // show text
+    case 1:{
+        updateTempScreenRows(tempStatus, tempConfig, tempActivationThreshold);
+        updateScreenCursor(!navigationMode, displayRow);
         break;
       }
-    case 2:
-      {
-        Serial.println("Schermata 2");
-        char lightScreenRows[2][16] = {"Light: ", "Level: 100"};
-        
-        if (lightConfig == LIGHT_CONFIG_AUTO) {
-          strcat(lightScreenRows[0], lightStatus == LIGHT_STATUS_ON ? "AUTO-ON" : "AUTO-OFF");
-        } else {
-          strcat(lightScreenRows[0], lightConfig == LIGHT_CONFIG_ON ? "ON" : "OFF");
-        }
-        lcd.clear();  // clear text
-        lcd.setCursor(0,0);
-        lcd.print(lightScreenRows[0]); // show text
-        lcd.setCursor(0,1);
-        lcd.print(lightScreenRows[1]); // show text
-        
-        if (!navigationMode) {
-          lcd.setCursor(15, displayRow);
-          lcd.blink();
-        } else {
-          lcd.noBlink();
-        }
+    case 2:{        
+        updateLightScreenRows(lightStatus, lightConfig, lightActivationThreshold);
+        updateScreenCursor(!navigationMode, displayRow);
         break;
       }
   }
