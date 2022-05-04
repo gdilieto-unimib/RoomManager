@@ -31,7 +31,7 @@
 #define BUTTON_OK 1
 #define BUZZER_GROVE 0  // D0, digital pin used to drive the buzzer
 #define TEMP A0 // A0, analog pin used to read the temperature
-#define LIGHT A1 // 1, analog pin used to read the light
+#define PHOTORESISTOR A1 // 1, analog pin used to read the light
 #define LED 4 // D4, digital pin used for the led
 
 #define PIU 3
@@ -46,6 +46,12 @@
 rgb_lcd lcd;
 int screen = 0;
 boolean navigationMode = true;
+int last_light=0;
+int last_temperature=0;
+boolean too_hot_alarm=false;
+boolean too_cold_alarm=false;
+
+
 
 void setup()
 {
@@ -54,6 +60,9 @@ void setup()
 
   // turn buzzer off
   digitalWrite(BUZZER_GROVE, LOW);
+
+   // set Light sensor pin as input
+  pinMode(PHOTORESISTOR, INPUT);
 
   // set pin as input
   pinMode(TEMP, INPUT);
@@ -137,31 +146,39 @@ void loop()
     }
   }
 
-  if (pressedButton != NO_OP)
+  
+  //controllo se i valori sono cambiati
+  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight()+110 < (int)last_light || (int)getLight()-110 > (int)last_light)
   {
     updateScreen();
+    last_temperature=(int)getTemperature();
+    last_light=(int)getLight();
   }
+  
 }
 
 int getPressedButton()
 {
-
+  
   byte val_MENO = digitalRead(BUTTON_MENO); // read the button state
   byte val_PIU = digitalRead(BUTTON_PIU); // read the button state
   byte val_OK = digitalRead(BUTTON_OK); // read the button state
 
   if (val_MENO == HIGH)
   {
+    Serial.print("Bottone premuto1");
     delay(250);
     return MENO;
   }
   else if (val_PIU == HIGH)
   {
+    Serial.print("Bottone premuto2");
     delay(250);
     return PIU;
   }
   else if (val_OK == HIGH)
   {
+    Serial.print("Bottone premuto3");
     delay(250);
     return OK;
   }
@@ -194,15 +211,72 @@ void navigate(int pressedButton)
   }
 }
 
+
+
+int getTemperature(){
+  int a = analogRead(TEMP);
+
+  float R = 1023.0 / ((float)a) - 1.0;
+  R = R0 * R;
+  float temperature = 1.0 / (log(R / 100000.0) / B + 1 / 298.15);
+  temperature = temperature - 273.15;   // kelvin to celsius
+  return (int)temperature;
+}
+
+
+int getLight(){
+  return analogRead(PHOTORESISTOR);
+}
+
+
 void updateScreen()
 {
+  Serial.print(screen);
   switch (screen)
   {
     case 0:
       {
-        Serial.println("Schermata 0");
+        
+        
+        if(getTemperature()>30){
+          too_hot_alarm=true;
+        }else{
+          too_hot_alarm=false;
+        }
+        if(too_hot_alarm==false){
+          lcd.setRGB(0, 255, 0);
+        }else{
+          lcd.setRGB(255, 0, 0);
+        }
+
+
+
+        if(getTemperature()<25){
+          too_cold_alarm=true;
+        }else{
+          too_cold_alarm=false;
+        }
+        if(too_cold_alarm==false){
+          lcd.setRGB(0, 255, 0);
+        }else{
+          lcd.setRGB(0, 0, 255);
+        }
+
+        if(too_cold_alarm==true || too_hot_alarm==true){
+          igitalWrite(BUZZER_GROVE, HIGH);
+        }else{
+          igitalWrite(BUZZER_GROVE, LOW);
+        }
+
+        
+        
         lcd.clear();  // clear text
-        lcd.print("Schermata 0"); // show text
+        lcd.print("TEMP: "); // show text
+        lcd.print(getTemperature());
+        lcd.setCursor(0, 1);
+        lcd.print("LIGHT: "); // show text
+        lcd.print(getLight());
+
         break;
       }
     case 1:
