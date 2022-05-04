@@ -32,6 +32,7 @@
 #define BUZZER_GROVE 0  // D0, digital pin used to drive the buzzer
 #define TEMP A0 // A0, analog pin used to read the temperature
 #define LIGHT A1 // 1, analog pin used to read the light
+#define LED 4 // D4, digital pin used for the led
 
 #define PIU 3
 #define MENO 2
