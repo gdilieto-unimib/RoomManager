@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'home',
+    selector: 'app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-    constructor() {
-        
+    onToggle(toggle: boolean){
+        //drawer.toggle(event)
+        console.log("CAO"+toggle)
     }
 }
