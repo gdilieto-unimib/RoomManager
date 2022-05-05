@@ -13,11 +13,13 @@ import { RoomComponent } from "./home-component/rooms-component/room-component/r
 import { RoomsComponent } from "./home-component/rooms-component/rooms.component";
 import { SensorComponent } from "./home-component/rooms-component/room-component/sensors-component/sensor-component/sensor.component";
 import { SensorsComponent } from "./home-component/rooms-component/room-component/sensors-component/sensors.component";
+import { SidenavComponent } from "./home-component/sidenav-component/sidenav.component";
 
 @NgModule({
     declarations: [
       HomeComponent,
       NavbarComponent,
+      SidenavComponent,
       RoomsComponent,
       RoomComponent,
       SensorsComponent,
