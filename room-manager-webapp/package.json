@@ -1,0 +1,29 @@
+{
+  "name": "room-manager-webapp",
+  "version": "0.0.1",
+  "description": "Room manager server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd ./room-manager-gui && ng build && cd .. && node index.js",
+    "watch-gui": "cd ./room-manager-gui && npm run watch",
+    "watch-api": "nodemon index.js",
+    "watch": "npm-run-all -p watch-api watch-gui",
+    "install-all": "npm install && cd ./room-manager-gui && npm install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gdilieto-unimib/RoomManager.git"
+  },
+  "author": "Gabriele Di Lieto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gdilieto-unimib/RoomManager/issues"
+  },
+  "homepage": "https://github.com/gdilieto-unimib/RoomManager#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.16",
+    "npm-run-all": "^4.1.5"
+  }
+}
