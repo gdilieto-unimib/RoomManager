@@ -1,0 +1,8 @@
+<h1 mat-dialog-title>Delete room</h1>
+<div mat-dialog-content>
+  <p>Do you want to remove <b>{{room.name}}</b>?</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onConfirmClick()">Confirm</button>
+  <button mat-raised-button color="accent" (click)="onCancelClick()">Cancel</button>
+</div>

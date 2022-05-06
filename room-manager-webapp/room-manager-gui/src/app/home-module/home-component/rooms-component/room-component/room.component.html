@@ -1,5 +1,17 @@
-<div>
-    <span>{{room.name}}</span>
-    <span>{{room.ip}}</span>
-    <app-sensors [sensors]='room.sensors'></app-sensors>
-</div>
+<mat-card class="room">
+    <mat-toolbar color="primary">
+        <span class="room-name">{{room.name}}</span>
+        <button mat-icon-button (click)="editRoom()">
+            <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteRoom()">
+            <mat-icon>delete</mat-icon>
+        </button>
+    </mat-toolbar>
+    <mat-card>
+        <mat-label>IPv4:</mat-label> {{room.ip}}  
+    </mat-card>
+    <div>
+        <app-sensors [sensors]='room.sensors'></app-sensors>
+    </div> 
+</mat-card>

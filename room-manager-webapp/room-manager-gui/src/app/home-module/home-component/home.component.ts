@@ -6,8 +6,4 @@ import { Component } from '@angular/core';
     styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-    onToggle(toggle: boolean){
-        //drawer.toggle(event)
-        console.log("CAO"+toggle)
-    }
 }

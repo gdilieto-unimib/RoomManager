@@ -10,6 +10,5 @@ export class SensorsComponent{
     @Input() sensors: Sensor[] = []
 
     constructor() {
-        console.log(this.sensors)
     }
 }

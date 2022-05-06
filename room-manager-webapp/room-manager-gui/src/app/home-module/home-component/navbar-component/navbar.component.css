@@ -6,6 +6,10 @@
     height: 100%;
 }
 
+.home-title {
+    font-size: large !important;
+}
+
 .menu-icon {
     position:absolute;
     right:0;

@@ -1,6 +1,10 @@
-<ul>
-    <li *ngFor="let room of rooms" >
-        <app-room [room]="room"></app-room>    
-    </li>
-</ul>
+<div class="container">
+    <app-room (editedRoom)="onEditedRoom($event)" (deletedRoom)="onDeletedRoom($event)" class="room" *ngFor="let room of rooms" [room]="room"></app-room>
+    <mat-card class="room add-room">
+        <button mat-fab color="accent" aria-label="create-room" (click)="onCreateClick()">
+            +
+        </button>
+    </mat-card>
+    <div *ngFor="let i of [1,2,3];" class="empty-div"></div>
+</div>
     
