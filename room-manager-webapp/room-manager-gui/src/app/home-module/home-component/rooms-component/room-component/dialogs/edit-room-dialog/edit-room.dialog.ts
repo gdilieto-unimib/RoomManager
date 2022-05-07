@@ -4,6 +4,7 @@ import { defaultRoom, Room } from "../../models/room.model";
 import { Form } from "src/app/shared-module/classes/form.class";
 import { RoomForm } from "../../../form/room-form.class";
 import { FormBuilder } from "@angular/forms";
+import { SensorType } from "../../sensors-component/sensor-component/models/sensor.model";
 
 export interface EditRoomDialogData {
   room: Room
@@ -16,8 +17,10 @@ export interface EditRoomDialogData {
 })
 export class EditRoomDialog {
 
-  room: Room = defaultRoom 
-  form: Form<Room> = new RoomForm(this.formBuilder)
+  room: Room = defaultRoom
+  form: Form<Room> = new RoomForm(this.formBuilder) 
+  hide: boolean = true
+  typesOfSensors : SensorType[] = Object.values(SensorType);
 
   constructor(
     public dialogRef: MatDialogRef<EditRoomDialog>,

@@ -1,4 +1,4 @@
-enum SensorType {
+export enum SensorType {
     Temperature = 'Temperature',
     Light = 'Light',
     Wifi = 'Wifi'
@@ -6,8 +6,8 @@ enum SensorType {
 
 export interface Sensor{
     type?: SensorType,
-    name: string,
-    measure: string
+    name?: string,
+    measure?: string
 }
 
 export const defaultSensor: Sensor = {

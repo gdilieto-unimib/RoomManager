@@ -3,12 +3,15 @@ import { Sensor } from "../sensors-component/sensor-component/models/sensor.mode
 export interface Room{
     id?: number,
     name: string,
-    ip: string,
+    ipv4: string,
+    connected?: boolean,
+    ssid?: string,
+    password?: string,
     sensors: Sensor[]
 }
 
 export const defaultRoom : Room = {
     name: "",
-    ip: "",
+    ipv4: "",
     sensors: []
 }

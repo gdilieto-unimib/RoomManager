@@ -12,6 +12,11 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatListModule } from '@angular/material/list';
 
 import { HomeRoutingModule } from "./home-routing.module";
 
@@ -25,6 +30,7 @@ import { SidenavComponent } from "./home-component/sidenav-component/sidenav.com
 import { EditRoomDialog } from "./home-component/rooms-component/room-component/dialogs/edit-room-dialog/edit-room.dialog";
 import { DeleteRoomDialog } from "./home-component/rooms-component/room-component/dialogs/delete-room-dialog/delete-room.dialog";
 import { CreateRoomDialog } from "./home-component/rooms-component/room-component/dialogs/create-room-dialog copy/create-room.dialog";
+import { SensorIconPipe } from "./home-component/rooms-component/room-component/sensors-component/sensor-component/pipes/sensor-icon.pipe";
 
 @NgModule({
     declarations: [
@@ -38,6 +44,7 @@ import { CreateRoomDialog } from "./home-component/rooms-component/room-componen
       CreateRoomDialog,
       EditRoomDialog,
       DeleteRoomDialog,
+      SensorIconPipe,
     ],
     imports: [
       CommonModule,
@@ -53,6 +60,11 @@ import { CreateRoomDialog } from "./home-component/rooms-component/room-componen
       MatDialogModule,
       MatFormFieldModule,
       MatInputModule,
+      MatButtonToggleModule,
+      MatSlideToggleModule,
+      MatProgressBarModule,
+      MatStepperModule,
+      MatListModule,
     ],
     providers: []
   })

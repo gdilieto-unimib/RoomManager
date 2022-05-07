@@ -5,10 +5,19 @@
     border: 2px ridge mat-color($primaryPalette);
     border-radius: 12px;
     margin: 11% 0 0 0;
-    width: 300px;
+    min-width: 300px;
     height: 200px;
 }
 
 .room-name {
     width: 200px;
+    margin-right: 2%;
+}
+
+.wifi-red-button {
+    color: red;
+}
+
+.wifi-green-button {
+    color: lime;
 }

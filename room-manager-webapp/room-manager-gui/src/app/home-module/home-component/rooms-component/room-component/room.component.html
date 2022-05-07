@@ -1,15 +1,21 @@
 <mat-card class="room">
+    <mat-progress-bar [mode]="isConnecting?'indeterminate':'determinate'" value="100"></mat-progress-bar>
+    
     <mat-toolbar color="primary">
         <span class="room-name">{{room.name}}</span>
-        <button mat-icon-button (click)="editRoom()">
+        <button mat-icon-button (click)="toggleWifi()" [disabled]="isConnecting">
+            <mat-icon [class]="isConnecting ? '' : room.connected ? 'wifi-green-button' : 'wifi-red-button'">{{room.connected ? 'wifi' : 'wifi_off'}}</mat-icon>
+        </button>
+        <button mat-icon-button (click)="editRoom()" [disabled]="!room.connected || isConnecting">
             <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="deleteRoom()">
+        <button mat-icon-button (click)="deleteRoom()" [disabled]="!room.connected || isConnecting">
             <mat-icon>delete</mat-icon>
         </button>
     </mat-toolbar>
+
     <mat-card>
-        <mat-label>IPv4:</mat-label> {{room.ip}}  
+        <mat-label>IPv4:</mat-label> {{room.ipv4}}  
     </mat-card>
     <div>
         <app-sensors [sensors]='room.sensors'></app-sensors>

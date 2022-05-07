@@ -14,7 +14,18 @@ export class RoomComponent{
     @Output() editedRoom: EventEmitter<Room> = new EventEmitter()
     @Output() deletedRoom: EventEmitter<Room> = new EventEmitter()
     
+    isConnecting = false;
+
     constructor(public dialog: MatDialog) {}
+
+    toggleWifi(): void {
+        this.isConnecting = true
+        if (this.room.connected) {
+            setTimeout(()=>{ this.room.connected = false, this.isConnecting = false }, 4000) 
+        } else {
+            setTimeout(()=>{ this.room.connected = true, this.isConnecting = false }, 4000)   
+        }
+    }
 
     editRoom(): void {
         const dialogRef = this.dialog.open(EditRoomDialog, {
