@@ -6,10 +6,10 @@
         <button mat-icon-button (click)="toggleWifi()" [disabled]="isConnecting">
             <mat-icon [class]="isConnecting ? '' : room.connected ? 'wifi-green-button' : 'wifi-red-button'">{{room.connected ? 'wifi' : 'wifi_off'}}</mat-icon>
         </button>
-        <button mat-icon-button (click)="editRoom()" [disabled]="!room.connected || isConnecting">
+        <button mat-icon-button (click)="editRoom()">
             <mat-icon>edit</mat-icon>
         </button>
-        <button mat-icon-button (click)="deleteRoom()" [disabled]="!room.connected || isConnecting">
+        <button mat-icon-button (click)="deleteRoom()">
             <mat-icon>delete</mat-icon>
         </button>
     </mat-toolbar>

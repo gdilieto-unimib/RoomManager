@@ -8,4 +8,13 @@ import { defaultSensor, Sensor } from "./models/sensor.model";
 })
 export class SensorComponent{
     @Input() sensor: Sensor = defaultSensor
+
+    toggleAuto() {
+        this.sensor.auto = !this.sensor.auto
+    }
+
+    toggleActive() {
+        this.sensor.active = !this.sensor.active
+    }
+
 }

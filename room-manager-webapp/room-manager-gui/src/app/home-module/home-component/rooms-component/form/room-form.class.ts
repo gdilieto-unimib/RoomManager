@@ -10,7 +10,7 @@ export class RoomForm extends Form<Room>{
         this.form.addControl('connected', new FormControl(room.connected))
         this.form.addControl('ssid', new FormControl(room.ssid))
         this.form.addControl('password', new FormControl(room.password))
-        this.form.addControl('sensors', new FormControl([]))
+        this.form.addControl('sensors', new FormControl(room.sensors))
         //this.form.addControl('sensors', this.formBuilder.array(room.sensors))
 
         return this.form

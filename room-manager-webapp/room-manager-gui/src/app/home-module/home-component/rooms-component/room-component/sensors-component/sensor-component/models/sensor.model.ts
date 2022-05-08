@@ -1,3 +1,5 @@
+import { Measure } from "./measure.model"
+
 export enum SensorType {
     Temperature = 'Temperature',
     Light = 'Light',
@@ -5,12 +7,16 @@ export enum SensorType {
 }
 
 export interface Sensor{
+    id?: number,
     type?: SensorType,
-    name?: string,
-    measure?: string
+    name: string,
+    measure?: Measure,
+    auto: boolean,
+    active: boolean
 }
 
 export const defaultSensor: Sensor = {
-    name: "", 
-    measure:"N.A."
+    name: "",
+    auto: false,
+    active: false
 }

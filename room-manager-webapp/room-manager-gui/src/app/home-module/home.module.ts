@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,6 +32,7 @@ import { EditRoomDialog } from "./home-component/rooms-component/room-component/
 import { DeleteRoomDialog } from "./home-component/rooms-component/room-component/dialogs/delete-room-dialog/delete-room.dialog";
 import { CreateRoomDialog } from "./home-component/rooms-component/room-component/dialogs/create-room-dialog copy/create-room.dialog";
 import { SensorIconPipe } from "./home-component/rooms-component/room-component/sensors-component/sensor-component/pipes/sensor-icon.pipe";
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
     declarations: [
@@ -49,6 +51,8 @@ import { SensorIconPipe } from "./home-component/rooms-component/room-component/
     imports: [
       CommonModule,
       ReactiveFormsModule,
+      FormsModule,
+      HttpClientModule,
       HomeRoutingModule,
       MatToolbarModule,
       MatIconModule,

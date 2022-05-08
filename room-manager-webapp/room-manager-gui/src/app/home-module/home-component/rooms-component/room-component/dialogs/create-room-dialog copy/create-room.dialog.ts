@@ -4,7 +4,7 @@ import { defaultRoom, Room } from "../../models/room.model";
 import { Form } from "src/app/shared-module/classes/form.class";
 import { RoomForm } from "../../../form/room-form.class";
 import { FormBuilder } from "@angular/forms";
-import { Sensor, SensorType } from "../../sensors-component/sensor-component/models/sensor.model";
+import { defaultSensor, Sensor, SensorType } from "../../sensors-component/sensor-component/models/sensor.model";
 
 export interface CreateRoomDialogData {
 }
@@ -30,9 +30,11 @@ export class CreateRoomDialog {
   }
 
   getSensor(sensorType: SensorType): Sensor {
-    return {
+    let sensor = this.room.sensors.find(sensor => sensor.type == sensorType)
+    return sensor ? sensor : {
+      ...defaultSensor,
       type: sensorType,
-      name: sensorType.toString()
+      name: sensorType.toString(),
     }
   }
 

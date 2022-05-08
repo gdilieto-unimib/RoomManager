@@ -11,16 +11,17 @@
             <input matInput formControlName="name" required>
           </mat-form-field>
         </div>
+      </mat-step>
+
+      <mat-step>
+        <ng-template matStepLabel>Connection</ng-template>
         <div>
           <mat-form-field appearance="fill">
             <mat-label>IPv4</mat-label>
             <input matInput formControlName="ipv4" required>
           </mat-form-field>
         </div>
-      </mat-step>
-
-      <mat-step>
-        <ng-template matStepLabel>Connection</ng-template>
+        <!--
         <div>
           <mat-form-field appearance="fill">
             <mat-label>SSID</mat-label>
@@ -36,6 +37,7 @@
             </button>
           </mat-form-field>
         </div>
+        -->
         <button mat-raised-button color="primary" [disabled]="">Test Connection</button>
       </mat-step>
       

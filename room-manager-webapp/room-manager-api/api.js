@@ -1,8 +1,7 @@
 const express = require('express')
 router = express.Router()
 
-router.get('/', (req, res)=>{
-    res.send('CIAO')
-})
+router.use('/rooms', require('./rooms'))
+router.use('/sensors', require('./sensors'))
 
 module.exports = router

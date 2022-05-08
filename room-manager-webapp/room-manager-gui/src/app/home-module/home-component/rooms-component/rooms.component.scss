@@ -5,9 +5,9 @@
     height: 100%;
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
     align-content: space-around;
     justify-content: space-around;
-    row-gap: 20px;
 }
 
 .room {
@@ -16,11 +16,11 @@
     justify-content: center;
     margin: 4% 2% 4% 2%;
     min-width: 300px;
-    height: 200px;
+    min-height: 200px;
 }
 
 .add-room {
-    min-width: 300px;
+    align-self: center
 }
 
 .empty-div {

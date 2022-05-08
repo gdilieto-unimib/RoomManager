@@ -11,16 +11,17 @@
             <input matInput formControlName="name" required>
           </mat-form-field>
         </div>
+      </mat-step>
+
+      <mat-step>
+        <ng-template matStepLabel>Connection</ng-template>
         <div>
           <mat-form-field appearance="fill">
             <mat-label>IPv4</mat-label>
             <input matInput formControlName="ipv4" required>
           </mat-form-field>
         </div>
-      </mat-step>
-
-      <mat-step>
-        <ng-template matStepLabel>Connection</ng-template>
+        <!--
         <div>
           <mat-form-field appearance="fill">
             <mat-label>SSID</mat-label>
@@ -36,13 +37,14 @@
             </button>
           </mat-form-field>
         </div>
+        -->
         <button mat-raised-button color="primary">Test Connection</button>
       </mat-step>
       
       <mat-step>
         <ng-template matStepLabel>Sensors</ng-template>
-        <mat-button-toggle-group name="sensors" aria-label="Sensors" multiple>
-          <mat-button-toggle *ngFor="let sensorType of typesOfSensors;" value="sensorType"><mat-icon>{{sensorType | sensorIcon}}</mat-icon></mat-button-toggle>
+        <mat-button-toggle-group name="sensors" aria-label="Sensors" formControlName="sensors" multiple>
+          <mat-button-toggle *ngFor="let sensorType of typesOfSensors;" [value]="getSensor(sensorType)"><mat-icon>{{sensorType | sensorIcon}}</mat-icon></mat-button-toggle>
         </mat-button-toggle-group>
       </mat-step>
 
