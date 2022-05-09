@@ -44,9 +44,34 @@ boolean setupConfig(int* roomId, int sensorsId[]) {
   Serial.println(query); 
   // execute the query 
   cur_mem->execute(query); 
-  // Note: since there are no results, we do not need to read any data 
-  // deleting the cursor also frees up memory used 
-   
+  Serial.println("Query executed");
+
+  column_names *columns = cur_mem->get_columns();
+  
+  row_values *row = NULL;
+  
+  row = cur_mem->get_next_row();
+  *roomId = atoi(row->values[0]);
+    
+    /*do {
+        row = cur_mem->get_next_row();
+        
+        if (row != NULL) {
+            for (int f = 0; f < columns->num_fields; f++)
+            {
+                String batchnumber_str = "";
+                batchnumber_str = String(row->values[f]);
+                Serial.print("batchnumber_str: ");
+                Serial.println(batchnumber_str);
+                if (f < columns->num_fields - 1)
+                {
+                    Serial.print(',');
+                }
+            }
+            Serial.println();
+        }
+    } while (row != NULL);
+    */
   delete cur_mem; 
 
   return true;
