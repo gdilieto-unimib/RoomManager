@@ -2,9 +2,6 @@
 #include "rgb_lcd.h"
 rgb_lcd lcd;
 
-
-
-
 byte WifiIcon[] = {
   B01110,
   B11011,
@@ -30,9 +27,6 @@ byte NoWifiIcon[] = {
 
 void setupLcd() {
 
-
-
-  
   lcd.begin(16, 2); // 16 cols, 2 rows
   lcd.setRGB(255, 255, 255);
   lcd.createChar(0, WifiIcon);

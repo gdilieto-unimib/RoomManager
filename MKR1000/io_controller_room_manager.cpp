@@ -40,16 +40,45 @@ int getLight(){
   return analogRead(PHOTORESISTOR);
 }
 
-void updateLight(int* lightStatus, int lightActivationThreshold) {
+void setLight(int lightStatus) {
+  if (lightStatus==STATUS_ON){
+    digitalWrite(LED, HIGH);
+  }else{
+    digitalWrite(LED, LOW);
+  }
+}
+
+void updateLight(int lightConfig, int* lightStatus, int lightActivationThreshold) {
   
   //Se la luce è sotto la treshold impostata, accendo la luce
-  if(getLight()<lightActivationThreshold){
-  
-    *lightStatus=STATUS_ON;
-  
-  }else{
-  
-    *lightStatus=STATUS_OFF;
-  
+  switch(lightConfig) {
+    case CONFIG_AUTO:{
+      if(getLight()<lightActivationThreshold){
+      
+        *lightStatus=STATUS_ON;
+      
+      }else{
+      
+        *lightStatus=STATUS_OFF;
+      
+      }
+
+      break;
+    }
+    case CONFIG_ON: {
+      *lightStatus = STATUS_ON;
+      break;
+    }
+    case CONFIG_OFF: {
+      *lightStatus = STATUS_OFF;
+      break;
+    }
   }
+
+  setLight(*lightStatus);
+  
+}
+
+void setBuzzerAlarm(boolean active) {
+  digitalWrite(BUZZER_GROVE, active ? HIGH : LOW);
 }

@@ -85,9 +85,9 @@ void loop()
   
   //controllo se i valori sono cambiati
   if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > (int)lastLight+100 || newLight < (int)lastLight-100){
-   
-    updateLight(&lightStatus, lightActivationThreshold);
-    updateScreen();
+
+    updateLight(lightConfig, &lightStatus, lightActivationThreshold);
+    updateScreen(newTemp, newLight);
     lastTemp=newTemp;
     lastLight=newLight;
     
@@ -142,40 +142,15 @@ void navigate(int pressedButton) {
 
 
 
-void updateScreen()
+void updateScreen(int temp, int light)
 {
   setNavigationMode(navigationMode);
   switch (screen){
     case 0:{
         
         boolean wifi = WiFi.status() == WL_CONNECTED;
-        int temp = getTemp();
-        int light = getLight();
-        
-        if(temp>30){
-          //too hot 
-                
-          setTooHotAlarm(true);
-          digitalWrite(BUZZER_GROVE, HIGH);
-          
-        } else if(temp<25){
-          //too cold         
-          setTooColdAlarm(true);
-          
-        } else {
-          
-          setTooHotAlarm(false);
-          setTooColdAlarm(false);
-          digitalWrite(BUZZER_GROVE, LOW);
-          
-        }
 
-        
-        if (lightStatus==STATUS_ON){
-          digitalWrite(LED, HIGH);
-        }else{
-          digitalWrite(LED, LOW);
-        }
+        setHotColdAlarm(temp);
         updateInfoScreenRows(temp, light, wifi);
 
         break;
@@ -194,5 +169,24 @@ void updateScreen()
         
         break;
       }
+  }
+}
+
+void setHotColdAlarm(int temp) {
+  if(temp>30){
+          
+    setTooHotAlarm(true);
+    setBuzzerAlarm(true);
+    
+  } else {
+    
+    setBuzzerAlarm(false);
+
+    if(temp<25) {
+      setTooColdAlarm(true);  
+    } else {
+      setTooColdAlarm(false);
+    }
+    
   }
 }

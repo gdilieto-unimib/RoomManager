@@ -10,6 +10,8 @@ int getLight();
 
 int getTemp();
 
-void updateLight(int* lightStatus, int lightActivationThreshold);
+void updateLight(int lightConfig, int* lightStatus, int lightActivationThreshold);
+
+void setBuzzerAlarm(boolean active);
 
 #endif
