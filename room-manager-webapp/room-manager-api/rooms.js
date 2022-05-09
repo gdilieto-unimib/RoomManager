@@ -82,13 +82,12 @@ router.post('/', (req, res)=>{
 })
 
 router.delete('/:roomId', (req, res)=>{
-    var room = req.body;
     var roomQuery = `DELETE FROM room WHERE room.id = ${req.params.roomId}` 
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
         }
-        res.send(room)
+        res.send(req.params.roomId)
     })
 })
 

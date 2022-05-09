@@ -1,6 +1,6 @@
 var mysql = require('mysql')
 
-var pool = mysql.createPool({
+var localPool = mysql.createPool({
     //connectionLimit: 1000,
     host: 'sql11.freemysqlhosting.net',
     port: 3306,
@@ -8,6 +8,17 @@ var pool = mysql.createPool({
     password: 'QbAhRVpYRU',
     database: 'sql11490846'
 })
+
+var labPool = mysql.createPool({
+    //connectionLimit: 1000,
+    host: '149.132.178.180',
+    port: 3306,
+    user: 'gdilieto',
+    password: 'iot874143',
+    database: 'gdilieto'
+})
+
+pool = labPool
 
 pool.getConnection((err, connection) => {
     if (err) {

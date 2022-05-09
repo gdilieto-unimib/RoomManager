@@ -66,8 +66,8 @@ export class RoomsComponent implements OnInit{
     
     deleteRoom(deletedRoom: Room) {
         this.roomsService.deleteRoom(deletedRoom).subscribe(
-            (deletedRoom: Room) => {
-                this.rooms.splice(this.rooms.findIndex(room => room.id == deletedRoom.id), 1)
+            (idDeletedRoom: number) => {
+                this.rooms.splice(this.rooms.findIndex(room => room.id == idDeletedRoom), 1)
             }
         )
     }
