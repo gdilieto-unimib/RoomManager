@@ -30,31 +30,8 @@
 #include "macros_room_manager.h"
 #include "rgb_lcd_controller_room_manager.h"
 #include "navigation_controller_room_manager.h"
+#include "wifi_controller_room_manager.h"
 
-#include <SPI.h>
-#include <WiFi101.h>
-#include <WiFiUdp.h>
-
-#include "secrets.h"
-
-// WiFi cfg
-char ssid[] = SECRET_SSID;   // your network SSID (name)
-char pass[] = SECRET_PASS;   // your network password
-#ifdef IP
-IPAddress ip(IP);
-IPAddress subnet(SUBNET);
-IPAddress dns(DNS);
-IPAddress gateway(GATEWAY);
-#endif
-WiFiClient client;
-
-// NTP cfg
-const char* ntpServerName = "time.nist.gov";   // it.pool.ntp.org";   // NTP server name
-const int NTP_PACKET_SIZE = 48;                // NTP time stamp is in the first 48 bytes of the message
-byte packetBuffer[NTP_PACKET_SIZE];            // buffer to hold I/O NTP packets
-IPAddress timeServerIP;                        // dynamically resolved IP of the NTP server
-WiFiUDP udp;                                   // UDP instance to send and receive packets
-unsigned int localPort = 2390; 
 
 int screen = 0;
 boolean navigationMode = true;
@@ -77,7 +54,10 @@ long time;
 void setup()
 {
   time=millis();
-  udp.begin(localPort);
+
+  setupWiFi();
+  setupLcd();
+  
   
   // set buzzer pin as output
   pinMode(BUZZER_GROVE, OUTPUT);
@@ -102,9 +82,6 @@ void setup()
 
     // set LED pin as output
   pinMode(LED, OUTPUT);
-
-  // set up the LCD
-  setupLcd();
   
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
@@ -118,14 +95,7 @@ void loop()
 
 
   // connect to WiFi (if not already connected)
-  if (millis()-time >10000 && WiFi.status() != WL_CONNECTED) {
-    time=millis();
-   
-    #ifdef IP
-    WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
-    #endif
-    WiFi.begin(ssid, pass);
-  }
+  if (millis()-time > 10000) { connect(); time = millis(); }
 
 
 
