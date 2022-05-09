@@ -2,9 +2,42 @@
 #include "rgb_lcd.h"
 rgb_lcd lcd;
 
+
+
+
+byte WifiIcon[] = {
+  B01110,
+  B11011,
+  B10001,
+  B00000,
+  B01110,
+  B01010,
+  B00000,
+  B00100
+};
+
+byte NoWifiIcon[] = {
+  B11011,
+  B11011,
+  B11011,
+  B01110,
+  B01110,
+  B11011,
+  B11011,
+  B11011
+};
+
+
 void setupLcd() {
+
+
+
+  
   lcd.begin(16, 2); // 16 cols, 2 rows
   lcd.setRGB(255, 255, 255);
+  lcd.createChar(0, WifiIcon);
+  lcd.createChar(1, NoWifiIcon);
+
 }
 
 void setNavigationMode(int active) {
@@ -44,10 +77,10 @@ void updateInfoScreenRows(int temp, int light, int wifi) {
         
       if(wifi){
         lcd.setCursor(10, 0);
-          lcd.print(" Wi-Fi");
+          lcd.print(0);
       }else{
         lcd.setCursor(10, 0);
-          lcd.print(" NO Wi-Fi");
+          lcd.print(1);
       }
 }
 
