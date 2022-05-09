@@ -2,6 +2,7 @@
 
 #define WIFI_CONTROLLER_ROOM_MANAGER
 #include <Arduino.h>
+#include "macros_room_manager.h"
 
 
 #include <SPI.h>
@@ -12,7 +13,8 @@
 
 
 
-boolean connect();
+void connectWifi();
+boolean isWifiConnected();
 void setupWiFi();
 
 #endif

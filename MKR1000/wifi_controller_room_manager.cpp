@@ -19,16 +19,17 @@ IPAddress timeServerIP;                        // dynamically resolved IP of the
 WiFiUDP udp;                                   // UDP instance to send and receive packets
 unsigned int localPort = 2390; 
 
-boolean connect(){
+void connectWifi(){
   if (WiFi.status() != WL_CONNECTED) {
    #ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
     #endif
     WiFi.begin(ssid, pass);
-
-    return false;
   }
-  return true;
+}
+
+boolean isWifiConnected() {
+  return (WiFi.status() == WL_CONNECTED);
 }
 
 void setupWiFi(){

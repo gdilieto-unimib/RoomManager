@@ -69,7 +69,7 @@ void loop()
 {
 
   // connect to WiFi (if not already connected)
-  if (millis()-time > 10000) { connect(); time = millis(); }
+  if (millis()-time > 10000) { connectWifi(); time = millis(); }
  
   int pressedButton = getPressedButton();
 
@@ -79,12 +79,11 @@ void loop()
     action(screen, pressedButton, &displayRow, &tempActivationThreshold, &lightActivationThreshold, &tempConfig, &lightConfig, &navigationMode);
   }
 
-
   int newTemp = getTemp();
   int newLight = getLight();
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > (int)lastLight+100 || newLight < (int)lastLight-100){
+  if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > lastLight+100 || newLight < lastLight-100){
 
     updateLight(lightConfig, &lightStatus, lightActivationThreshold);
     updateScreen(newTemp, newLight);
@@ -147,11 +146,9 @@ void updateScreen(int temp, int light)
   setNavigationMode(navigationMode);
   switch (screen){
     case 0:{
-        
-        boolean wifi = WiFi.status() == WL_CONNECTED;
-
+ 
         setHotColdAlarm(temp);
-        updateInfoScreenRows(temp, light, wifi);
+        updateInfoScreenRows(temp, light, isWifiConnected());
 
         break;
       }
