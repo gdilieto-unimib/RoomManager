@@ -62,19 +62,19 @@ void setTooColdAlarm(boolean active) {
 void updateInfoScreenRows(int temp, int light, int wifi) {
   
       lcd.clear();  // clear text
-      lcd.print("TEMP: "); // show temp
+      lcd.print("T: "); // show temp
       lcd.print(temp);
       lcd.setCursor(0, 1);
-      lcd.print("LIGHT: "); // show light
+      lcd.print("L: "); // show light
       lcd.print(light);
 
-        
+      lcd.setCursor(10, 0);
+      lcd.write((unsigned char)0);
+      
       if(wifi){
-        lcd.setCursor(10, 0);
-          lcd.print("Si");
+        lcd.print(": ON");
       }else{
-        lcd.setCursor(10, 0);
-          lcd.print("No");
+        lcd.print(": OFF");
       }
 }
 
@@ -82,7 +82,7 @@ void updateTempScreenRows(int temp, int tempConfig, int tempActivationThreshold)
   char tempScreenRows[2][16] = {"Temp: ", ""};
   
   if (tempConfig == CONFIG_ON) {
-    strcat(tempScreenRows[0], temp < tempActivationThreshold ? "ON ↑" : temp > tempActivationThreshold ? "ON ↓" : "ON -");
+    strcat(tempScreenRows[0], temp < tempActivationThreshold ? "ON +" : temp > tempActivationThreshold ? "ON -" : "ON =");
   } else {
     strcat(tempScreenRows[0], "OFF");
   }
