@@ -17,8 +17,8 @@
 #define NO_OP 0 // Action when no button is pressed
 
 #define INFO_SCREEN 0
-#define LIGHT_SCREEN 1
-#define TEMP_SCREEN 2
+#define TEMP_SCREEN 1
+#define LIGHT_SCREEN 2
 #define NUMBER_OF_SCREENS 3
 
 #define B 4275  // B-constant of the thermistor
