@@ -56,11 +56,9 @@ long time;
 void setup()
 {
   time=millis();
-
   setupWiFi();
   setupLcd();
   setupIO();
-  
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
 
@@ -71,7 +69,11 @@ void loop()
 
   // connect to WiFi (if not already connected)
   if (millis()-time > 10000) { connectWifi(); time = millis(); }
- 
+  if (isWifiConnected()){
+  setupSQL();
+  int id = 0;
+  setupConfig(&id);
+  }
   int pressedButton = getPressedButton();
 
   if (navigationMode){

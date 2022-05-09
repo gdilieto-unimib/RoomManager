@@ -35,3 +35,7 @@ boolean isWifiConnected() {
 void setupWiFi(){
   udp.begin(localPort);
 }
+
+WiFiClient * getClient(){
+  return &client;  
+  }
