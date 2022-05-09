@@ -50,6 +50,20 @@ void setTooHotAlarm(boolean active) {
   }
 }
 
+void LoadingScreen(boolean i){
+  if (i==false){
+    lcd.noBlink();
+    return;
+  }
+  lcd.clear();
+  lcd.setRGB(100, 0, 100);
+  lcd.print("Connecting to");
+        lcd.setCursor(0, 1);
+
+  lcd.print("mySQL");  
+  lcd.blink();
+}
+
 void setTooColdAlarm(boolean active) {
   if (!active){
      lcd.setRGB(50, 50, 50); 

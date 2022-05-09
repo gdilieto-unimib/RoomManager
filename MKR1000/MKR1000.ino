@@ -52,6 +52,7 @@ int lastLight=0;
 int lastTemp=0;
 boolean sqlOk = false;
 
+
 int roomId = -1;
 int sensorsId[3] = {-1, -1, -1};
 
@@ -66,6 +67,7 @@ void setup()
   setupIO();
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
+  LoadingScreen(true);
 
 }
 
@@ -73,9 +75,12 @@ void loop()
 {
 
   // connect to WiFi (if not already connected)
-  if (millis()-time > 10000) { connectWifi(); time = millis(); }  
+  if (millis()-time > 10000 || firstStart) { connectWifi(); time = millis(); firstStart=false; }  
   if (isWifiConnected() && sqlOk == false){
+    LoadingScreen(true);
     sqlOk = setupConfig(&roomId, sensorsId);
+    LoadingScreen(false);
+
   }
   int pressedButton = getPressedButton();
 

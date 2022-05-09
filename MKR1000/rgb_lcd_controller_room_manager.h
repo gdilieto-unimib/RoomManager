@@ -21,5 +21,7 @@ void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivation
 void updateScreenCursor(int active, int displayRow);
 
 void updateScreenRowsText(char screenRows[2][16]);
+void LoadingScreen(boolean i);
+
 
 #endif
