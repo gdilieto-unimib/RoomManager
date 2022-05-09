@@ -50,7 +50,9 @@ int tempActivationThreshold = 28;
 int displayRow = 0;
 int lastLight=0;
 int lastTemp=0;
+boolean sqlOk = false;
 
+boolean firstStart = true;
 long time;
 
 void setup()
@@ -68,7 +70,11 @@ void loop()
 {
 
   // connect to WiFi (if not already connected)
-  if (millis()-time > 10000) { connectWifi(); time = millis(); }
+  if (millis()-time > 10000) { connectWifi(); time = millis(); }  
+  if (isWifiConnected() && sqlOk == false){
+    int id = 0;
+    sqlOk = setupConfig(&id);
+  }
   int pressedButton = getPressedButton();
 
   if (navigationMode){
