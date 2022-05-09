@@ -71,10 +71,10 @@ void updateInfoScreenRows(int temp, int light, int wifi) {
         
       if(wifi){
         lcd.setCursor(10, 0);
-          lcd.print(0);
+          lcd.print("Si");
       }else{
         lcd.setCursor(10, 0);
-          lcd.print(1);
+          lcd.print("No");
       }
 }
 
