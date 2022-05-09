@@ -52,6 +52,9 @@ int lastLight=0;
 int lastTemp=0;
 boolean sqlOk = false;
 
+int roomId = -1;
+int sensorsId[3] = {-1, -1, -1};
+
 boolean firstStart = true;
 long time;
 
@@ -72,8 +75,7 @@ void loop()
   // connect to WiFi (if not already connected)
   if (millis()-time > 10000) { connectWifi(); time = millis(); }  
   if (isWifiConnected() && sqlOk == false){
-    int id = 0;
-    sqlOk = setupConfig(&id);
+    sqlOk = setupConfig(&roomId, sensorsId);
   }
   int pressedButton = getPressedButton();
 

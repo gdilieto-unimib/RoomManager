@@ -11,4 +11,4 @@
 
 #endif
 
-boolean setupConfig(int* id);
+boolean setupConfig(int* id, int sensorsId[]);

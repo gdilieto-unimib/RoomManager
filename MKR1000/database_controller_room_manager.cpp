@@ -27,7 +27,7 @@ boolean connectToMySql(){
   return true;
 }
 
-boolean setupConfig(int* roomId, int* sensorsId[]) { 
+boolean setupConfig(int* roomId, int sensorsId[]) { 
   char SELECT_ROOM[] = "SELECT * FROM gdilieto.room WHERE ipv4='%s'"; 
    
   char ipv4[15] = {0};
