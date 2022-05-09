@@ -11,5 +11,4 @@
 
 #endif
 
-int setupConfig(int* id);
-boolean setupSQL();
+boolean setupConfig(int* id);

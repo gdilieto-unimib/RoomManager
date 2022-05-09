@@ -11,19 +11,9 @@ IPAddress server_addr(MYSQL_IP);      // IP of the MySQL *server* here
 WiFiClient * clientPointer = getClient();
 MySQL_Connection conn((Client *)clientPointer);
 
-
-
-
 char query[128];
 
-int setupConfig(int* id) { 
-  char SELECT_ROOM[] = "SELECT * FROM gdilieto.room WHERE ipv4='%s'"; 
-   
-  char ipv4[15] = {0};
-  int ip[] = IP;  
-  sprintf(ipv4, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-
-  // connect to MySQL 
+boolean connectToMySql(){ 
   if (!conn.connected()) { 
     conn.close(); 
     Serial.println(F("Connecting to MySQL...")); 
@@ -31,9 +21,22 @@ int setupConfig(int* id) {
       Serial.println(F("MySQL connection established.")); 
     } else { 
       Serial.println(F("MySQL connection failed.")); 
-      return -1; 
+      return false; 
     } 
   } 
+  return true;
+}
+
+boolean setupConfig(int* roomId, int* sensorsId[]) { 
+  char SELECT_ROOM[] = "SELECT * FROM gdilieto.room WHERE ipv4='%s'"; 
+   
+  char ipv4[15] = {0};
+  int ip[] = IP;  
+  sprintf(ipv4, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
+
+  if (!connectToMySql()) {
+    return false;
+  }
  
   // log data 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
@@ -45,8 +48,6 @@ int setupConfig(int* id) {
   // deleting the cursor also frees up memory used 
    
   delete cur_mem; 
-}
 
-boolean setupSQL(){
-  return conn.connected();
+  return true;
 }
