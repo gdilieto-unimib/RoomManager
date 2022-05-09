@@ -78,13 +78,13 @@ void updateInfoScreenRows(int temp, int light, int wifi) {
       }
 }
 
-void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold) {
+void updateTempScreenRows(int temp, int tempConfig, int tempActivationThreshold) {
   char tempScreenRows[2][16] = {"Temp: ", ""};
   
-  if (tempConfig == CONFIG_AUTO) {
-    strcat(tempScreenRows[0], tempStatus == STATUS_ON ? "AUTO +" : tempStatus == STATUS_OFF ? "AUTO -" : "AUTO x");
+  if (tempConfig == CONFIG_ON) {
+    strcat(tempScreenRows[0], temp < tempActivationThreshold ? "ON ↑" : temp > tempActivationThreshold ? "ON ↓" : "ON -");
   } else {
-    strcat(tempScreenRows[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
+    strcat(tempScreenRows[0], "OFF");
   }
   
   sprintf(tempScreenRows[1], "Level: %d", tempActivationThreshold);

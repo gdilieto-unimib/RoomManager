@@ -31,6 +31,7 @@
 #define CONFIG_OFF 0
 #define CONFIG_ON 1
 #define CONFIG_AUTO 2
-#define NUMBER_OF_CONFIGS 3
+#define NUMBER_OF_TEMP_CONFIGS 2
+#define NUMBER_OF_LIGHT_CONFIGS 3
 
 #endif

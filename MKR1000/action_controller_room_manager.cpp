@@ -5,7 +5,7 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
     case MENO:
       {
         if (*displayRow == 0){
-          *tempConfig = (NUMBER_OF_CONFIGS + *tempConfig - 1) % NUMBER_OF_CONFIGS;
+          *tempConfig = (NUMBER_OF_TEMP_CONFIGS + *tempConfig - 1) % NUMBER_OF_TEMP_CONFIGS-1;
         } else{
           if (*tempActivationThreshold>0){
             *tempActivationThreshold-=1;
@@ -16,7 +16,7 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
     case PIU:
       {
         if (*displayRow == 0) {
-          *tempConfig = (*tempConfig + 1) % NUMBER_OF_CONFIGS;
+          *tempConfig = (*tempConfig + 1) % NUMBER_OF_TEMP_CONFIGS;
         } else {
           if (*tempActivationThreshold<40){
             *tempActivationThreshold+=1;
@@ -40,7 +40,7 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
   switch (pressedButton) {
       case MENO: {
         if (*displayRow == 0){
-          *lightConfig = (NUMBER_OF_CONFIGS + *lightConfig - 1) % NUMBER_OF_CONFIGS;
+          *lightConfig = (NUMBER_OF_LIGHT_CONFIGS + *lightConfig - 1) % NUMBER_OF_LIGHT_CONFIGS;
         } else{
           if (*lightActivationThreshold>0){
             *lightActivationThreshold-=10;
@@ -50,7 +50,7 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
       }
       case PIU: {
         if (*displayRow == 0){
-          *lightConfig = (*lightConfig + 1) % NUMBER_OF_CONFIGS;
+          *lightConfig = (*lightConfig + 1) % NUMBER_OF_LIGHT_CONFIGS;
         } else{
           if (*lightActivationThreshold<1000){
             *lightActivationThreshold+=10;

@@ -154,7 +154,7 @@ void updateScreen(int temp, int light)
       }
     case 1:{
       
-        updateTempScreenRows(tempStatus, tempConfig, tempActivationThreshold);
+        updateTempScreenRows(temp, tempConfig, tempActivationThreshold);
         updateScreenCursor(!navigationMode, displayRow);
         
         break;
