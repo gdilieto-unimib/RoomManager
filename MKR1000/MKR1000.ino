@@ -33,6 +33,7 @@
 #include "action_controller_room_manager.h"
 #include "wifi_controller_room_manager.h"
 #include "io_controller_room_manager.h"
+#include "database_controller_room_manager.h"
 
 
 int screen = 0;
@@ -50,15 +51,11 @@ int displayRow = 0;
 int lastLight=0;
 int lastTemp=0;
 
-long wifi_time;
-long update_time;
-
+long time;
 
 void setup()
 {
-  wifi_time=millis();
-  update_time=millis();
-
+  time=millis();
 
   setupWiFi();
   setupLcd();
@@ -73,7 +70,7 @@ void loop()
 {
 
   // connect to WiFi (if not already connected)
-  if (millis()-wifi_time > 10000) { connectWifi(); wifi_time = millis(); }
+  if (millis()-time > 10000) { connectWifi(); time = millis(); }
  
   int pressedButton = getPressedButton();
 
@@ -87,10 +84,13 @@ void loop()
   int newLight = getLight();
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || millis()-update_time > 1000){
-    update_time=millis();
+  if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > lastLight+100 || newLight < lastLight-100){
+
     updateLight(lightConfig, &lightStatus, lightActivationThreshold);
     updateScreen(newTemp, newLight);
+    lastTemp=newTemp;
+    lastLight=newLight;
+    
   }
   
 }
