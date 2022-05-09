@@ -50,11 +50,15 @@ int displayRow = 0;
 int lastLight=0;
 int lastTemp=0;
 
-long time;
+long wifi_time;
+long update_time;
+
 
 void setup()
 {
-  time=millis();
+  wifi_time=millis();
+  update_time=millis();
+
 
   setupWiFi();
   setupLcd();
@@ -69,7 +73,7 @@ void loop()
 {
 
   // connect to WiFi (if not already connected)
-  if (millis()-time > 10000) { connectWifi(); time = millis(); }
+  if (millis()-wifi_time > 10000) { connectWifi(); wifi_time = millis(); }
  
   int pressedButton = getPressedButton();
 
@@ -83,13 +87,10 @@ void loop()
   int newLight = getLight();
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > lastLight+100 || newLight < lastLight-100){
-
+  if (pressedButton != NO_OP  || millis()-update_time > 1000){
+    update_time=millis();
     updateLight(lightConfig, &lightStatus, lightActivationThreshold);
     updateScreen(newTemp, newLight);
-    lastTemp=newTemp;
-    lastLight=newLight;
-    
   }
   
 }
