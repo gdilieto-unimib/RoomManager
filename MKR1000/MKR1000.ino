@@ -100,6 +100,9 @@ void setup()
   // set BUTTON pin as input
   pinMode(BUTTON_OK, INPUT);
 
+    // set LED pin as output
+  pinMode(LED, OUTPUT);
+
   // set up the LCD
   setupLcd();
   
@@ -117,11 +120,10 @@ void loop()
   // connect to WiFi (if not already connected)
   if (millis()-time >10000 && WiFi.status() != WL_CONNECTED) {
     time=millis();
-    Serial.print("ATTEMPTIONNNNNNN");
    
-#ifdef IP
+    #ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
-#endif
+    #endif
     WiFi.begin(ssid, pass);
   }
 
@@ -219,8 +221,9 @@ void loop()
 
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight()+110 < (int)last_light || (int)getLight()-110 > (int)last_light){
-    
+  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight() > (int)last_light+100 || (int)getLight() < (int)last_light-100){
+   
+    lightUpdate();
     updateScreen();
     last_temperature=(int)getTemperature();
     last_light=(int)getLight();
@@ -307,7 +310,6 @@ void updateScreen()
           
         } else if(temp<25){
           //too cold         
-          
           setTooColdAlarm(true);
           
         } else {
@@ -318,6 +320,12 @@ void updateScreen()
           
         }
 
+        
+        if (lightStatus==STATUS_ON){
+          digitalWrite(LED, HIGH);
+        }else{
+          digitalWrite(LED, LOW);
+        }
         updateInfoScreenRows(temp, light, wifi);
 
         break;
@@ -336,5 +344,16 @@ void updateScreen()
         
         break;
       }
+  }
+}
+
+
+  void lightUpdate()
+{
+  //Se la luce è sotto la treshold impostata, accendo la luce
+  if(getLight()<lightActivationThreshold){
+    lightStatus=STATUS_ON;
+  }else{
+    lightStatus=STATUS_OFF;
   }
 }
