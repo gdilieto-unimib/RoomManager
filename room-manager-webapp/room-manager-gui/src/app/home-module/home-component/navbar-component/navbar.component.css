@@ -1,0 +1,17 @@
+.spacer {
+    flex: 1 1 auto;
+}
+
+.home-icon {
+    height: 100%;
+}
+
+.home-title {
+    font-size: large !important;
+}
+
+.menu-icon {
+    position:absolute;
+    right:0;
+    margin-right: 1%;
+}
