@@ -32,6 +32,7 @@
 #include "navigation_controller_room_manager.h"
 #include "action_controller_room_manager.h"
 #include "wifi_controller_room_manager.h"
+#include "io_controller_room_manager.h"
 
 
 int screen = 0;
@@ -46,10 +47,9 @@ int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
 int displayRow = 0;
-int last_light=0;
-int last_temperature=0;
-boolean too_hot_alarm=false;
-boolean too_cold_alarm=false;
+int lastLight=0;
+int lastTemp=0;
+
 long time;
 
 void setup()
@@ -58,31 +58,7 @@ void setup()
 
   setupWiFi();
   setupLcd();
-  
-  
-  // set buzzer pin as output
-  pinMode(BUZZER_GROVE, OUTPUT);
-
-  // turn buzzer off
-  digitalWrite(BUZZER_GROVE, LOW);
-
-   // set Light sensor pin as input
-  pinMode(PHOTORESISTOR, INPUT);
-
-  // set pin as input
-  pinMode(TEMP, INPUT);
-
-  // set BUTTON pin as input
-  pinMode(BUTTON_PIU, INPUT);
-
-  // set BUTTON pin as input
-  pinMode(BUTTON_MENO, INPUT);
-
-  // set BUTTON pin as input
-  pinMode(BUTTON_OK, INPUT);
-
-    // set LED pin as output
-  pinMode(LED, OUTPUT);
+  setupIO();
   
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
@@ -92,15 +68,9 @@ void setup()
 void loop()
 {
 
-
-
-
   // connect to WiFi (if not already connected)
   if (millis()-time > 10000) { connect(); time = millis(); }
-
-
-
-  
+ 
   int pressedButton = getPressedButton();
 
   if (navigationMode){
@@ -109,14 +79,17 @@ void loop()
     action(screen, pressedButton, &displayRow, &tempActivationThreshold, &lightActivationThreshold, &tempConfig, &lightConfig, &navigationMode);
   }
 
+
+  int newTemp = getTemp();
+  int newLight = getLight();
   
   //controllo se i valori sono cambiati
-  if (pressedButton != NO_OP  || (int)last_temperature != (int)getTemperature() || (int)getLight() > (int)last_light+100 || (int)getLight() < (int)last_light-100){
+  if (pressedButton != NO_OP  || lastTemp !=  newTemp || newLight > (int)lastLight+100 || newLight < (int)lastLight-100){
    
-    lightUpdate();
+    updateLight(&lightStatus, lightActivationThreshold);
     updateScreen();
-    last_temperature=(int)getTemperature();
-    last_light=(int)getLight();
+    lastTemp=newTemp;
+    lastLight=newLight;
     
   }
   
@@ -167,19 +140,7 @@ void navigate(int pressedButton) {
   }
 }
 
-int getTemperature(){
-  int a = analogRead(TEMP);
 
-  float R = 1023.0 / ((float)a) - 1.0;
-  R = R0 * R;
-  float temperature = 1.0 / (log(R / 100000.0) / B + 1 / 298.15);
-  temperature = temperature - 273.15;   // kelvin to celsius
-  return (int)temperature;
-}
-
-int getLight(){
-  return analogRead(PHOTORESISTOR);
-}
 
 void updateScreen()
 {
@@ -188,7 +149,7 @@ void updateScreen()
     case 0:{
         
         boolean wifi = WiFi.status() == WL_CONNECTED;
-        int temp = getTemperature();
+        int temp = getTemp();
         int light = getLight();
         
         if(temp>30){
@@ -233,16 +194,5 @@ void updateScreen()
         
         break;
       }
-  }
-}
-
-
-  void lightUpdate()
-{
-  //Se la luce è sotto la treshold impostata, accendo la luce
-  if(getLight()<lightActivationThreshold){
-    lightStatus=STATUS_ON;
-  }else{
-    lightStatus=STATUS_OFF;
   }
 }
