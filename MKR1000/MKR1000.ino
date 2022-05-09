@@ -30,6 +30,7 @@
 #include "macros_room_manager.h"
 #include "rgb_lcd_controller_room_manager.h"
 #include "navigation_controller_room_manager.h"
+#include "action_controller_room_manager.h"
 
 #include <SPI.h>
 #include <WiFi101.h>
@@ -134,89 +135,8 @@ void loop()
 
   if (navigationMode){
     navigate(pressedButton);
-  }
-  else{
-    switch (screen)
-    {
-
-      case 1:
-        {
-          switch (pressedButton)
-          {
-            case MENO:
-              {
-                if (displayRow == 0){
-                  tempConfig = (NUMBER_OF_CONFIGS + tempConfig - 1) % NUMBER_OF_CONFIGS;
-                } else{
-                  if (tempActivationThreshold>0){
-                    tempActivationThreshold-=1;
-                  }
-                }
-                break;
-              }
-            case PIU:
-              {
-                if (displayRow == 0) {
-                  tempConfig = (tempConfig + 1) % NUMBER_OF_CONFIGS;
-                } else {
-                  if (tempActivationThreshold<40){
-                    tempActivationThreshold+=1;
-                  }
-                }
-                break;
-              }
-            case OK:
-              {
-                displayRow = (displayRow + 1) % 2;
-            
-                if (displayRow == 0){
-                  navigationMode = true;
-                }
-                break;
-              }
-          }
-          break;
-        }
-
-      case 2:
-        {
-          switch (pressedButton)
-          {
-            case MENO:
-              {
-                if (displayRow == 0){
-                  lightConfig = (NUMBER_OF_CONFIGS + lightConfig - 1) % NUMBER_OF_CONFIGS;
-                } else{
-                  if (lightActivationThreshold>0){
-                    lightActivationThreshold-=10;
-                  }
-                }
-                break;
-              }
-            case PIU:
-              {
-                if (displayRow == 0){
-                  lightConfig = (lightConfig + 1) % NUMBER_OF_CONFIGS;
-                } else{
-                  if (lightActivationThreshold<1000){
-                    lightActivationThreshold+=10;
-                  }
-                }
-                break;
-              }
-            case OK:
-              {
-                displayRow = (displayRow + 1) % 2;
-            
-                if (displayRow == 0)
-                  navigationMode = true;
-                
-                break;
-              }
-          }
-          break;
-        }
-    }
+  } else{
+    action(screen, pressedButton, &displayRow, &tempActivationThreshold, &lightActivationThreshold, &tempConfig, &lightConfig, &navigationMode);
   }
 
   
@@ -259,8 +179,7 @@ int getPressedButton()
   }
 }
 
-void navigate(int pressedButton)
-{
+void navigate(int pressedButton) {
   switch (pressedButton){
     case MENO:{
         screen = (NUMBER_OF_SCREENS + screen - 1) % NUMBER_OF_SCREENS;

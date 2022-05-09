@@ -15,7 +15,12 @@
 #define MENO 2 // Action when button meno is pressed
 #define OK 1 // Action when button ok is pressed
 #define NO_OP 0 // Action when no button is pressed
+
+#define INFO_SCREEN 0
+#define LIGHT_SCREEN 1
+#define TEMP_SCREEN 2
 #define NUMBER_OF_SCREENS 3
+
 #define B 4275  // B-constant of the thermistor
 #define R0 100000 // R0 = 100KOhm
 
