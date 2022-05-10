@@ -52,7 +52,7 @@ boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 
 boolean fireAlarm = true;
-boolean dbConnection = false;
+boolean deviceConfigured = false;
 boolean monitoringActivated = true;
 
 int roomId = -1;
@@ -96,9 +96,9 @@ void loop()
   }
   
   // connect to database (if not already connected)
-  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected() && !dbConnection) {
+  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected() && !deviceConfigured) {
     dbLoadingScreen(true);
-    dbConnection = setupConfig(&roomId, sensorsId);
+    deviceConfigured = setupConfig(&roomId, sensorsId);
     dbLoadingScreen(false);
     updateScreen();
     firstStartDb = false;
@@ -128,7 +128,7 @@ void loop()
   }
 
   //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 5000 && dbConnection && monitoringActivated ) {
+  if ( (millis() - timeLogging) > 5000 && deviceConfigured && monitoringActivated ) {
       loggingLoadingScreen(true);
       logSensorsMeasure();
       loggingLoadingScreen(false);
@@ -221,7 +221,7 @@ void updateScreen() {
   switch (screen) {
     case INFO_SCREEN: {
 
-      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), dbConnection);
+      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), deviceConfigured);
 
       break;
     }

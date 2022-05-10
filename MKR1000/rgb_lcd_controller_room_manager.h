@@ -12,7 +12,7 @@ void setTooHotAlarm(boolean active);
 
 void setTooColdAlarm(boolean active);
 
-void updateInfoScreenRows(int temp, int light, boolean wifi, boolean db);
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean deviceConfigured);
 
 void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold);
 

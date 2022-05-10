@@ -98,7 +98,7 @@ void setTooColdAlarm(boolean active) {
 }
 
 
-void updateInfoScreenRows(int temp, int light, boolean wifi, boolean db) {
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean deviceConfigured) {
   
       lcd.clear();  // clear text
       lcd.print("T: "); // show temp
@@ -119,7 +119,7 @@ void updateInfoScreenRows(int temp, int light, boolean wifi, boolean db) {
       lcd.setCursor(10, 1);
       lcd.write(1);
 
-      if(db){
+      if(deviceConfigured){
         lcd.print(": ON");
       }else{
         lcd.print(": OFF");
