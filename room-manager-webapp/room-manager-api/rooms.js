@@ -157,7 +157,7 @@ router.get('/:roomId/sensors', (req, res)=>{
 
 router.get('/:roomId/alarms/', (req, res)=>{
     
-    var alarmsQuery = `SELECT *, CURRENT_TIMESTAMP - a.datetime as ASD FROM alarm a WHERE TIMESTAMPDIFF(MINUTE ,a.datetime, CURRENT_TIMESTAMP) < 60 AND a.room_alert = '${req.params.roomId}'`
+    var alarmsQuery = `SELECT *, CURRENT_TIMESTAMP - a.datetime as ASD FROM alarm a WHERE TIMESTAMPDIFF(MINUTE ,a.datetime, CURRENT_TIMESTAMP) < 60 AND a.room_alert = '${req.params.roomId}' ORDER BY a.datetime DESC`
     
     pool.query(alarmsQuery, (err, result, fields) => {
         if (err) {
