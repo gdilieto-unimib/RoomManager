@@ -11,4 +11,6 @@
 
 #endif
 
-boolean setupConfig(int* id, int sensorsId[]);
+boolean setupConfig(int* roomId, int sensorsId[3]);
+
+boolean logSensorMeasure(int sensor, char* value);

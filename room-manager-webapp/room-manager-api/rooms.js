@@ -39,6 +39,36 @@ router.get('/', (req, res)=>{
     })
 })
 
+router.get('/:roomId', (req, res)=>{
+    var roomsQuery = `SELECT * FROM room WHERE room.id = ${req.params.roomId}`
+    
+    pool.query(roomsQuery, (err, result, fields) => {
+        if (err) {
+            throw new Error(err)
+        }
+
+        room = result
+        room.connected = true
+
+        var sensorsQuery = `SELECT * FROM sensor WHERE sensor.room = ${req.params.roomId}`
+        
+        pool.query(sensorsQuery, (err, result, fields) => {
+            if (err) {
+                throw new Error(err)
+            }
+            sensors = result
+            sensors.map(sensor => {
+                sensor.auto = sensor.auto ? true : false
+                sensor.active = sensor.active ? true : false
+                return sensor
+            })       
+            room.sensors = sensors
+            res.send(room)
+        })
+        
+    })
+})
+
 router.put('/', (req, res)=>{
     var room = req.body;
 
@@ -52,7 +82,7 @@ router.put('/', (req, res)=>{
         async.each(
             room.sensors, 
             function (sensor, callback) {
-                var sensorQuery = "INSERT INTO sensor (`type`, `name`, `auto`, `active`, `room`) " + `VALUES ('${sensor.type}','${sensor.name}','${sensor.auto}', '${sensor.active}', '${room.id}')`
+                var sensorQuery = "INSERT INTO sensor (`type`, `name`, `auto`, `active`, `room`) " + `VALUES ('${sensor.type}','${sensor.name}','${sensor.auto?1:0}', '${sensor.active?1:0}', '${room.id}')`
                 pool.query(sensorQuery, (err, result, fields) => {
                     if (err) {
                         callback(err)
@@ -98,13 +128,34 @@ router.get('/:roomId/sensors', (req, res)=>{
             throw new Error(err)
         }
         sensors = result
-        sensors.map(sensor => {
-            sensor.auto = sensor.auto ? true : false
-            sensor.active = sensor.active ? true : false
-            return sensor
-        })
-        res.send(result)
+
+        async.each(
+            sensors, 
+            function (sensor, callback) {
+                var sensorQuery = `SELECT * FROM measure WHERE measure.sensor = ${sensor.id} ORDER BY measure.datetime DESC LIMIT 1`
+                pool.query(sensorQuery, (err, result, fields) => {
+                    if (err) {
+                        callback(err)
+                        throw new Error(err)
+                    }
+                    sensor.measure = result[0]
+                    callback(err, result, fields)
+                })
+            },  
+            function () {
+                sensors.map(sensor => {
+                    sensor.auto = sensor.auto ? true : false
+                    sensor.active = sensor.active ? true : false
+                    return sensor
+                })
+                res.send(sensors)
+            }
+        )
     })
+})
+
+router.get('/:roomId/connected', (req, res)=>{
+    res.send(true)
 })
 
 module.exports = router

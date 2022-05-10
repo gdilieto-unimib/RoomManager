@@ -5,7 +5,7 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
     case MENO:
       {
         if (*displayRow == 0){
-          *tempConfig = (NUMBER_OF_TEMP_CONFIGS + *tempConfig - 1) % NUMBER_OF_TEMP_CONFIGS-1;
+          *tempConfig = (NUMBER_OF_TEMP_CONFIGS + *tempConfig - 1) % NUMBER_OF_TEMP_CONFIGS;
         } else{
           if (*tempActivationThreshold>0){
             *tempActivationThreshold-=1;
@@ -69,7 +69,24 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
   }
 }
 
-void action(int screen, int pressedButton, int* displayRow, int* tempActivationThreshold, int* lightActivationThreshold, int* tempConfig, int* lightConfig, boolean* navigationMode) {
+void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fireAlarm) {
+  switch (pressedButton) {
+      case MENO: {
+        *fireAlarm = !*fireAlarm;
+        break;
+      }
+      case PIU: {
+        *fireAlarm = !*fireAlarm;
+        break;
+      }
+      case OK: {
+        *navigationMode = true;
+        break;
+      }
+  }
+}
+
+void action(int screen, int pressedButton, int* displayRow, int* tempActivationThreshold, int* lightActivationThreshold, int* tempConfig, int* lightConfig, boolean* navigationMode, boolean* fireAlarm) {
   switch (screen)
     {
       case TEMP_SCREEN: {
@@ -79,6 +96,11 @@ void action(int screen, int pressedButton, int* displayRow, int* tempActivationT
 
       case LIGHT_SCREEN: {
         actionLightScreen(pressedButton, displayRow, lightActivationThreshold, lightConfig, navigationMode);
+        break;
+      }
+      
+      case ALARM_SCREEN: {
+        actionAlarmScreen(pressedButton, navigationMode, fireAlarm);
         break;
       }
     }

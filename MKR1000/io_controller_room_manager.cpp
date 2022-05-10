@@ -23,7 +23,11 @@ void setupIO() {
   pinMode(BUTTON_OK, INPUT);
 
     // set LED pin as output
-  pinMode(LED, OUTPUT);
+  pinMode(LIGHT_LED, OUTPUT);
+}
+
+int getWifiRssi() {
+  return (int) WiFi.RSSI();
 }
 
 int getTemp(){
@@ -40,42 +44,75 @@ int getLight(){
   return analogRead(PHOTORESISTOR);
 }
 
-void setLight(int lightStatus) {
-  if (lightStatus==STATUS_ON){
-    digitalWrite(LED, HIGH);
+void setLightStatus(int lightStatus) {
+  if (lightStatus==LIGHT_STATUS_ON){
+    digitalWrite(LIGHT_LED, HIGH);
   }else{
-    digitalWrite(LED, LOW);
+    digitalWrite(LIGHT_LED, LOW);
   }
 }
 
-void updateLight(int lightConfig, int* lightStatus, int lightActivationThreshold) {
+void setTempStatus(int tempStatus) {
+  if (tempStatus==TEMP_STATUS_UP){
+    digitalWrite(TEMP_LED, HIGH);
+  }else if (tempStatus==TEMP_STATUS_DOWN) {
+    digitalWrite(TEMP_LED, HIGH);
+  } else {
+    digitalWrite(TEMP_LED, LOW);
+  }
+}
+
+void updateLight(int light, int lightConfig, int* lightStatus, int lightActivationThreshold) {
   
   //Se la luce è sotto la treshold impostata, accendo la luce
   switch(lightConfig) {
     case CONFIG_AUTO:{
-      if(getLight()<lightActivationThreshold){
+      if(light<lightActivationThreshold){
       
-        *lightStatus=STATUS_ON;
+        *lightStatus=LIGHT_STATUS_ON;
       
       }else{
       
-        *lightStatus=STATUS_OFF;
+        *lightStatus=LIGHT_STATUS_OFF;
       
       }
 
       break;
     }
     case CONFIG_ON: {
-      *lightStatus = STATUS_ON;
+      *lightStatus = LIGHT_STATUS_ON;
       break;
     }
     case CONFIG_OFF: {
-      *lightStatus = STATUS_OFF;
+      *lightStatus = LIGHT_STATUS_OFF;
       break;
     }
   }
 
-  setLight(*lightStatus);
+  setLightStatus(*lightStatus);
+  
+}
+
+void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold) {
+  
+  //Se la temperatura è sotto la treshold impostata, aumento o abbasso la temperatura
+  switch(tempConfig) {
+    case CONFIG_ON: {
+      if (temp < tempActivationThreshold) {
+        *tempStatus = TEMP_STATUS_UP;
+      } else if (temp > tempActivationThreshold) {
+        *tempStatus = TEMP_STATUS_DOWN;
+      } else {
+        *tempStatus = TEMP_STATUS_OFF;
+      }
+      break;
+    }
+    case CONFIG_OFF: {
+      *tempStatus = TEMP_STATUS_OFF;
+    }
+  }
+  
+  setTempStatus(*tempStatus);
   
 }
 

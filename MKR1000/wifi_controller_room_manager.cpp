@@ -38,4 +38,4 @@ void setupWiFi(){
 
 WiFiClient * getClient(){
   return &client;  
-  }
+}

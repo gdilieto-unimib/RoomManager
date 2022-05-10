@@ -6,7 +6,7 @@ var async = require('async')
 
 router.put('/', (req, res)=>{
     var sensor = req.body;
-    var sensorQuery = "INSERT INTO sensor (`type`, `name`, `auto`, `active`, `room`) " + `VALUES ('${sensor.type}','${sensor.name}','${sensor.auto}', '${sensor.active}', '${room.id}')`
+    var sensorQuery = "INSERT INTO sensor (`type`, `name`, `auto`, `active`, `room`) " + `VALUES ('${sensor.type}','${sensor.name}','${sensor.auto?1:0}', '${sensor.active?1:0}', '${room.id}')`
     
     pool.query(sensorQuery, (err, result, fields) => {
         if (err) {

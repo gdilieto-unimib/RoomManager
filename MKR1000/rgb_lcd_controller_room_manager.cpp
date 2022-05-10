@@ -2,7 +2,7 @@
 #include "rgb_lcd.h"
 rgb_lcd lcd;
 
-byte WifiIcon[] = {
+byte wifiIcon[] = {
   B01110,
   B11011,
   B10001,
@@ -13,7 +13,7 @@ byte WifiIcon[] = {
   B00100
 };
 
-byte NoWifiIcon[] = {
+byte noWifiIcon[] = {
   B11011,
   B11011,
   B11011,
@@ -24,13 +24,24 @@ byte NoWifiIcon[] = {
   B11011
 };
 
+byte databaseIcon[] = {
+  B00000,
+  B01110,
+  B10001,
+  B01110,
+  B10001,
+  B01110,
+  B10001,
+  B01110
+};
+
 
 void setupLcd() {
 
   lcd.begin(16, 2); // 16 cols, 2 rows
   lcd.setRGB(255, 255, 255);
-  lcd.createChar(0, WifiIcon);
-  lcd.createChar(1, NoWifiIcon);
+  lcd.createChar(0, wifiIcon);
+  lcd.createChar(1, databaseIcon);
 
 }
 
@@ -50,9 +61,10 @@ void setTooHotAlarm(boolean active) {
   }
 }
 
-void LoadingScreen(boolean i){
+void wifiLoadingScreen(boolean i){
   if (i==false){
     lcd.noBlink();
+    lcd.setRGB(50,50,50);
     return;
   }
   lcd.clear();
@@ -60,8 +72,32 @@ void LoadingScreen(boolean i){
   lcd.print("Connecting to");
         lcd.setCursor(0, 1);
 
-  lcd.print("mySQL");  
+  lcd.print("wifi");  
   lcd.blink();
+}
+
+void dbLoadingScreen(boolean i){
+  if (i==false){
+    lcd.noBlink();
+    lcd.setRGB(50,50,50);
+    return;
+  }
+  lcd.clear();
+  lcd.setRGB(100, 0, 100);
+  lcd.print("Loading config");
+        lcd.setCursor(0, 1);
+
+  lcd.print("from database");  
+  lcd.blink();
+}
+
+void loggingLoadingScreen(boolean i){
+  if (i==false){
+    lcd.noBlink();
+    lcd.setRGB(50,50,50);
+    return;
+  }
+  lcd.setRGB(100, 100, 0);
 }
 
 void setTooColdAlarm(boolean active) {
@@ -73,7 +109,7 @@ void setTooColdAlarm(boolean active) {
 }
 
 
-void updateInfoScreenRows(int temp, int light, int wifi) {
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean db) {
   
       lcd.clear();  // clear text
       lcd.print("T: "); // show temp
@@ -86,6 +122,15 @@ void updateInfoScreenRows(int temp, int light, int wifi) {
       lcd.write((unsigned char)0);
       
       if(wifi){
+        lcd.print(": ON");
+      }else{
+        lcd.print(": OFF");
+      }
+      
+      lcd.setCursor(10, 1);
+      lcd.write(1);
+
+      if(db){
         lcd.print(": ON");
       }else{
         lcd.print(": OFF");
@@ -110,7 +155,7 @@ void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivation
   char lightScreenRows[2][16] = {"Light: ", ""};
         
   if (lightConfig == CONFIG_AUTO) {
-    strcat(lightScreenRows[0], lightStatus == STATUS_ON ? "AUTO ON" : "AUTO OFF");
+    strcat(lightScreenRows[0], lightStatus == LIGHT_STATUS_ON ? "AUTO ON" : "AUTO OFF");
   } else {
     strcat(lightScreenRows[0], lightConfig == CONFIG_ON ? "ON" : "OFF");
   }
@@ -118,6 +163,14 @@ void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivation
   sprintf(lightScreenRows[1], "Level: %d", lightActivationThreshold);
   
   updateScreenRowsText(lightScreenRows);
+}
+
+void updateAlarmScreenRows(boolean fireAlarm) {
+  char alarmScreenRows[2][16] = {"Alarm: ", ""};
+        
+  strcat(alarmScreenRows[0], fireAlarm ? "ON" : "OFF");
+  
+  updateScreenRowsText(alarmScreenRows);
 }
 
 void updateScreenCursor(int active, int displayRow) {

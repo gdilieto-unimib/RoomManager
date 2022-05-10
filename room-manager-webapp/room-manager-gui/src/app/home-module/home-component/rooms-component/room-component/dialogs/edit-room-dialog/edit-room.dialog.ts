@@ -5,6 +5,7 @@ import { Form } from "src/app/shared-module/classes/form.class";
 import { RoomForm } from "../../../form/room-form.class";
 import { FormBuilder } from "@angular/forms";
 import { defaultSensor, Sensor, SensorType } from "../../sensors-component/sensor-component/models/sensor.model";
+import { RoomsService } from "../../../services/rooms.service";
 
 export interface EditRoomDialogData {
   room: Room
@@ -20,12 +21,15 @@ export class EditRoomDialog {
   room: Room = defaultRoom
   form: Form<Room> = new RoomForm(this.formBuilder) 
   hide: boolean = true
+  isTestingConnection = true
+  isConnected = true
   typesOfSensors : SensorType[] = Object.values(SensorType);
 
   constructor(
     public dialogRef: MatDialogRef<EditRoomDialog>,
     @Inject(MAT_DIALOG_DATA) public data: EditRoomDialogData,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private roomsService: RoomsService
   ) {
     this.room = data.room
     this.form.createForm(this.room)
@@ -47,5 +51,19 @@ export class EditRoomDialog {
 
   onCancelClick(): void {
     this.dialogRef.close(null);
+  }
+
+  onTestConnectionClick(): void {
+    this.isTestingConnection = true
+    this.getIsRoomConnected(this.form.getValue('ipv4')).subscribe(
+      (isConnected: boolean) => {
+        this.isTestingConnection = false
+        this.isConnected = isConnected
+      }
+    )
+  }
+
+  getIsRoomConnected(roomIp: string) {
+    return this.roomsService.getIsRoomConnected(roomIp)
   }
 }

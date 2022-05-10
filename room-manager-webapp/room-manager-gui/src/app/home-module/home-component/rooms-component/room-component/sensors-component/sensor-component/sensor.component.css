@@ -13,3 +13,7 @@
 .spacer {
     flex: 1 1 auto;
 }
+
+.spaced {
+    margin-left: 2%;
+}
