@@ -8,6 +8,7 @@ import { defaultSensor, Sensor } from "./models/sensor.model";
 })
 export class SensorComponent{
     @Input() sensor: Sensor = defaultSensor
+    @Input() roomConnected: boolean = false;
 
     toggleAuto() {
         this.sensor.auto = !this.sensor.auto

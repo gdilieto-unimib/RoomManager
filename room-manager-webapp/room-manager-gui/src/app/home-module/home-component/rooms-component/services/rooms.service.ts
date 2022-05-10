@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { Alarm } from '../room-component/models/alarm.model';
 import { Room } from '../room-component/models/room.model';
 import { Sensor } from '../room-component/sensors-component/sensor-component/models/sensor.model';
 
@@ -25,6 +26,10 @@ export class RoomsService {
   getRoomSensors(roomId: number): Observable<Sensor[]> {
     return this.http.get<Sensor[]>(this.roomUrl+'/'+roomId+'/sensors');
   }
+
+  getRoomAlarms(roomId: number): Observable<Alarm[]> {
+    return this.http.get<Alarm[]>(this.roomUrl+'/'+roomId+'/alarms');
+  }
   
   addRoom(room: Room): Observable<Room> {
     return this.http.put<Room>(this.roomUrl, room);
@@ -40,5 +45,13 @@ export class RoomsService {
 
   getIsRoomConnected(roomIp: string): Observable<boolean> {
     return this.http.get<boolean>(this.roomUrl+'/'+roomIp+'/connected');
+  }
+
+  postStartRoomMonitoring(roomIp: string): Observable<boolean> {
+    return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: true});
+  }
+
+  postStopRoomMonitoring(roomIp: string): Observable<boolean> {
+    return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: false});
   }
 }

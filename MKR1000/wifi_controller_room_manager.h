@@ -16,6 +16,6 @@ boolean isWifiConnected();
 
 void setupWiFi();
 
-WiFiClient * getClient();
+WiFiClient* getClient();
 
 #endif

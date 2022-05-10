@@ -4,6 +4,10 @@
 #include <Arduino.h>
 #include "macros_room_manager.h"
 
-void action(int screen, int pressedButton, int* displayRow, int* tempActivationThreshold, int* lightActivationThreshold, int* tempConfig, int* lightConfig, boolean* navigationMode, boolean* fireAlarm);
+void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThreshold, int* tempConfig, boolean* navigationMode);
+
+void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationThreshold, int* lightConfig, boolean* navigationMode);
+
+void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fireAlarm);
 
 #endif

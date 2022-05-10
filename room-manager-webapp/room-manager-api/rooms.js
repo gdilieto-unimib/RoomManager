@@ -2,7 +2,7 @@ const express = require('express')
 router = express.Router()
 var pool = require('./database')
 var async = require('async')
-
+const WebSocket = require('ws')
 
 router.get('/', (req, res)=>{
     var roomsQuery = 'SELECT * FROM room'
@@ -33,6 +33,7 @@ router.get('/', (req, res)=>{
                 })
             },  
             function () {
+                rooms.alarms = []
                 res.send(rooms)
             }
         )
@@ -154,8 +155,77 @@ router.get('/:roomId/sensors', (req, res)=>{
     })
 })
 
+router.get('/:roomId/alarms/', (req, res)=>{
+    
+    var alarmsQuery = `SELECT *, CURRENT_TIMESTAMP - a.datetime as ASD FROM alarm a WHERE TIMESTAMPDIFF(MINUTE ,a.datetime, CURRENT_TIMESTAMP) < 60 AND a.room_alert = '${req.params.roomId}'`
+    
+    pool.query(alarmsQuery, (err, result, fields) => {
+        if (err) {
+            throw new Error(err)
+        }
+        alarms = result
+        res.send(alarms)
+    })
+})
+
+router.post('/:roomIp/monitoring', (req, res)=>{
+    const monitoring = req.body.monitoring
+    const url = `ws://${req.params.roomIp}:80`
+    const connection = new WebSocket(url)
+
+    connection.onopen = () => {
+        connection.send(monitoring)
+    }
+
+    connection.onerror = (error) => {
+        //res.send(false)
+        
+        res.send(true)
+    }
+
+    connection.onmessage = (event) => {
+        res.send(true)
+    }
+})
+
 router.get('/:roomId/connected', (req, res)=>{
-    res.send(true)
+    const url = `ws://${req.params.roomIp}:80`
+    const connection = new WebSocket(url)
+    
+    connection.onopen = () => {
+        connection.send('connected')
+    }
+
+    connection.onerror = (error) => {
+        //res.send(false)
+        
+        res.send(true)
+    }
+
+    connection.onmessage = (event) => {
+        res.send(true)
+    }
+})
+
+router.post('/:roomIp/:sensorId/config', (req, res)=>{
+    var config = req.body;
+    const url = `ws://${req.params.roomIp}:80`
+    const connection = new WebSocket(url)
+    
+    connection.onopen = () => {
+        connection.send({
+            sensorId: sensorId,
+            config: config
+        })
+    }
+
+    connection.onerror = (error) => {
+        res.send(false)
+    }
+
+    connection.onmessage = (event) => {
+        res.send(event)
+    }
 })
 
 module.exports = router

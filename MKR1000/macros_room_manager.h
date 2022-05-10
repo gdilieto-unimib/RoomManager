@@ -17,30 +17,33 @@
 #define OK 1 // Action when button ok is pressed
 #define NO_OP 0 // Action when no button is pressed
 
-#define INFO_SCREEN 0
-#define TEMP_SCREEN 1
-#define LIGHT_SCREEN 2
-#define ALARM_SCREEN 3
-#define NUMBER_OF_SCREENS 4
+#define INFO_SCREEN 0 //id for info screen
+#define TEMP_SCREEN 1 //id for temperature control screen
+#define LIGHT_SCREEN 2 //id for light control screen
+#define ALARM_SCREEN 3 //id for fire alarm screen
+#define NUMBER_OF_SCREENS 4 //total number of screens
 
 #define B 4275  // B-constant of the thermistor
 #define R0 100000 // R0 = 100KOhm
 
-#define LIGHT_STATUS_OFF 0
-#define LIGHT_STATUS_ON 1
+#define LIGHT_STATUS_OFF 0 // id for light status off
+#define LIGHT_STATUS_ON 1 // id for light status on
 
-#define TEMP_STATUS_OFF 0
-#define TEMP_STATUS_UP 1
-#define TEMP_STATUS_DOWN 2
+#define TEMP_STATUS_OFF 0 // id for temp status off
+#define TEMP_STATUS_UP 1 // id for temp status increasing
+#define TEMP_STATUS_DOWN 2 // id for temp status decreasing
 
-#define CONFIG_OFF 0
-#define CONFIG_ON 1
-#define CONFIG_AUTO 2
-#define NUMBER_OF_TEMP_CONFIGS 2
-#define NUMBER_OF_LIGHT_CONFIGS 3
+#define CONFIG_OFF 0 // id for generic configuration off
+#define CONFIG_ON 1 // id for generic configuration on
+#define CONFIG_AUTO 2 // id for generic configuration automatic
+#define NUMBER_OF_TEMP_CONFIGS 2 // number of configuration for temp actuators
+#define NUMBER_OF_LIGHT_CONFIGS 3 // number of configuration for light actuators
 
-#define LIGHT_SENSOR 0
-#define TEMP_SENSOR 1
-#define WIFI_SENSOR 2
+#define LIGHT_SENSOR 0 // id of the index of the light sensor among sensors list
+#define TEMP_SENSOR 1 // id of the index of the temperature sensor among sensors list
+#define WIFI_SENSOR 2 // id of the index of the wifi sensor among sensors list
+
+#define HOT_ALARM_CODE 0 // code logged for the hot alarm
+#define COLD_ALARM_CODE 1 // code logged for the cold alarm
 
 #endif

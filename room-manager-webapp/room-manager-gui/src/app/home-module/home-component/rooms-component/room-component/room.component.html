@@ -3,8 +3,11 @@
     
     <mat-toolbar color="primary">
         <span class="room-name">{{room.name}}</span>
-        <button mat-icon-button (click)="toggleWifi()" [disabled]="isConnecting">
-            <mat-icon [class]="isConnecting ? '' : room.connected ? 'wifi-green-button' : 'wifi-red-button'">{{room.connected ? 'wifi' : 'wifi_off'}}</mat-icon>
+        <button mat-icon-button (click)="toggleMonitoring()" [disabled]="!room.connected">
+            <mat-icon [class]="!room.connected ? '' : room.monitoring ? 'green-button' : 'red-button'">{{room.monitoring ? 'visibility' : 'visibility_off'}}</mat-icon>
+        </button>
+        <button mat-icon-button [disabled]="true">
+            <mat-icon [class]="room.connected ? 'green-button' : 'red-button'">{{room.connected ? 'wifi' : 'wifi_off'}}</mat-icon>
         </button>
         <button mat-icon-button (click)="editRoom()">
             <mat-icon>edit</mat-icon>
@@ -17,7 +20,10 @@
     <mat-card>
         <mat-label>IPv4:</mat-label> {{room.ipv4}}  
     </mat-card>
+    <mat-card class="alarm" *ngFor="let alarm of room.alarms">
+        <mat-label>{{alarm.datetime | date:'shortTime'}}</mat-label> {{alarm.message}}  
+    </mat-card>
     <div>
-        <app-sensors [sensors]='room.sensors'></app-sensors>
+        <app-sensors [sensors]='room.sensors' [roomConnected]="room.connected?room.connected:false"></app-sensors>
     </div> 
 </mat-card>

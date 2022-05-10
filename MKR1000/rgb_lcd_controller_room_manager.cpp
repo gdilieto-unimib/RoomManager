@@ -13,17 +13,6 @@ byte wifiIcon[] = {
   B00100
 };
 
-byte noWifiIcon[] = {
-  B11011,
-  B11011,
-  B11011,
-  B01110,
-  B01110,
-  B11011,
-  B11011,
-  B11011
-};
-
 byte databaseIcon[] = {
   B00000,
   B01110,

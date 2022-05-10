@@ -85,23 +85,3 @@ void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fire
       }
   }
 }
-
-void action(int screen, int pressedButton, int* displayRow, int* tempActivationThreshold, int* lightActivationThreshold, int* tempConfig, int* lightConfig, boolean* navigationMode, boolean* fireAlarm) {
-  switch (screen)
-    {
-      case TEMP_SCREEN: {
-        actionTempScreen(pressedButton, displayRow, tempActivationThreshold, tempConfig, navigationMode);
-        break;
-      }
-
-      case LIGHT_SCREEN: {
-        actionLightScreen(pressedButton, displayRow, lightActivationThreshold, lightConfig, navigationMode);
-        break;
-      }
-      
-      case ALARM_SCREEN: {
-        actionAlarmScreen(pressedButton, navigationMode, fireAlarm);
-        break;
-      }
-    }
-}

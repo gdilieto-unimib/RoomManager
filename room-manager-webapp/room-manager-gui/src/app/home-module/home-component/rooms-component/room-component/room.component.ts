@@ -24,23 +24,35 @@ export class RoomComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.isConnectedRoomPolling()
+        this.isConnectedRoomPolling();
     }
 
-    isConnectedRoomPolling(): void {
+    isConnectedUpdate() : void {
         this.getIsRoomConnected(this.room.ipv4).subscribe(
             (isConnected) => {
                 this.room.connected = isConnected
-                if (this.room.connected) {
+                if (this.room.connected && this.room.monitoring) {
                     if (this.isUpdatePolling == false) {
                         this.updateRoomPolling()
                     } 
                     this.isUpdatePolling = true
                 } else {
+
+                    if (!this.room.connected) {
+                        this.room.monitoring = false
+                    }
                     this.isUpdatePolling = false
                 }
+            },
+            (err) => {
+                this.room.connected = false
+                this.room.monitoring = false
             }
         )
+    }
+
+    isConnectedRoomPolling(): void {
+        this.isConnectedUpdate();
         setTimeout(() => {
             this.isConnectedRoomPolling();
         },5000);
@@ -53,18 +65,37 @@ export class RoomComponent implements OnInit {
                     this.room.sensors = sensors
                 }
             )
+            this.getRoomAlarms(this.room.id?this.room.id:0).subscribe(
+                (alarms) => {
+                    this.room.alarms = alarms
+                }
+            )
             setTimeout(() => {
                 this.updateRoomPolling();
             },5000);
         }
     }
 
-    toggleWifi(): void {
+    toggleMonitoring(): void {
         this.isConnecting = true
-        if (this.room.connected) {
-            setTimeout(()=>{ this.room.connected = false, this.isConnecting = false }, 4000) 
+        if(this.room.monitoring) {
+            this.postStopRoomMonitoring(this.room.ipv4).subscribe(
+                stopped => {
+                    if (stopped) {
+                        this.room.monitoring = false
+                    }
+                    this.isConnecting = false
+                }
+            )
         } else {
-            setTimeout(()=>{ this.room.connected = true, this.isConnecting = false }, 4000)   
+            this.postStartRoomMonitoring(this.room.ipv4).subscribe(
+                started => {
+                    if (started) {
+                        this.room.monitoring = true
+                    }
+                    this.isConnecting = false
+                }
+            )
         }
     }
 
@@ -104,7 +135,19 @@ export class RoomComponent implements OnInit {
         return this.roomsService.getRoomSensors(roomId)
     }
 
+    getRoomAlarms(roomId: number) {
+        return this.roomsService.getRoomAlarms(roomId)
+    }
+
     getIsRoomConnected(roomIp: string) {
         return this.roomsService.getIsRoomConnected(roomIp)
+    }
+
+    postStartRoomMonitoring(roomIp: string) {
+        return this.roomsService.postStartRoomMonitoring(roomIp)
+    }
+
+    postStopRoomMonitoring(roomIp: string) {
+        return this.roomsService.postStopRoomMonitoring(roomIp)
     }
 }

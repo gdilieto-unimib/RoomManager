@@ -4,26 +4,24 @@
   DISCo - Department of Informatics, Systems and Communication
   Viale Sarca 336, 20126 Milano, Italy
 
-  Copyright © 2019-2022 by:
-     Davide Marelli   - davide.marelli@unimib.it
-     Paolo Napoletano - paolo.napoletano@unimib.it
+  Assignment 1 for IOT Laboratory classroom by:
+     Gabriele Di Lieto - g.dilieto@unimib.it
+     Tiberio Falsiroli - t.falsiroli@unimib.it
  * ****************************************************************************
 
-  Demo code, read the temperature with an Arduino MKR 1000 board.
+  Room manager: an IOT application that allows you to monitorate and control you room's temperature and light sensors and actuators.
 
-  Components:
+  Components for a room device:
     1x MKR1000
     1x MKR connector carrier
-    1x GROVE 4 pins cable
+    6x GROVE 4 pins cable
     1x GROVE Temperature Sensor
+    1x GROVE Light Sensor
+    1x GROVE LED
+    1x GROVE Buzzer
 
   Notes:
     - MKR pin mapping -> https://docs.arduino.cc/static/a5b251782d7fa7d0212e7a8b34c45a9e/ABX00004-pinout.png
-    - Temperature sensor specs:
-       - Zero power resistance -> 100KOhm
-       - Resistance Tolerance -> ±1%
-       - Operating temperature range -> -40 ~ +125 °C
-       - Nominal B-Constant -> 4250 ~ 4299K
 
 */
 
@@ -50,8 +48,12 @@ int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
 
+boolean tooHotAlarmMonitored = false;
+boolean tooColdAlarmMonitored = false;
+
 boolean fireAlarm = true;
 boolean dbConnection = false;
+boolean monitoringActivated = true;
 
 int roomId = -1;
 
@@ -111,7 +113,7 @@ void loop()
     navigate(pressedButton);
   } else {
     // if acting on a screen
-    action(screen, pressedButton, &displayRow, &tempActivationThreshold, &lightActivationThreshold, &tempConfig, &lightConfig, &navigationMode, &fireAlarm);
+    action(pressedButton);
   }
 
   //update screen if an operation has been made
@@ -126,7 +128,7 @@ void loop()
   }
 
   //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 5000 && dbConnection ) {
+  if ( (millis() - timeLogging) > 5000 && dbConnection && monitoringActivated ) {
       loggingLoadingScreen(true);
       logSensorsMeasure();
       loggingLoadingScreen(false);
@@ -134,6 +136,7 @@ void loop()
       timeLogging = millis();
   }
 
+  //set hot or cold alarm
   setHotColdAlarm(lastTemp);
 }
 
@@ -174,6 +177,25 @@ void navigate(int pressedButton) {
         break;
       }
   }
+}
+
+void action(int pressedButton) {
+  switch (screen) {
+      case TEMP_SCREEN: {
+        actionTempScreen(pressedButton, &displayRow, &tempActivationThreshold, &tempConfig, &navigationMode);
+        break;
+      }
+
+      case LIGHT_SCREEN: {
+        actionLightScreen(pressedButton, &displayRow, &lightActivationThreshold, &lightConfig, &navigationMode);
+        break;
+      }
+      
+      case ALARM_SCREEN: {
+        actionAlarmScreen(pressedButton, &navigationMode, &fireAlarm);
+        break;
+      }
+    }
 }
 
 void updateScreenAsSensorsChange() {
@@ -231,7 +253,15 @@ void setHotColdAlarm(int temp) {
   if (temp > 35) {
 
     setTooHotAlarm(true);
+    tooColdAlarmMonitored = false;
     
+    if (!tooHotAlarmMonitored && monitoringActivated) {
+      char alarmMessage[64] = {0};
+      sprintf(alarmMessage, "Too hot! Temp:%d C", temp);
+      logAlarm(alarmMessage, HOT_ALARM_CODE, roomId); 
+      tooHotAlarmMonitored = true;
+    }
+     
     if (fireAlarm) {
       setBuzzerAlarm(true);
     } else {
@@ -239,11 +269,22 @@ void setHotColdAlarm(int temp) {
     }
     
   } else {
-
+    
+    tooHotAlarmMonitored = false;
     setBuzzerAlarm(false);
 
     if (temp < 25) {
       setTooColdAlarm(true);
+      
+      if (!tooColdAlarmMonitored && monitoringActivated) {
+        char alarmMessage[64] = {0};
+        sprintf(alarmMessage, "Too cold! Temp:%d C", temp);
+        logAlarm(alarmMessage, COLD_ALARM_CODE, roomId); 
+        tooColdAlarmMonitored = true; 
+      }
+      
+    } else {
+      tooColdAlarmMonitored = false; 
     }
     
   }

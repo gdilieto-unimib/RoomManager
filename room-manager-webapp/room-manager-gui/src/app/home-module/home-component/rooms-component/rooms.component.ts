@@ -44,7 +44,13 @@ export class RoomsComponent implements OnInit{
 
     getRooms() {
         this.roomsService.getRooms().subscribe((rooms: Room[]) => {
-            this.rooms = rooms
+            this.rooms = rooms.map(
+                room => {
+                    room.connected = false
+                    room.monitoring = false
+                    return room
+                }
+            )
         })
     }
 
