@@ -119,7 +119,7 @@ void loop()
     timeDb = millis();
   }
   
-  // get configuration from database database (if not already connected)
+  // get configuration from database (if not already connected)
   if (( (millis() - timeConfig) > 10000 ) && isWifiConnected() && !dbConfigured) {
     tryGetRoomConfig();
     timeConfig = millis();
@@ -192,13 +192,16 @@ void listenForEthernetClients() {
     
  if (client) {                             // if you get a client,
     Serial.println("new client");           // print a message out the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
+    String currentLine = "";
+        showLoadingScreen(true);
+
+    // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
       if (client.available()) {             // if there's bytes to read from the client,
         char c = client.read();             // read a byte, then
         Serial.write(c);                    // print it out the serial monitor
         if (c == '\n') {                    // if the byte is a newline character
-
+        
           // if the current line is blank, you got two newline characters in a row.
           // that's the end of the client HTTP request, so send a response:
           if (currentLine.length() == 0) {
@@ -237,6 +240,9 @@ void listenForEthernetClients() {
     }
     // close the connection:
     client.stop();
+
+    showLoadingScreen(false);
+    
     Serial.println("client disonnected");
   }
 }
