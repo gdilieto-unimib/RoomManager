@@ -73,7 +73,7 @@ router.get('/:roomId', (req, res)=>{
 router.put('/', (req, res)=>{
     var room = req.body;
 
-    var roomQuery = "INSERT INTO room (`name`, `ipv4`) " + `VALUES ('${room.name}','${room.ipv4}','${room.connected?1:0}')`
+    var roomQuery = "INSERT INTO room (`name`, `ipv4`) " + `VALUES ('${room.name}','${room.ipv4}')`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)

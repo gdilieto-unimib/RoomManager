@@ -67,7 +67,13 @@ export class RoomComponent implements OnInit {
             )
             this.getRoomAlarms(this.room.id?this.room.id:0).subscribe(
                 (alarms) => {
-                    this.room.alarms = alarms
+                    this.room.alarms = alarms.map(
+                        alarm => {
+                            let mills = alarm.datetime.getMilliseconds()
+                            alarm.datetime.setMilliseconds(mills+7200000)
+                            return alarm
+                        }
+                    )
                 }
             )
             setTimeout(() => {

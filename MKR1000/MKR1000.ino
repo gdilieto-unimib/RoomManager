@@ -122,8 +122,8 @@ void loop()
   }  
 
   //check (each second) if sensors are changed, if so update the screen
-  if ( (millis() - timeSensors) > 1000 ) {    
-      updateScreenAsSensorsChange();
+  if ( (millis() - timeSensors) > 2000 ) {    
+      updateScreenAndSensors();
       timeSensors = millis();
   }
 
@@ -198,20 +198,18 @@ void action(int pressedButton) {
     }
 }
 
-void updateScreenAsSensorsChange() {
+void updateScreenAndSensors() {
     int newTemp = getTemp();
     int newLight = getLight();
     int newWifiRssi = getWifiRssi();
 
-    if (lastTemp !=  newTemp || newLight > lastLight + 100 || newLight < lastLight - 100){
-      updateScreen();
-      updateLight(newLight, lightConfig, &lightStatus, lightActivationThreshold);
-      updateTemp(newTemp, tempConfig, &tempStatus, tempActivationThreshold);
-      
-      lastTemp = newTemp;
-      lastLight = newLight;
-      lastWifiRssi = newWifiRssi;
-    }
+    updateScreen();
+    updateLight(newLight, lightConfig, &lightStatus, lightActivationThreshold);
+    updateTemp(newTemp, tempConfig, &tempStatus, tempActivationThreshold);
+    
+    lastTemp = newTemp;
+    lastLight = newLight;
+    lastWifiRssi = newWifiRssi;
 
     timeSensors = millis();
 }
