@@ -1,6 +1,5 @@
- #include "database_controller_room_manager.h"
+#include "database_controller_room_manager.h"
 #include "wifi_controller_room_manager.h"
-#include "rgb_lcd_controller_room_manager.h"
 
 // MySQL server cfg
 char mysql_user[] = MYSQL_USER;       // MySQL user login username
@@ -10,30 +9,36 @@ WiFiClient * clientPointer = getClient();
 MySQL_Connection conn((Client *)clientPointer);
 
 boolean connectToMySql(){ 
+  // connect to MySql if not already connected
+  
   if (!conn.connected()) { 
     conn.close(); 
     Serial.println(F("Connecting to MySQL...")); 
     if (conn.connect(server_addr, 3306, mysql_user, mysql_password)) { 
       Serial.println(F("MySQL connection established.")); 
     } else { 
-      Serial.println(F("MySQL connection failed."));
-
+      Serial.println(F("MySQL connection failed.")); 
       return false; 
     } 
   } 
-
   return true;
 }
 
 void disconnectMySql() {
+  // disconnect from MySql
+  
     conn.close();
 }
 
 boolean isMySqlConnected(){
+  // check if MySql is connected
+  
   return conn.connected();
 }
 
 boolean setupConfig(int* roomId, int sensorsId[3]) { 
+  // retrieve room and sensor's configuration
+  
   if (!connectToMySql()) {
     return false;
   }
@@ -91,6 +96,8 @@ boolean setupConfig(int* roomId, int sensorsId[3]) {
 }
 
 boolean logSensorMeasure(int sensor, char* value) { 
+  // log sensor's measure
+  
   if (!connectToMySql()) {
     return false;
   }
@@ -111,6 +118,8 @@ boolean logSensorMeasure(int sensor, char* value) {
 }
 
 boolean logAlarm(char* message, int code, int roomId) {
+  // log alarm
+  
   if (!connectToMySql()) {
     return false;
   }

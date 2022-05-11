@@ -9,7 +9,7 @@
      Tiberio Falsiroli - t.falsiroli@unimib.it
  * ****************************************************************************
 
-  Room manager: an IOT application that allows you to monitorate and control you room's temperature and light sensors and actuators.
+  Room manager: an IOT application that allows you to monitorate your rooms' temperature and light sensors and control your actuators (thermostats and lights).
 
   Components for a room device:
     1x MKR1000
@@ -32,7 +32,7 @@
 #include "io_controller_room_manager.h"
 #include "database_controller_room_manager.h"
 
-int screen = 0;
+int screen = INFO_SCREEN;
 boolean navigationMode = true;
 
 int lightStatus = LIGHT_STATUS_OFF;
@@ -43,35 +43,30 @@ int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
+int tooHotTempThreshold = 50;
+int tooColdTempThreshold = 20;
+
 int displayRow = 0;
 int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
 
-boolean attemptDatabaseConnection = true;
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
-
 boolean fireAlarm = true;
+
+boolean attemptDatabaseConnection = true;
 boolean monitoringActivated = false;
 boolean dbConfigured = false;
+boolean startServer= true;
 
 int roomId = -1;
 
-//Positions of ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
+//Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
 int sensorsId[3] = { -1, -1, -1};
 
-boolean firstStartWifi = true;
-boolean firstStartConfig= true;
-boolean startServer= true;
+long timeDb, timeWifi, timeSensors, timeLogging, timeConfig;
 
-long timeDb;
-long timeWifi;
-long timeSensors;
-long timeLogging;
-long timeConfig;
-
-int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 void setup()
@@ -100,27 +95,38 @@ void setup()
 void loop()
 {
   if (isWifiConnected()) {
+    // if wifi is connected, start http server
     if (startServer) {
       server.begin();
       startServer = false;
     }
-    listenForEthernetClients();
+    // listen for http requests
+    listenForClients();
   }
   
-  // connect to WiFi (if not already connected) each 10 seconds
+  // connect to WiFi (if not already connected) every 10 seconds
   if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
+    
+    // if wifi was disconnected, monitoring and http server are resetted
+    monitoringActivated = false;
+    startServer = true;
+
+    // try to connect to wifi
     tryWifiConnection();
+    
     timeWifi = millis();
   }
   
-  // toggle connection to MySql database each 10 seconds
+  // eventually toggle connection to MySql database every 10 seconds
   if (( (millis() - timeDb) > 10000 ) && isWifiConnected()){
+    // try to enable/disable db connection
     tryToggleDbConnection();
     timeDb = millis();
   }
   
-  // get configuration from database (if not already connected)
+  // get configuration from database (if not already connected) every 10 seconds
   if (( (millis() - timeConfig) > 10000 ) && isWifiConnected() && !dbConfigured) {
+    // try to download room's device configuration
     tryGetRoomConfig();
     timeConfig = millis();
   }
@@ -143,7 +149,9 @@ void loop()
 
   //check (each second) if sensors are changed, if so update the screen
   if ( (millis() - timeSensors) > 2000 ) {    
-      updateScreenAndSensors();
+      updateSensors();
+      updateScreen();
+      
       timeSensors = millis();
   }
 
@@ -158,8 +166,8 @@ void loop()
 }
 
 void tryWifiConnection() {
-  monitoringActivated = false;
-  startServer = true;
+  // try to connect to wifi (with loading screen)
+  
   wifiLoadingScreen(true);
   connectWifi();
   wifiLoadingScreen(false);
@@ -167,6 +175,8 @@ void tryWifiConnection() {
 }
 
 void tryToggleDbConnection() {
+  // try to toggle database connection
+  
   if (!isMySqlConnected() && attemptDatabaseConnection)
     connectToMySql();
   else if (isMySqlConnected() && !attemptDatabaseConnection)
@@ -174,6 +184,8 @@ void tryToggleDbConnection() {
 }
 
 void tryLogMeasures() {
+  // try to log measures into db (with loading screen)
+  
   loggingLoadingScreen(true);
   logSensorsMeasure();
   loggingLoadingScreen(false);
@@ -181,14 +193,18 @@ void tryLogMeasures() {
 }
 
 void tryGetRoomConfig() {
+  // try to get device's room configuration (with loading screen)
+  
   dbLoadingScreen(true);
   dbConfigured = setupConfig(&roomId, sensorsId);
   dbLoadingScreen(false);
   updateScreen();
 }
 
-void listenForEthernetClients() {
-    WiFiClient client = server.available();   // listen for incoming clients
+void listenForClients() {
+  // listen for http requests from a webapp
+  
+ WiFiClient client = server.available();   // listen for incoming clients
     
  if (client) {                             // if you get a client,
     Serial.println("new client");           // print a message out the serial port
@@ -207,9 +223,8 @@ void listenForEthernetClients() {
           currentLine += c;      // add it to the end of the currentLine
         }
 
-        // Check to see which client request was done
+        // Check to see which client request was sent
         if (currentLine.endsWith("GET /IsConnected")) {
-            Serial.println("Http request: GET /IsConnected");
             String response = "{\"connected\":true, ";
             if(monitoringActivated) {
               response += "\"monitoringActivated\": true}";
@@ -220,53 +235,45 @@ void listenForEthernetClients() {
             client.println();
         }
         if (currentLine.endsWith("GET /StartMonitoring")) {
-            Serial.println("Http request: GET /StartMonitoring");
             client.print("{\"monitoringActivated\": true}");
             monitoringActivated = true;               // GET /StartMonitoring turns on the monitor logging
             attemptDatabaseConnection = true;
             client.println();
         }
         else if (currentLine.endsWith("GET /StopMonitoring")) {
-            Serial.println("Http request: GET /StopMonitoring");
             client.print("{\"monitoringActivated\": false}");
             monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
             attemptDatabaseConnection = false;
             client.println();
         }
         else if (currentLine.endsWith("GET /OnTemp")) {
-            Serial.println("Http request: GET /OnTemp");
-            tempConfig = CONFIG_ON;
+            tempConfig = CONFIG_ON;                 // GET /OnTemp turns on the thermostat
             client.print("{\"temp\": \"on\"}");
             client.println();
         }
         else if (currentLine.endsWith("GET /OffTemp")) {
-            Serial.println("Http request: GET /OffTemp");
-            tempConfig = CONFIG_OFF;
+            tempConfig = CONFIG_OFF;                // GET /OnTemp turns off the thermostat
             client.print("{\"temp\": \"off\"}");
             client.println();
 
         }
         else if (currentLine.endsWith("GET /OnLight")) {
-            Serial.println("Http request: GET /OnLight");
-            lightConfig = CONFIG_ON;
+            lightConfig = CONFIG_ON;                // GET /OnLight turns on the thermostat
             client.print("{\"light\": \"on\"}");
             client.println();
 
         }
         else if (currentLine.endsWith("GET /OffLight")) {
-            Serial.println("Http request: GET /OffLight");
-            lightConfig = CONFIG_OFF;
+            lightConfig = CONFIG_OFF;               // GET /OffLight turns off the room's light
             client.print("{\"light\": \"off\"}");
             client.println();
 
         }
         else if (currentLine.endsWith("GET /AutoLight")) {
-            Serial.println("Http request: GET /AutoLight");
-            lightConfig = CONFIG_AUTO;
+            lightConfig = CONFIG_AUTO;              // GET /Autoght turns on/off the room's light automatically based on the light sensor's threshold
             client.print("{\"light\": \"auto\"}");
             client.println();
         }
-        // The HTTP response ends with another blank line:
       }
     }
     // close the connection:
@@ -277,21 +284,21 @@ void listenForEthernetClients() {
 
 int getPressedButton(){
 
-  byte val_MENO = digitalRead(BUTTON_MENO); // read the button state
-  byte val_PIU = digitalRead(BUTTON_PIU); // read the button state
-  byte val_OK = digitalRead(BUTTON_OK); // read the button state
+  byte val_MENO = digitalRead(BUTTON_MENO); // read the meno button state
+  byte val_PIU = digitalRead(BUTTON_PIU); // read the piu button state
+  byte val_OK = digitalRead(BUTTON_OK); // read the ok button state
 
-  if (val_MENO == HIGH) {
+  if (val_MENO == HIGH) { // meno button is pressed
     delay(250);
     return MENO;
-  } else if (val_PIU == HIGH) {
+  } else if (val_PIU == HIGH) { // piu button is pressed
     delay(250);
     return PIU;
-  } else if (val_OK == HIGH) {
+  } else if (val_OK == HIGH) { // ok button is pressed
     delay(250);
     return OK;
   } else {
-    return NO_OP;
+    return NO_OP; // no button is pressed
   }
   
 }
@@ -299,36 +306,45 @@ int getPressedButton(){
 void navigate(int pressedButton) {
   switch (pressedButton) {
     case MENO: {
+        // navigate to the previous screen (or go to the last screen if you are on the first screen)
         screen = (NUMBER_OF_SCREENS + screen - 1) % NUMBER_OF_SCREENS;
         break;
       }
     case PIU: {
+        // navigate to the following screen (or go to the first screen if you are on the last screen)
         screen = (screen + 1) % NUMBER_OF_SCREENS;
         break;
       }
     case OK: {
-          navigationMode = false;
+        // deactivate the navigation mode (ready to pursue actions on the screen)
+        navigationMode = false;
+        break;
       }
   }
 }
 
 void action(int pressedButton) {
   switch (screen) {
-      case TEMP_SCREEN: {
-        actionTempScreen(pressedButton, &displayRow, &tempActivationThreshold, &tempConfig, &navigationMode);
-        break;
-      }
-
+      
+      // do specific actions for the info screen
       case INFO_SCREEN: {
         actionInfoScreen(pressedButton, &displayRow, &navigationMode, isMySqlConnected(), &attemptDatabaseConnection);
         break;
       }
-
+      
+      // do specific actions for the temperature's control screen
+      case TEMP_SCREEN: {
+        actionTempScreen(pressedButton, &displayRow, &tempActivationThreshold, &tempConfig, &navigationMode);
+        break;
+      }
+      
+      // do specific actions for the light's control screen
       case LIGHT_SCREEN: {
         actionLightScreen(pressedButton, &displayRow, &lightActivationThreshold, &lightConfig, &navigationMode);
         break;
       }
       
+      // do specific actions for the alarm control screen
       case ALARM_SCREEN: {
         actionAlarmScreen(pressedButton, &navigationMode, &fireAlarm);
         break;
@@ -336,25 +352,21 @@ void action(int pressedButton) {
     }
 }
 
-void updateScreenAndSensors() {
-    int newTemp = getTemp();
-    int newLight = getLight();
-    int newWifiRssi = getWifiRssi();
-
-    updateScreen();
-    updateLight(newLight, lightConfig, &lightStatus, lightActivationThreshold);
-    updateTemp(newTemp, tempConfig, &tempStatus, tempActivationThreshold);
+void updateSensors() {
+    // get new measures
+    lastTemp = getTemp();
+    lastLight = getLight();
+    lastWifiRssi = getWifiRssi();
     
-    lastTemp = newTemp;
-    lastLight = newLight;
-    lastWifiRssi = newWifiRssi;
-
-    timeSensors = millis();
+    // update actuators based on thresholds
+    updateLight(lastLight, lightConfig, &lightStatus, lightActivationThreshold);
+    updateTemp(lastTemp, tempConfig, &tempStatus, tempActivationThreshold);
 }
 
 void updateScreen() {
   setNavigationMode(navigationMode);
   switch (screen) {
+    // screen update if you are on info screen
     case INFO_SCREEN: {
 
       updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), isMySqlConnected());
@@ -362,6 +374,8 @@ void updateScreen() {
       
       break;
     }
+    
+    // screen update if you are on temperature's control screen
     case TEMP_SCREEN: {
 
       updateTempScreenRows(lastTemp, tempConfig, tempActivationThreshold);
@@ -369,6 +383,8 @@ void updateScreen() {
 
       break;
     }
+    
+    // screen update if you are on light's control screen
     case LIGHT_SCREEN: {
 
       updateLightScreenRows(lightStatus, lightConfig, lightActivationThreshold);
@@ -376,6 +392,8 @@ void updateScreen() {
 
       break;
     }
+    
+    // screen update if you are on alarm's control screen
     case ALARM_SCREEN: {
 
       updateAlarmScreenRows(fireAlarm);
@@ -387,18 +405,22 @@ void updateScreen() {
 }
 
 void setHotColdAlarm(int temp) {
-  if (temp > 35) {
+  // set alarm if temperature is too hot (fire risk)
+  if (temp > tooHotTempThreshold) {
 
     setTooHotAlarm(true);
     tooColdAlarmMonitored = false;
-    
+
     if (!tooHotAlarmMonitored && monitoringActivated) {
+      // log too hot alarm if monitoring is enabled
+    
       char alarmMessage[64] = {0};
       sprintf(alarmMessage, "Too hot! Temp:%d C", temp);
       logAlarm(alarmMessage, HOT_ALARM_CODE, roomId); 
       tooHotAlarmMonitored = true;
     }
      
+    // buzzer alarm is activated only if user allows to on the alarm's control page
     if (fireAlarm) {
       setBuzzerAlarm(true);
     } else {
@@ -406,14 +428,17 @@ void setHotColdAlarm(int temp) {
     }
     
   } else {
-    
+    // disable eventual activated too hot alarm (freezing risk)
     tooHotAlarmMonitored = false;
     setBuzzerAlarm(false);
 
-    if (temp < 25) {
+    // set alarm if temperature is too cold (fire risk)
+    if (temp < tooColdTempThreshold) {
       setTooColdAlarm(true);
       
       if (!tooColdAlarmMonitored && monitoringActivated) {
+        // log too cold alarm if monitoring is enabled
+        
         char alarmMessage[64] = {0};
         sprintf(alarmMessage, "Too cold! Temp:%d C", temp);
         logAlarm(alarmMessage, COLD_ALARM_CODE, roomId); 
@@ -421,6 +446,7 @@ void setHotColdAlarm(int temp) {
       }
       
     } else {
+      // disable eventual activated too cold alarm
       tooColdAlarmMonitored = false; 
     }
     
@@ -428,6 +454,8 @@ void setHotColdAlarm(int temp) {
 }
 
 void logSensorsMeasure() {
+  
+  // for each configured sensor (with id != -1), log last measure
   for (int i = 0; i < 3; i++) {
     if (sensorsId[i] != -1) {
       char value[128] = {0};

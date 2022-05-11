@@ -12,7 +12,7 @@ void setTooHotAlarm(boolean active);
 
 void setTooColdAlarm(boolean active);
 
-void updateInfoScreenRows(int temp, int light, boolean wifi, boolean deviceConfigured);
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected);
 
 void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold);
 
@@ -29,8 +29,5 @@ void wifiLoadingScreen(boolean i);
 void dbLoadingScreen(boolean i);
 
 void loggingLoadingScreen(boolean i);
-
-void showLoadingScreen(boolean loadingScreen);
-
 
 #endif

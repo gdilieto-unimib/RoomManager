@@ -13,28 +13,28 @@ void setupIO() {
   // set pin as input
   pinMode(TEMP, INPUT);
 
-  // set BUTTON pin as input
+  // set BUTTON_PIU pin as input
   pinMode(BUTTON_PIU, INPUT);
 
-  // set BUTTON pin as input
+  // set BUTTON_MENOpin as input
   pinMode(BUTTON_MENO, INPUT);
 
-  // set BUTTON pin as input
+  // set BUTTON_OK pin as input
   pinMode(BUTTON_OK, INPUT);
 
-    // set LED pin as output
+  // set LIGHT_LED pin as output
   pinMode(LIGHT_LED, OUTPUT);
-  
-  pinMode(HOT_TEMP_LED, OUTPUT);
-  pinMode(COLD_TEMP_LED, OUTPUT);
-
 }
 
 int getWifiRssi() {
+  // get wifi rssi's value in decibel
+  
   return (int) WiFi.RSSI();
 }
 
 int getTemp(){
+  // get temperature's measure in celsius
+  
   int a = analogRead(TEMP);
 
   float R = 1023.0 / ((float)a) - 1.0;
@@ -45,10 +45,14 @@ int getTemp(){
 }
 
 int getLight(){
+  // get light's value in lux
+  
   return analogRead(PHOTORESISTOR);
 }
 
 void setLightStatus(int lightStatus) {
+  // set light's actuator based on light status
+  
   if (lightStatus==LIGHT_STATUS_ON){
     digitalWrite(LIGHT_LED, HIGH);
   }else{
@@ -57,12 +61,12 @@ void setLightStatus(int lightStatus) {
 }
 
 void setTempStatus(int tempStatus) {
+  // set temp's actuators based on light status
+  
   if (tempStatus==TEMP_STATUS_UP){
-    //riscaldamento acceso
     digitalWrite(HOT_TEMP_LED, HIGH);
   }else if (tempStatus==TEMP_STATUS_DOWN) {
-    //riscaldamento spento  
-    digitalWrite(HOT_TEMP_LED, HIGH);
+    digitalWrite(COLD_TEMP_LED, HIGH);
   } else {
     digitalWrite(HOT_TEMP_LED, LOW);
     digitalWrite(COLD_TEMP_LED, LOW);
@@ -71,8 +75,8 @@ void setTempStatus(int tempStatus) {
 
 void updateLight(int light, int lightConfig, int* lightStatus, int lightActivationThreshold) {
   
-  //Se la luce è sotto la treshold impostata, accendo la luce
   switch(lightConfig) {
+    // set ligh's status automatically based on light's activaiton threshold
     case CONFIG_AUTO:{
       if(light<lightActivationThreshold){
       
@@ -86,43 +90,54 @@ void updateLight(int light, int lightConfig, int* lightStatus, int lightActivati
 
       break;
     }
+    // set ligh's status on
     case CONFIG_ON: {
       *lightStatus = LIGHT_STATUS_ON;
       break;
     }
+    // set ligh's status off
     case CONFIG_OFF: {
       *lightStatus = LIGHT_STATUS_OFF;
       break;
     }
   }
 
+  // set ligh's actuator
   setLightStatus(*lightStatus);
   
 }
 
 void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold) {
   
-  //Se la temperatura è sotto la treshold impostata, aumento o abbasso la temperatura
   switch(tempConfig) {
+    // set thermostat's status automatically based on temperature's activation threshold
+    
     case CONFIG_ON: {
       if (temp < tempActivationThreshold) {
+        // UP to increase temperature
         *tempStatus = TEMP_STATUS_UP;
       } else if (temp > tempActivationThreshold) {
+        // DOWN to decrease temperature
         *tempStatus = TEMP_STATUS_DOWN;
       } else {
+        // stay off if the correct temperature is reached
         *tempStatus = TEMP_STATUS_OFF;
       }
       break;
     }
+    // set thermostat's status off
     case CONFIG_OFF: {
       *tempStatus = TEMP_STATUS_OFF;
     }
   }
   
+  // set thermostat's actuator
   setTempStatus(*tempStatus);
   
 }
 
 void setBuzzerAlarm(boolean active) {
+  // set the buzzer for fire alarm
+  
   digitalWrite(BUZZER_GROVE, active ? HIGH : LOW);
 }

@@ -20,6 +20,8 @@ WiFiUDP udp;                                   // UDP instance to send and recei
 unsigned int localPort = 2390; 
 
 void connectWifi(){
+  // connect to wifi if not already connected
+  
   if (WiFi.status() != WL_CONNECTED) {
    #ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
@@ -29,13 +31,19 @@ void connectWifi(){
 }
 
 boolean isWifiConnected() {
+  // check if wifi is connected
+  
   return (WiFi.status() == WL_CONNECTED);
 }
 
 void setupWiFi(){
+  // initial setup for wifi connection
+  
   udp.begin(localPort);
 }
 
-WiFiClient * getClient(){
+WiFiClient* getClient(){
+  // get pointer to the wifi client
+  
   return &client;  
 }
