@@ -67,7 +67,10 @@ export class RoomComponent implements OnInit {
         if(this.room.connected) {
             this.getRoomSensors(this.room.id?this.room.id:0).subscribe(
                 (sensors) => {
-                    this.room.sensors = sensors
+                    this.room.sensors = this.room.sensors.map(sensor => {
+                        sensor.measure = sensors.find((sensor_2) => sensor_2.id == sensor.id)?.measure
+                        return sensor
+                    })
                 }
             )
             this.getRoomAlarms(this.room.id?this.room.id:0).subscribe(
