@@ -17,6 +17,8 @@ boolean logSensorMeasure(int sensor, char* value);
 
 boolean logAlarm(char* message, int code, int roomId);
 
+boolean connectToMySql();
+
 void disconnectMySql();
 
 boolean isMySqlConnected();
