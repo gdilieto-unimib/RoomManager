@@ -223,7 +223,6 @@ void listenForEthernetClients() {
           monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
           disconnectMySql();
         }
-        client.stop();
       }
     }
     // close the connection:

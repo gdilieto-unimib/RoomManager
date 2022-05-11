@@ -103,7 +103,7 @@ router.put('/', (req, res)=>{
 
 router.post('/', (req, res)=>{
     var room = req.body;
-    var roomQuery = `UPDATE room SET name = '${room.name}', ipv4 = '${room.ipv4}', WHERE room.id = ${room.id}`
+    var roomQuery = `UPDATE room SET name = '${room.name}', ipv4 = '${room.ipv4}' WHERE room.id = ${room.id}`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
