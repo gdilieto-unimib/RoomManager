@@ -62,7 +62,7 @@ int roomId = -1;
 int sensorsId[3] = { -1, -1, -1};
 
 boolean firstStartWifi = true;
-boolean firstStartDb= true;
+boolean firstStartConfig= true;
 boolean startServer= true;
 
 long timeDb;
@@ -81,6 +81,14 @@ void setup()
   setupLcd();
   setupIO();
   
+  tryWifiConnection();
+  if (isWifiConnected()) {
+    tryToggleDbConnection();
+  }
+  if (isMySqlConnected()) {
+    tryGetRoomConfig();
+  }
+  
   lastLight = getLight();
   lastTemp = getTemp();
   lastWifiRssi = getWifiRssi();
@@ -93,46 +101,29 @@ void loop()
 {
   if (isWifiConnected()) {
     if (startServer) {
-      printWifiStatus();
-      Serial.println("BEGIN SERVER");
       server.begin();
       startServer = false;
     }
     listenForEthernetClients();
   }
   
-  
-  // connect to WiFi (if not already connected)
-  if (!isWifiConnected() && ( (millis() - timeWifi > 10000) || firstStartWifi )) {
-    startServer = true;
-    Serial.println("CSADSA");
-    wifiLoadingScreen(true);
-    connectWifi();
-    wifiLoadingScreen(false);
-    updateScreen();
-    firstStartWifi = false;
+  // connect to WiFi (if not already connected) each 10 seconds
+  if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
+    tryWifiConnection();
     timeWifi = millis();
   }
   
-  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected()){
-    if (!isMySqlConnected() && attemptDatabaseConnection)
-      connectToMySql();
-    else if (isMySqlConnected() && !attemptDatabaseConnection)
-      disconnectMySql();
+  // toggle connection to MySql database each 10 seconds
+  if (( (millis() - timeDb) > 10000 ) && isWifiConnected()){
+    tryToggleDbConnection();
     timeDb = millis();
   }
   
   // get configuration from database database (if not already connected)
-  if (( (millis() - timeConfig) > 10000 || firstStartDb ) && isWifiConnected() && !dbConfigured) {
-    dbLoadingScreen(true);
-    dbConfigured = setupConfig(&roomId, sensorsId);
-    dbLoadingScreen(false);
-    updateScreen();
-    firstStartDb = false;
+  if (( (millis() - timeConfig) > 10000 ) && isWifiConnected() && !dbConfigured) {
+    tryGetRoomConfig();
     timeConfig = millis();
   }
-
-  
 
   // get the actual pressed button
   int pressedButton = getPressedButton();
@@ -157,11 +148,8 @@ void loop()
   }
 
   //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 10000 && dbConfigured && monitoringActivated ) {
-      loggingLoadingScreen(true);
-      logSensorsMeasure();
-      loggingLoadingScreen(false);
-      updateScreen();
+  if ( (millis() - timeLogging) > 10000 && dbConfigured && monitoringActivated && isMySqlConnected()) {
+      tryLogMeasures();
       timeLogging = millis();
   }
 
@@ -169,24 +157,34 @@ void loop()
   setHotColdAlarm(lastTemp);
 }
 
-void printWifiStatus() {
-  Serial.println(F("\n=== WiFi connection status ==="));
+void tryWifiConnection() {
+  monitoringActivated = false;
+  startServer = true;
+  wifiLoadingScreen(true);
+  connectWifi();
+  wifiLoadingScreen(false);
+  updateScreen();
+}
 
-  // SSID
-  Serial.print(F("SSID: "));
-  Serial.println(WiFi.SSID());
+void tryToggleDbConnection() {
+  if (!isMySqlConnected() && attemptDatabaseConnection)
+    connectToMySql();
+  else if (isMySqlConnected() && !attemptDatabaseConnection)
+    disconnectMySql();
+}
 
-  // signal strength
-  Serial.print(F("Signal strength (RSSI): "));
-  Serial.print(WiFi.RSSI());
-  Serial.println(F(" dBm"));
+void tryLogMeasures() {
+  loggingLoadingScreen(true);
+  logSensorsMeasure();
+  loggingLoadingScreen(false);
+  updateScreen();
+}
 
-  // current IP
-  Serial.print(F("IP Address: "));
-  IPAddress ip = WiFi.localIP();
-  Serial.println(ip);
-
-  Serial.println(F("==============================\n"));
+void tryGetRoomConfig() {
+  dbLoadingScreen(true);
+  dbConfigured = setupConfig(&roomId, sensorsId);
+  dbLoadingScreen(false);
+  updateScreen();
 }
 
 void listenForEthernetClients() {

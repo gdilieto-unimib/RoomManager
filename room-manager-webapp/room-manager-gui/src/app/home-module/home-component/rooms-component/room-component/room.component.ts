@@ -89,6 +89,8 @@ export class RoomComponent implements OnInit {
         if(this.room.monitoring) {
             this.postStopRoomMonitoring(this.room.ipv4).subscribe(
                 stopped => {
+                    console.log("STOP")
+                    console.log(stopped)
                     if (stopped) {
                         this.room.monitoring = false
                     }
@@ -98,6 +100,8 @@ export class RoomComponent implements OnInit {
         } else {
             this.postStartRoomMonitoring(this.room.ipv4).subscribe(
                 started => {
+                    console.log("START")
+                    console.log(started)
                     if (started) {
                         this.room.monitoring = true
                     }
