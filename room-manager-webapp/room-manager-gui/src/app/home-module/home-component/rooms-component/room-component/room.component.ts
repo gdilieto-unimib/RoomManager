@@ -30,6 +30,8 @@ export class RoomComponent implements OnInit {
     isConnectedUpdate() : void {
         this.getIsRoomConnected(this.room.ipv4).subscribe(
             (isConnected) => {
+                console.log("CONNECTED")
+                console.log(isConnected)
                 this.room.connected = isConnected
                 if (this.room.connected && this.room.monitoring) {
                     if (this.isUpdatePolling == false) {
@@ -80,7 +82,7 @@ export class RoomComponent implements OnInit {
             )
             setTimeout(() => {
                 this.updateRoomPolling();
-            },5000);
+            },10000);
         }
     }
 

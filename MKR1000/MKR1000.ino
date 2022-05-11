@@ -119,7 +119,7 @@ void loop()
     timeDb = millis();
   }
   
-  // get configuration from database database (if not already connected)
+  // get configuration from database (if not already connected)
   if (( (millis() - timeConfig) > 10000 ) && isWifiConnected() && !dbConfigured) {
     tryGetRoomConfig();
     timeConfig = millis();
@@ -205,15 +205,12 @@ void listenForEthernetClients() {
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
             client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
+            client.println("Content-type:application/json");
             client.println();
 
             // the content of the HTTP response follows the header:
-            client.print("{}");
             //client.print("Click <a href=\"/L\">here</a> turn the Built in LED off<br>");
 
-            // The HTTP response ends with another blank line:
-            client.println();
             // break out of the while loop:
             break;
           }
@@ -225,14 +222,49 @@ void listenForEthernetClients() {
           currentLine += c;      // add it to the end of the currentLine
         }
 
-        // Check to see if the client request was "GET /StartMonitoring" or "GET /StopMonitoring":
+        // Check to see which client request was done
+        if (currentLine.endsWith("GET /IsConnected")) {
+            client.print("{connected:true, ");
+            if(isMySqlConnected()) {
+              client.print("monitoringActivated: true}");
+            } else {
+              client.print("monitoringActivated: false}");
+            }
+        }
         if (currentLine.endsWith("GET /StartMonitoring")) {
-          monitoringActivated = true;               // GET /StartMonitoring turns on the monitor logging
+            client.print("{monitoringActivated: true}");
+            monitoringActivated = true;               // GET /StartMonitoring turns on the monitor logging
         }
-        if (currentLine.endsWith("GET /StopMonitoring")) {
-          monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
-          disconnectMySql();
+        else if (currentLine.endsWith("GET /StopMonitoring")) {
+            client.print("{monitoringActivated: false}");
+            monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
+            disconnectMySql();
         }
+        else if (currentLine.endsWith("GET /OnTemp")) {
+            tempConfig = CONFIG_ON;
+            client.print("{temp: 'on'}");
+        }
+        else if (currentLine.endsWith("GET /OffTemp")) {
+            tempConfig = CONFIG_OFF;
+            client.print("{temp: 'off'}");
+
+        }
+        else if (currentLine.endsWith("GET /OnLight")) {
+            tempConfig = CONFIG_ON;
+            client.print("{light: 'on'}");
+
+        }
+        else if (currentLine.endsWith("GET /OffLight")) {
+            tempConfig = CONFIG_OFF;
+            client.print("{light: 'off'}");
+
+        }
+        else if (currentLine.endsWith("GET /AutoLight")) {
+            tempConfig = CONFIG_AUTO;
+            client.print("{light: 'auto'}");
+        }
+        // The HTTP response ends with another blank line:
+        client.println();
       }
     }
     // close the connection:

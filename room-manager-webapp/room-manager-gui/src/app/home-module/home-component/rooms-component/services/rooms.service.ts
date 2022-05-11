@@ -43,8 +43,9 @@ export class RoomsService {
     return this.http.delete<number>(this.roomUrl+'/'+room.id);
   }
 
-  getIsRoomConnected(roomIp: string): Observable<boolean> {
-    return this.http.get<boolean>(this.roomUrl+'/'+roomIp+'/connected');
+  getIsRoomConnected(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/IsConnected`);
+    //return this.http.get<boolean>(this.roomUrl+'/'+roomIp+'/connected');
   }
 
   postStartRoomMonitoring(roomIp: string): Observable<any> {
