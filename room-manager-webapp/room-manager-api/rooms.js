@@ -73,7 +73,7 @@ router.get('/:roomId', (req, res)=>{
 router.put('/', (req, res)=>{
     var room = req.body;
 
-    var roomQuery = "INSERT INTO room (`name`, `ipv4`, `connected`) " + `VALUES ('${room.name}','${room.ipv4}','${room.connected?1:0}')`
+    var roomQuery = "INSERT INTO room (`name`, `ipv4`) " + `VALUES ('${room.name}','${room.ipv4}','${room.connected?1:0}')`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
@@ -103,7 +103,7 @@ router.put('/', (req, res)=>{
 
 router.post('/', (req, res)=>{
     var room = req.body;
-    var roomQuery = `UPDATE room SET name = '${room.name}', ipv4 = '${room.ipv4}', connected = '${room.connected?1:0}' WHERE room.id = ${room.id}`
+    var roomQuery = `UPDATE room SET name = '${room.name}', ipv4 = '${room.ipv4}', WHERE room.id = ${room.id}`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
