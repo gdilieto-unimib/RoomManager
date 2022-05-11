@@ -56,9 +56,9 @@ export class EditRoomDialog {
   onTestConnectionClick(): void {
     this.isTestingConnection = true
     this.getIsRoomConnected(this.form.getValue('ipv4')).subscribe(
-      (isConnected: boolean) => {
+      (isConnected: any) => {
         this.isTestingConnection = false
-        this.isConnected = isConnected
+        this.isConnected = isConnected.connected
       }
     )
   }
