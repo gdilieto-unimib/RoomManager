@@ -52,8 +52,8 @@ boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 
 boolean fireAlarm = true;
-boolean deviceConfigured = false;
 boolean monitoringActivated = false;
+boolean dbConfigured = false;
 
 int roomId = -1;
 
@@ -75,7 +75,7 @@ WiFiServer server(80);
 void setup()
 {
   timeWifi = timeDb = timeSensors = timeLogging = millis();
-  //setupWiFi();
+  setupWiFi();
   setupLcd();
   setupIO();
   
@@ -113,9 +113,9 @@ void loop()
   }
   
   // connect to database (if not already connected)
-  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected() && !deviceConfigured) {
+  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected() && !dbConfigured) {
     dbLoadingScreen(true);
-    deviceConfigured = setupConfig(&roomId, sensorsId);
+    dbConfigured = setupConfig(&roomId, sensorsId);
     dbLoadingScreen(false);
     updateScreen();
     firstStartDb = false;
@@ -145,7 +145,7 @@ void loop()
   }
 
   //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 10000 && deviceConfigured && monitoringActivated ) {
+  if ( (millis() - timeLogging) > 10000 && dbConfigured && monitoringActivated ) {
       loggingLoadingScreen(true);
       logSensorsMeasure();
       loggingLoadingScreen(false);
@@ -221,7 +221,9 @@ void listenForEthernetClients() {
         }
         if (currentLine.endsWith("GET /StopMonitoring")) {
           monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
+          disconnectMySql();
         }
+        client.stop();
       }
     }
     // close the connection:
@@ -309,7 +311,7 @@ void updateScreen() {
   switch (screen) {
     case INFO_SCREEN: {
 
-      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), deviceConfigured);
+      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), isMySqlConnected());
 
       break;
     }

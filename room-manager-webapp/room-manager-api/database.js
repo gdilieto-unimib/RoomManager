@@ -10,7 +10,7 @@ var localPool = mysql.createPool({
 })
 
 var labPool = mysql.createPool({
-    //connectionLimit: 1000,
+    connectionLimit: 7,
     host: '149.132.178.180',
     port: 3306,
     user: 'gdilieto',
@@ -31,6 +31,8 @@ pool.getConnection((err, connection) => {
         if (err.code === 'ECONNREFUSED') {
             console.error('Database connection was refused.')
         }
+    } else {
+        console.error('Database connection successful.')
     }
     if (connection) connection.release()
     return

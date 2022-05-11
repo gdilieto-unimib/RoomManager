@@ -16,3 +16,7 @@ boolean setupConfig(int* roomId, int sensorsId[3]);
 boolean logSensorMeasure(int sensor, char* value);
 
 boolean logAlarm(char* message, int code, int roomId);
+
+void disconnectMySql();
+
+boolean isMySqlConnected();

@@ -22,6 +22,14 @@ boolean connectToMySql(){
   return true;
 }
 
+void disconnectMySql() {
+    conn.close();
+}
+
+boolean isMySqlConnected(){
+  return conn.connected();
+}
+
 boolean setupConfig(int* roomId, int sensorsId[3]) { 
   if (!connectToMySql()) {
     return false;
