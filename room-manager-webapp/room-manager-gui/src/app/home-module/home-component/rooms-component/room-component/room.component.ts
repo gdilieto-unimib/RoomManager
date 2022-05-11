@@ -69,8 +69,10 @@ export class RoomComponent implements OnInit {
                 (alarms) => {
                     this.room.alarms = alarms.map(
                         alarm => {
-                            let mills = alarm.datetime.getMilliseconds()
-                            alarm.datetime.setMilliseconds(mills+7200000)
+                            let alarmDate = new Date(alarm.datetime)
+                            let millis = alarmDate.getMilliseconds()
+                            alarmDate.setMilliseconds(millis + 7200000)
+                            alarm.datetime = alarmDate
                             return alarm
                         }
                     )
@@ -133,9 +135,8 @@ export class RoomComponent implements OnInit {
         });
     }
 
-    getAlarmClass(alarm_code: string): string[] {
-        console.log(alarm_code)
-        switch (Number(alarm_code)) {
+    getAlarmClass(alarmCode: string): string[] {
+        switch (Number(alarmCode)) {
             case 0: {
                 return ["red-alarm"]
             }

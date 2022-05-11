@@ -10,7 +10,7 @@ var localPool = mysql.createPool({
 })
 
 var labPool = mysql.createPool({
-    connectionLimit: 1000,
+    //connectionLimit: 1000,
     host: '149.132.178.180',
     port: 3306,
     user: 'gdilieto',

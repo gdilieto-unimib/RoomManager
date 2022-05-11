@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -47,11 +47,13 @@ export class RoomsService {
     return this.http.get<boolean>(this.roomUrl+'/'+roomIp+'/connected');
   }
 
-  postStartRoomMonitoring(roomIp: string): Observable<boolean> {
-    return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: true});
+  postStartRoomMonitoring(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/StartMonitoring`);
+    //return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: true});
   }
 
-  postStopRoomMonitoring(roomIp: string): Observable<boolean> {
-    return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: false});
+  postStopRoomMonitoring(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/StopMonitoring`);
+    //return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: false});
   }
 }

@@ -179,7 +179,6 @@ router.post('/:roomIp/monitoring', (req, res)=>{
 
     connection.onerror = (error) => {
         //res.send(false)
-        
         res.send(true)
     }
 
@@ -188,8 +187,9 @@ router.post('/:roomIp/monitoring', (req, res)=>{
     }
 })
 
-router.get('/:roomId/connected', (req, res)=>{
-    const url = `ws://${req.params.roomIp}:80`
+router.get('/:roomIp/connected', (req, res)=>{
+    res.send(true)
+    /*const url = `ws://${req.params.roomIp}:80`
     const connection = new WebSocket(url)
     
     connection.onopen = () => {
@@ -199,12 +199,16 @@ router.get('/:roomId/connected', (req, res)=>{
     connection.onerror = (error) => {
         //res.send(false)
         
+        console.log(error)
+        
         res.send(true)
     }
 
     connection.onmessage = (event) => {
+
+        console.log("CIAO")
         res.send(true)
-    }
+    }*/
 })
 
 router.post('/:roomIp/:sensorId/config', (req, res)=>{
