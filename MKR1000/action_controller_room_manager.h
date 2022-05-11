@@ -10,4 +10,7 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
 
 void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fireAlarm);
 
+void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean isMySqlConnected, boolean* attemptDatabaseConnection);
+
+
 #endif

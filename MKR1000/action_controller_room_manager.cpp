@@ -1,4 +1,7 @@
 #include "action_controller_room_manager.h"
+#include "database_controller_room_manager.h"
+
+
 
 void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThreshold, int* tempConfig, boolean* navigationMode) {
   switch (pressedButton) {
@@ -77,6 +80,39 @@ void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fire
       }
       case PIU: {
         *fireAlarm = !*fireAlarm;
+        break;
+      }
+      case OK: {
+        *navigationMode = true;
+        break;
+      }
+  }
+}
+
+
+void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean isMySqlConnected, boolean* attemptDatabaseConnection){
+  switch (pressedButton) {
+      case MENO: {
+        if(isMySqlConnected){
+          disconnectMySql();
+          *attemptDatabaseConnection = false;
+
+        }else{
+          connectToMySql();   
+          *attemptDatabaseConnection = true;
+       
+        }
+        break;
+      }
+      case PIU: {
+        if(isMySqlConnected){
+          disconnectMySql();
+          *attemptDatabaseConnection = false;
+        }else{
+          connectToMySql();  
+          *attemptDatabaseConnection = true;
+        
+        }
         break;
       }
       case OK: {

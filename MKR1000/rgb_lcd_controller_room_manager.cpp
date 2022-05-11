@@ -107,7 +107,7 @@ void updateInfoScreenRows(int temp, int light, boolean wifi, boolean deviceConfi
       lcd.print("L: "); // show light
       lcd.print(light);
 
-      lcd.setCursor(10, 0);
+      lcd.setCursor(9, 1);
       lcd.write((unsigned char)0);
       
       if(wifi){
@@ -116,7 +116,7 @@ void updateInfoScreenRows(int temp, int light, boolean wifi, boolean deviceConfi
         lcd.print(": OFF");
       }
       
-      lcd.setCursor(10, 1);
+      lcd.setCursor(9, 0);
       lcd.write(1);
 
       if(deviceConfigured){

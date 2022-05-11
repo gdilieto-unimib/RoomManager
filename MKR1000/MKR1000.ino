@@ -48,6 +48,7 @@ int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
 
+boolean attemptDatabaseConnection = true;
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 
@@ -68,13 +69,14 @@ long timeDb;
 long timeWifi;
 long timeSensors;
 long timeLogging;
+long timeConfig;
 
 int status = WL_IDLE_STATUS;
 WiFiServer server(80);
 
 void setup()
 {
-  timeWifi = timeDb = timeSensors = timeLogging = millis();
+  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = millis();
   setupWiFi();
   setupLcd();
   setupIO();
@@ -112,15 +114,25 @@ void loop()
     timeWifi = millis();
   }
   
-  // connect to database (if not already connected)
-  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected() && !dbConfigured) {
+  if (( (millis() - timeDb) > 10000 || firstStartDb ) && isWifiConnected()){
+    if (!isMySqlConnected() && attemptDatabaseConnection)
+      connectToMySql();
+    else if (isMySqlConnected() && !attemptDatabaseConnection)
+      disconnectMySql();
+    timeDb = millis();
+  }
+  
+  // get configuration from database database (if not already connected)
+  if (( (millis() - timeConfig) > 10000 || firstStartDb ) && isWifiConnected() && !dbConfigured) {
     dbLoadingScreen(true);
     dbConfigured = setupConfig(&roomId, sensorsId);
     dbLoadingScreen(false);
     updateScreen();
     firstStartDb = false;
-    timeDb = millis();
+    timeConfig = millis();
   }
+
+  
 
   // get the actual pressed button
   int pressedButton = getPressedButton();
@@ -263,9 +275,7 @@ void navigate(int pressedButton) {
         break;
       }
     case OK: {
-        if (screen != 0)
           navigationMode = false;
-        break;
       }
   }
 }
@@ -274,6 +284,11 @@ void action(int pressedButton) {
   switch (screen) {
       case TEMP_SCREEN: {
         actionTempScreen(pressedButton, &displayRow, &tempActivationThreshold, &tempConfig, &navigationMode);
+        break;
+      }
+
+      case INFO_SCREEN: {
+        actionInfoScreen(pressedButton, &displayRow, &navigationMode, isMySqlConnected(), &attemptDatabaseConnection);
         break;
       }
 
@@ -311,7 +326,8 @@ void updateScreen() {
     case INFO_SCREEN: {
 
       updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), isMySqlConnected());
-
+      updateScreenCursor(!navigationMode, displayRow);
+      
       break;
     }
     case TEMP_SCREEN: {
