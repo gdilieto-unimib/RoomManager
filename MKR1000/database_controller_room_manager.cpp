@@ -1,5 +1,6 @@
-#include "database_controller_room_manager.h"
+ #include "database_controller_room_manager.h"
 #include "wifi_controller_room_manager.h"
+#include "rgb_lcd_controller_room_manager.h"
 
 // MySQL server cfg
 char mysql_user[] = MYSQL_USER;       // MySQL user login username
@@ -9,16 +10,21 @@ WiFiClient * clientPointer = getClient();
 MySQL_Connection conn((Client *)clientPointer);
 
 boolean connectToMySql(){ 
+  dbLoadingScreen(true);
   if (!conn.connected()) { 
     conn.close(); 
     Serial.println(F("Connecting to MySQL...")); 
     if (conn.connect(server_addr, 3306, mysql_user, mysql_password)) { 
       Serial.println(F("MySQL connection established.")); 
     } else { 
-      Serial.println(F("MySQL connection failed.")); 
+      Serial.println(F("MySQL connection failed."));
+        dbLoadingScreen(false);
+
       return false; 
     } 
   } 
+    dbLoadingScreen(false);
+
   return true;
 }
 

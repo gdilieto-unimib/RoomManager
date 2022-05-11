@@ -61,8 +61,7 @@ void setTempStatus(int tempStatus) {
     //riscaldamento acceso
     digitalWrite(HOT_TEMP_LED, HIGH);
   }else if (tempStatus==TEMP_STATUS_DOWN) {
-    //riscaldamento spento
-   
+    //riscaldamento spento  
     digitalWrite(HOT_TEMP_LED, HIGH);
   } else {
     digitalWrite(HOT_TEMP_LED, LOW);
