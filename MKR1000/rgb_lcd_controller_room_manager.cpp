@@ -24,6 +24,19 @@ byte databaseIcon[] = {
   B01110
 };
 
+void showLoadingScreen(boolean loadingScreen){
+  if (loadingScreen){
+    lcd.clear();
+    lcd.setRGB(100, 0, 100);
+    lcd.print("Answering to ");
+    lcd.setCursor(0, 1);
+    lcd.print("HTTP request ");
+    lcd.blink();
+  }else{
+    lcd.noBlink();
+  }
+}
+
 
 void setupLcd() {
 

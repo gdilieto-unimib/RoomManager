@@ -30,4 +30,7 @@ void dbLoadingScreen(boolean i);
 
 void loggingLoadingScreen(boolean i);
 
+void showLoadingScreen(boolean loadingScreen);
+
+
 #endif
