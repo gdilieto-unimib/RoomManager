@@ -22,6 +22,12 @@ void setupIO() {
   // set BUTTON_OK pin as input
   pinMode(BUTTON_OK, INPUT);
 
+  // set COLD_TEMP_LED pin as output
+  pinMode(COLD_TEMP_LED, OUTPUT);
+  
+  // set HOT_TEMP_LED pin as output
+  pinMode(HOT_TEMP_LED, OUTPUT);
+  
   // set LIGHT_LED pin as output
   pinMode(LIGHT_LED, OUTPUT);
 }
@@ -61,13 +67,16 @@ void setLightStatus(int lightStatus) {
 }
 
 void setTempStatus(int tempStatus) {
-  // set temp's actuators based on light status
+  // set thermostat's actuators based on thermostat status
   
   if (tempStatus==TEMP_STATUS_UP){
+    //warm up temperature (using led to simulate)
     digitalWrite(HOT_TEMP_LED, HIGH);
   }else if (tempStatus==TEMP_STATUS_DOWN) {
+    //cool down temperature (using led to simulate)
     digitalWrite(COLD_TEMP_LED, HIGH);
   } else {
+    //temperature is ok or thermostat is configured to be off
     digitalWrite(HOT_TEMP_LED, LOW);
     digitalWrite(COLD_TEMP_LED, LOW);
   }

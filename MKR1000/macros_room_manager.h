@@ -11,7 +11,7 @@
 #define PHOTORESISTOR A1 // A1, analog pin used to read the light
 #define LIGHT_LED 4 // D4, digital pin used for the light led
 #define HOT_TEMP_LED 5 // D5, digital pin used for the hot temp led
-#define COLD_TEMP_LED A0 // A0, analogical pin used as digital pin for the cold temp led
+#define COLD_TEMP_LED 5 // A0, analogical pin used as digital pin for the cold temp led ( PROVVISORIO SU PIN 5 )
 
 #define PIU 3 // Action when button piu is pressed
 #define MENO 2 // Action when button meno is pressed
