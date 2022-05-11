@@ -6,7 +6,7 @@
 
 // ONLY if static configuration is needed
 
-#define IP {149, 132, 182, 33}                    // IP address
+#define IP {149, 132, 182, 44}                    // IP address
 #define SUBNET {255, 255, 255, 0}                // Subnet mask
 #define DNS {149, 132, 2, 3}                     // DNS
 #define GATEWAY {149, 132, 182, 1}               // Gateway

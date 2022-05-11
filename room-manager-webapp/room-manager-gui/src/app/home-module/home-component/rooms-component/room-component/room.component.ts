@@ -32,7 +32,9 @@ export class RoomComponent implements OnInit {
             (isConnected) => {
                 console.log("CONNECTED")
                 console.log(isConnected)
-                this.room.connected = isConnected
+                this.room.connected = isConnected.connected
+                this.room.monitoring = isConnected.monitoringActivated
+
                 if (this.room.connected && this.room.monitoring) {
                     if (this.isUpdatePolling == false) {
                         this.updateRoomPolling()
@@ -47,6 +49,7 @@ export class RoomComponent implements OnInit {
                 }
             },
             (err) => {
+                console.log(err)
                 this.room.connected = false
                 this.room.monitoring = false
             }
@@ -57,7 +60,7 @@ export class RoomComponent implements OnInit {
         this.isConnectedUpdate();
         setTimeout(() => {
             this.isConnectedRoomPolling();
-        },5000);
+        },10000);
     }
 
     updateRoomPolling(): void {
@@ -91,22 +94,14 @@ export class RoomComponent implements OnInit {
         if(this.room.monitoring) {
             this.postStopRoomMonitoring(this.room.ipv4).subscribe(
                 stopped => {
-                    console.log("STOP")
-                    console.log(stopped)
-                    if (stopped) {
-                        this.room.monitoring = false
-                    }
+                    this.room.monitoring = stopped.monitoringActivated
                     this.isConnecting = false
                 }
             )
         } else {
             this.postStartRoomMonitoring(this.room.ipv4).subscribe(
                 started => {
-                    console.log("START")
-                    console.log(started)
-                    if (started) {
-                        this.room.monitoring = true
-                    }
+                    this.room.monitoring = started.monitoringActivated
                     this.isConnecting = false
                 }
             )

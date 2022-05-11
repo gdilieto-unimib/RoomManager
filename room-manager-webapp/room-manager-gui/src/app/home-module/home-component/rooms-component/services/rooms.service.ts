@@ -45,16 +45,33 @@ export class RoomsService {
 
   getIsRoomConnected(roomIp: string): Observable<any> {
     return this.http.get<any>(`http://${roomIp}:80/IsConnected`);
-    //return this.http.get<boolean>(this.roomUrl+'/'+roomIp+'/connected');
+  }
+
+  setRoomTempOn(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/OnTemp`);
+  }
+
+  setRoomTempOff(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/OffTemp`);
+  }
+
+  setRoomLightOn(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/OnLight`);
+  }
+
+  setRoomLightOff(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/OffLight`);
+  }
+  
+  setRoomLightAuto(roomIp: string): Observable<any> {
+    return this.http.get<any>(`http://${roomIp}:80/AutoLight`);
   }
 
   postStartRoomMonitoring(roomIp: string): Observable<any> {
     return this.http.get<any>(`http://${roomIp}:80/StartMonitoring`);
-    //return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: true});
   }
 
   postStopRoomMonitoring(roomIp: string): Observable<any> {
     return this.http.get<any>(`http://${roomIp}:80/StopMonitoring`);
-    //return this.http.post<boolean>(this.roomUrl+'/'+roomIp+'/monitoring', {monitoring: false});
   }
 }

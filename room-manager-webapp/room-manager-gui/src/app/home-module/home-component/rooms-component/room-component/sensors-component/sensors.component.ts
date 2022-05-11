@@ -9,6 +9,7 @@ import { Sensor } from "./sensor-component/models/sensor.model";
 export class SensorsComponent{
     @Input() sensors: Sensor[] = []
     @Input() roomConnected: boolean = false;
+    @Input() roomIp: string = "";
 
     constructor() {
     }
