@@ -20,7 +20,7 @@
     <mat-card>
         <mat-label>IPv4:</mat-label> {{room.ipv4}}  
     </mat-card>
-    <mat-card class="alarm" *ngFor="let alarm of room.alarms">
+    <mat-card [ngClass]="getAlarmClass(alarm.code)" *ngFor="let alarm of room.alarms">
         <mat-label>ALARM: </mat-label>{{alarm.datetime | date:'shortTime'}} - {{alarm.message}}  
     </mat-card>
     <div>

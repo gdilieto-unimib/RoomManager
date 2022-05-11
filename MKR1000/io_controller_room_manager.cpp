@@ -54,11 +54,12 @@ void setLightStatus(int lightStatus) {
 
 void setTempStatus(int tempStatus) {
   if (tempStatus==TEMP_STATUS_UP){
-    digitalWrite(TEMP_LED, HIGH);
+    digitalWrite(HOT_TEMP_LED, HIGH);
   }else if (tempStatus==TEMP_STATUS_DOWN) {
-    digitalWrite(TEMP_LED, HIGH);
+    digitalWrite(COLD_TEMP_LED, HIGH);
   } else {
-    digitalWrite(TEMP_LED, LOW);
+    digitalWrite(HOT_TEMP_LED, LOW);
+    digitalWrite(COLD_TEMP_LED, LOW);
   }
 }
 

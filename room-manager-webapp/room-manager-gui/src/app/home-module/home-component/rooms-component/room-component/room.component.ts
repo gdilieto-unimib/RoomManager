@@ -127,6 +127,21 @@ export class RoomComponent implements OnInit {
         });
     }
 
+    getAlarmClass(alarm_code: string): string[] {
+        console.log(alarm_code)
+        switch (Number(alarm_code)) {
+            case 0: {
+                return ["red-alarm"]
+            }
+            case 1: {
+                return ["blue-alarm"]
+            }
+            default: {
+                return []
+            }
+        } 
+    }
+
     getRoom(roomId: number) {
         return this.roomsService.getRoom(roomId)
     }

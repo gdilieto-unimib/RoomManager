@@ -7,10 +7,11 @@
 #define BUTTON_MENO 2 // D2, digital pin used to read the button state
 #define BUTTON_OK 1 // D1, digital pin used to read the button state
 #define BUZZER_GROVE 0  // D0, digital pin used to drive the buzzer
-#define TEMP A0 // A0, analog pin used to read the temperature
+#define TEMP A2 // A0, analog pin used to read the temperature
 #define PHOTORESISTOR A1 // A1, analog pin used to read the light
 #define LIGHT_LED 4 // D4, digital pin used for the light led
-#define TEMP_LED 5 // D5, digital pin used for the light led
+#define HOT_TEMP_LED 5 // D5, digital pin used for the hot temp led
+#define COLD_TEMP_LED A0 // A0, analogical pin used as digital pin for the cold temp led
 
 #define PIU 3 // Action when button piu is pressed
 #define MENO 2 // Action when button meno is pressed

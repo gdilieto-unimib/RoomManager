@@ -128,7 +128,7 @@ void loop()
   }
 
   //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 5000 && deviceConfigured && monitoringActivated ) {
+  if ( (millis() - timeLogging) > 10000 && deviceConfigured && monitoringActivated ) {
       loggingLoadingScreen(true);
       logSensorsMeasure();
       loggingLoadingScreen(false);
