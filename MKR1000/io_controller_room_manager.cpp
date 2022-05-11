@@ -24,6 +24,10 @@ void setupIO() {
 
     // set LED pin as output
   pinMode(LIGHT_LED, OUTPUT);
+  
+  pinMode(HOT_TEMP_LED, OUTPUT);
+  pinMode(COLD_TEMP_LED, OUTPUT);
+
 }
 
 int getWifiRssi() {
@@ -54,9 +58,12 @@ void setLightStatus(int lightStatus) {
 
 void setTempStatus(int tempStatus) {
   if (tempStatus==TEMP_STATUS_UP){
+    //riscaldamento acceso
     digitalWrite(HOT_TEMP_LED, HIGH);
   }else if (tempStatus==TEMP_STATUS_DOWN) {
-    digitalWrite(COLD_TEMP_LED, HIGH);
+    //riscaldamento spento
+   
+    digitalWrite(HOT_TEMP_LED, HIGH);
   } else {
     digitalWrite(HOT_TEMP_LED, LOW);
     digitalWrite(COLD_TEMP_LED, LOW);
