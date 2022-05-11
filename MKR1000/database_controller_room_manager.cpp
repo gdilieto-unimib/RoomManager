@@ -10,7 +10,6 @@ WiFiClient * clientPointer = getClient();
 MySQL_Connection conn((Client *)clientPointer);
 
 boolean connectToMySql(){ 
-  dbLoadingScreen(true);
   if (!conn.connected()) { 
     conn.close(); 
     Serial.println(F("Connecting to MySQL...")); 
@@ -18,12 +17,10 @@ boolean connectToMySql(){
       Serial.println(F("MySQL connection established.")); 
     } else { 
       Serial.println(F("MySQL connection failed."));
-        dbLoadingScreen(false);
 
       return false; 
     } 
   } 
-    dbLoadingScreen(false);
 
   return true;
 }
