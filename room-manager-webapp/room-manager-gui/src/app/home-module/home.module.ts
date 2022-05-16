@@ -30,7 +30,7 @@ import { SensorsComponent } from "./home-component/rooms-component/room-componen
 import { SidenavComponent } from "./home-component/sidenav-component/sidenav.component";
 import { EditRoomDialog } from "./home-component/rooms-component/room-component/dialogs/edit-room-dialog/edit-room.dialog";
 import { DeleteRoomDialog } from "./home-component/rooms-component/room-component/dialogs/delete-room-dialog/delete-room.dialog";
-import { CreateRoomDialog } from "./home-component/rooms-component/room-component/dialogs/create-room-dialog copy/create-room.dialog";
+import { CreateRoomDialog } from "./home-component/rooms-component/room-component/dialogs/create-room-dialog/create-room.dialog";
 import { SensorIconPipe } from "./home-component/rooms-component/room-component/sensors-component/sensor-component/pipes/sensor-icon.pipe";
 import { HttpClientModule } from "@angular/common/http";
 

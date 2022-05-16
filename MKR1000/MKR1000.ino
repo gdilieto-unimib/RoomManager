@@ -43,7 +43,7 @@ int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
-int tooHotTempThreshold = 50;
+int tooHotTempThreshold = 32;
 int tooColdTempThreshold = 20;
 
 int displayRow = 0;

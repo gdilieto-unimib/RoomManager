@@ -92,7 +92,11 @@ boolean setupConfig(int* roomId, int sensorsId[3]) {
   
   delete cur_mem; 
 
-  return true;
+  if (*roomId != -1){
+    return true;
+  } else {
+    return false;
+  }
 }
 
 boolean logSensorMeasure(int sensor, char* value) { 

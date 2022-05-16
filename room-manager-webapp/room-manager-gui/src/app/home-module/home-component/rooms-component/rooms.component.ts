@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
-import { CreateRoomDialog } from "./room-component/dialogs/create-room-dialog copy/create-room.dialog";
+import { CreateRoomDialog } from "./room-component/dialogs/create-room-dialog/create-room.dialog";
 import { Room } from "./room-component/models/room.model";
 import { RoomsService } from "./services/rooms.service";
 
