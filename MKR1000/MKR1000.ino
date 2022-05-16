@@ -181,6 +181,7 @@ void tryToggleDbConnection() {
     connectToMySql();
   else if (isMySqlConnected() && !attemptDatabaseConnection)
     disconnectMySql();
+  monitoringActivated = attemptDatabaseConnection;
 }
 
 void tryLogMeasures() {
