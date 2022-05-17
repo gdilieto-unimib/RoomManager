@@ -16,3 +16,10 @@
 #define MYSQL_IP {149, 132, 178, 180}              // IP address of the machine running MySQL
 #define MYSQL_USER "gdilieto"                  // db user
 #define MYSQL_PASS "iot874143"     //         // db user's password
+
+
+// MQTT access
+#define MQTT_BROKERIP "149.132.178.180"           // IP address of the machine running the MQTT broker
+#define MQTT_CLIENTID "esp8266_tf"                 // client identifier
+#define MQTT_USERNAME "tfalsiroli"            // mqtt user's name
+#define MQTT_PASSWORD "iot874971"            // mqtt user's password
