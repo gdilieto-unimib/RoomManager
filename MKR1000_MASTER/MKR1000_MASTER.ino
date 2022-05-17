@@ -25,12 +25,59 @@
 
 */
 
-#include "macros_room_manager.h"
+#include "macros_room_manager_master.h"
+#include "wifi_controller_room_manager_master.h"
+#include "database_controller_room_manager_master.h"
+#include "rgb_lcd_controller_room_manager_master.h"
+
+long timeDb, timeLogging, timeScreen;
 
 void setup()
 {
+  setupLcd();
+  timeDb = timeLogging = timeScreen = millis();
 }
 
 void loop()
 {
+  // Connect to wifi
+  tryWifiConnection();
+   
+  // Connect to db
+  tryDbConnection();
+
+  // Update screen
+  updateScreen();
+}
+
+void tryWifiConnection() {
+  // Connect to wifi if not already connected
+  
+  while (!isWifiConnected()) {
+    wifiLoadingScreen(true);
+    connectWifi();
+  }
+  wifiLoadingScreen(false);
+  updateScreen();
+}
+
+void tryDbConnection() {
+  // Connect to MySql if not already connected, while connected to wifi, each DB_CONNECTION_TIMER_MILLIS ms
+  
+  if (isWifiConnected() && !isMySqlConnected() && (millis() - timeDb) > DB_CONNECTION_TIMER_MILLIS) {
+    dbLoadingScreen(true);
+    connectToMySql();
+    dbLoadingScreen(false);
+    updateScreen();
+    timeDb = millis();
+  }
+}
+
+void updateScreen() {
+  // Update screen each SCREEN_UPDATE_TIMER_MILLIS ms
+  
+  if ((millis() - timeScreen) > SCREEN_UPDATE_TIMER_MILLIS) {
+    updateInfoScreenRows(0, isWifiConnected(), isMySqlConnected());
+    timeScreen = millis();
+  }
 }
