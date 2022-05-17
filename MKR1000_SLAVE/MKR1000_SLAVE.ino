@@ -24,7 +24,7 @@
     - MKR pin mapping -> https://docs.arduino.cc/static/a5b251782d7fa7d0212e7a8b34c45a9e/ABX00004-pinout.png
 
 */
-
+#include <ArduinoJson.h>
 #include "macros_room_manager.h"
 #include "rgb_lcd_controller_room_manager.h"
 #include "action_controller_room_manager.h"
@@ -66,7 +66,7 @@ int roomId = -1;
 //Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
 int sensorsId[3] = { -1, -1, -1};
 
-long timeDb, timeWifi, timeSensors, timeLogging, timeConfig;
+long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt;
 
 WiFiServer server(80);
 
@@ -74,7 +74,7 @@ WiFiServer server(80);
 
 void setup()
 {
-  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = millis();
+  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = millis();
   setupWiFi();
   setupLcd();
   setupIO();
@@ -108,11 +108,7 @@ void loop()
     listenForClients();
   MQTTSetup();
   connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
-  getMqttClient().loop();       // MQTT client loop
-
-  getMqttClient().publish(MQTT_TOPIC_STATUS, "SONO CONNESSO!");   // publish new MQTT led status (ON)
-  Serial.print("Messaggio inviato");
-    
+  getMqttClient().loop();       // MQTT client loop  
   }
   
   // connect to WiFi (if not already connected) every 10 seconds
@@ -141,6 +137,11 @@ void loop()
     tryGetRoomConfig();
     timeConfig = millis();
   }
+  if (( (millis() - timeMqtt) > 10000 ) && isWifiConnected()){
+    mqttSendData(lastTemp,lastLight);
+    timeMqtt = millis();
+  }
+  
 
   // get the actual pressed button
   int pressedButton = getPressedButton();

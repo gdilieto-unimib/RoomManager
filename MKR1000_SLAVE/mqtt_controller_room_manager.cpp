@@ -45,3 +45,18 @@ Serial.print("PAYLOAD OFF");
     Serial.println(F("MQTT Topic not recognized, message skipped"));
   }
 }
+
+void mqttSendData(int lastTemp, int lastLight) {
+
+const int capacity = JSON_OBJECT_SIZE(2);
+      StaticJsonDocument<capacity> doc;
+      
+      doc["temperature"] = lastTemp;
+      doc["light"] = lastLight;
+      
+      char buffer[128];
+      size_t n = serializeJson(doc, buffer);
+      Serial.print(F("JSON message: "));
+      Serial.println(buffer);
+      getMqttClient().publish(MQTT_TOPIC_STATUS, buffer, n);
+}
