@@ -31,6 +31,7 @@
 #include "wifi_controller_room_manager.h"
 #include "io_controller_room_manager.h"
 #include "database_controller_room_manager.h"
+#include "mqtt_controller_room_manager.h"
 
 int screen = INFO_SCREEN;
 boolean navigationMode = true;
@@ -69,12 +70,15 @@ long timeDb, timeWifi, timeSensors, timeLogging, timeConfig;
 
 WiFiServer server(80);
 
+
+
 void setup()
 {
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = millis();
   setupWiFi();
   setupLcd();
   setupIO();
+  
   
   tryWifiConnection();
   if (isWifiConnected()) {
@@ -102,6 +106,13 @@ void loop()
     }
     // listen for http requests
     listenForClients();
+  MQTTSetup();
+  connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
+  getMqttClient().loop();       // MQTT client loop
+
+  getMqttClient().publish(MQTT_TOPIC_STATUS, "SONO CONNESSO!");   // publish new MQTT led status (ON)
+  Serial.print("Messaggio inviato");
+    
   }
   
   // connect to WiFi (if not already connected) every 10 seconds
