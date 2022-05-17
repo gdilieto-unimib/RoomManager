@@ -3,6 +3,7 @@
 #define MACROS_ROOM_MANAGER
 #include <Arduino.h>
 
-
+#define DB_CONNECTION_TIMER_MILLIS 10000
+#define SCREEN_UPDATE_TIMER_MILLIS 2000
 
 #endif
