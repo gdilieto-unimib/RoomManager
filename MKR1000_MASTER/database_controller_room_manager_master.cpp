@@ -35,26 +35,24 @@ boolean isMySqlConnected(){
   
   return conn.connected();
 }
-/*
-boolean getConfig(int* roomId, int sensorsId[3]) { 
+
+boolean getRoomConfig(String ipv4, int* roomId, int sensorsId[3]) { 
   // retrieve room and sensor's configuration
   
   if (!connectToMySql()) {
     return false;
   }
-
-  int ip[] = IP;
-  char ipv4[15] = {0};
-  sprintf(ipv4, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-
+  
   char query[128]={0};
+  Serial.println(ipv4); 
   char SELECT_ROOM[] = "SELECT r.id, s.type, s.id FROM gdilieto.room r JOIN gdilieto.sensor s ON r.id = s.room WHERE r.ipv4='%s'"; 
 
-  sprintf(query, SELECT_ROOM, ipv4); 
+  sprintf(query, SELECT_ROOM, &ipv4[0]); 
   Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
   cur_mem->execute(query); 
+  Serial.println("CIAO");
   
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
@@ -98,4 +96,23 @@ boolean getConfig(int* roomId, int sensorsId[3]) {
     return false;
   }
 }
-*/
+
+boolean createRoomConfig(String ipv4, int* roomId, int sensorsId[3]) {
+  if (!connectToMySql()) {
+    return false;
+  }
+  
+  char query[128];
+  char INSERT_ROOM[] = "INSERT INTO `gdilieto`.`room` (`ipv4`) VALUES ('%s')";
+   
+  sprintf(query, INSERT_ROOM, &ipv4[0]);
+  
+  Serial.println(query);
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+  cur_mem->execute(query);
+  
+  delete cur_mem;
+  
+  return true;
+}

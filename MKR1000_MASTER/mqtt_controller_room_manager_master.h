@@ -3,7 +3,6 @@
 #define MQTT_CONTROLLER_ROOM_MANAGER
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include "macros_room_manager_master.h"
 
 #include <WiFi101.h>
 #include <MQTT.h>
@@ -12,7 +11,11 @@
 #define MQTT_BUFFER_SIZE 128               // the maximum size for packets being published and received
 #define MQTT_CONFIG_TOPIC "LabIOT/gdltf/config"   // topic for config
 
+#include "macros_room_manager_master.h"
+#include "database_controller_room_manager_master.h"
 #include "secrets_master.h"
+
+void loopMqttClient();
 
 void connectToMQTTBroker();
 

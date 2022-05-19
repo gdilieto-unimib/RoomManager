@@ -8,6 +8,10 @@ void MQTTSetup(){
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
 }
 
+void loopMqttClient() {
+  mqttClient.loop();
+}
+
 MQTTClient getMqttClient(){
   return mqttClient;
 }
@@ -94,6 +98,22 @@ bool validateIP(String ip) {
     return true;
 }
 
+void mqttSendConfig(String ip, int roomId, int sensorsId[3]) {
+
+  const int capacity = JSON_OBJECT_SIZE(3);
+  StaticJsonDocument<capacity> doc;
+
+  doc["ip"] = ip;
+  //doc["room"] = roomId;
+  //doc["sensors"] = sensorsId;
+  
+  char buffer[128];
+  size_t n = serializeJson(doc, buffer);
+  Serial.print(F("JSON message: "));
+  Serial.println(buffer);
+  getMqttClient().publish(MQTT_CONFIG_TOPIC, buffer, n);
+}
+
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
   Serial.println("Incoming MQTT message: " + topic + " - " + payload);
@@ -101,29 +121,20 @@ void mqttMessageReceived(String &topic, String &payload) {
   if (topic == MQTT_CONFIG_TOPIC) {
     Serial.println("MQTT Topic : config");
     // If a new device sent me his ip
-    Serial.println("SS");
-    Serial.println(validateIP(payload));
     if (validateIP(payload)) {
       
       int roomId = -1;
       int sensorsId[3] = {-1, -1, -1};
-      // if device has already a config, I send him his config
-      // else I create a new config and send it
-      mqttClient.publish(MQTT_CONFIG_TOPIC, "CIAO");
+
+      // if device hasn't already a config, create a new config
+      if (!getRoomConfig(payload, &roomId, sensorsId)) {
+        createRoomConfig(payload, &roomId, sensorsId);
+        getRoomConfig(payload, &roomId, sensorsId);
+      }
+      
+      mqttSendConfig(payload, roomId, sensorsId);
     }
   } else {
     Serial.println(F("MQTT Topic not recognized, message skipped"));
   }
-}
-
-void mqttSendConfig(String ip) {
-
-  const int capacity = JSON_OBJECT_SIZE(2);
-  StaticJsonDocument<capacity> doc;
-  
-  char buffer[128];
-  size_t n = serializeJson(doc, buffer);
-  Serial.print(F("JSON message: "));
-  Serial.println(buffer);
-  getMqttClient().publish(MQTT_CONFIG_TOPIC, buffer, n);
 }

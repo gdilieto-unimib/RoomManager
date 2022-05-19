@@ -30,6 +30,18 @@ void setup()
 {
   setupLcd();
   MQTTSetup();
+
+  // Connect to wifi
+  tryWifiConnection();
+  
+  // Connect to db
+  dbLoadingScreen(true);
+  connectToMySql();
+  dbLoadingScreen(false);
+  
+  // Connect to mqtt broker
+  tryMQTTBrokerConnection();
+  
   timeDb = timeLogging = timeScreen = millis();
 }
 
@@ -38,16 +50,17 @@ void loop()
   // Connect to wifi
   tryWifiConnection();
   
+  // Connect to db
+  tryDbConnection();
+  
   // Connect to mqtt broker
   tryMQTTBrokerConnection();
 
+  // Loop for mqtt messages
+  loopMqttClient();
+
   // Check new messages if connected to the Broker
-  if (isMQTTBrokerConnected()) {
-    getMqttClient().loop(); // MQTT client loop  
-  }
-   
-  // Connect to db
-  //tryDbConnection();
+  //Serial.print("CICAI"); // MQTT client loop  
   
   // Update screen
   updateScreen();
@@ -77,10 +90,13 @@ void tryDbConnection() {
 }
 
 void tryMQTTBrokerConnection() {
+  // Connect to MQTTBroker if not already connected and if wifi is connected
+  
   if (isWifiConnected() && !isMQTTBrokerConnected()) {
     MQTTLoadingScreen(true);
     connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
     MQTTLoadingScreen(false);
+    updateScreen();
   }
 }
 
