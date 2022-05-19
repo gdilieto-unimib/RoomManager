@@ -55,7 +55,7 @@ void wifiLoadingScreen(boolean i){
 }
 
 void dbLoadingScreen(boolean i){
-  // set database configuration loading screen (or disable it)
+  // set database connection loading screen (or disable it)
   
   if (i==false){
     lcd.noBlink();
@@ -64,10 +64,10 @@ void dbLoadingScreen(boolean i){
   }
   lcd.clear();
   lcd.setRGB(100, 0, 100);
-  lcd.print("Loading config");
+  lcd.print("Connecting to");
         lcd.setCursor(0, 1);
 
-  lcd.print("from database");  
+  lcd.print("database");  
   lcd.blink();
 }
 
@@ -82,6 +82,23 @@ void loggingLoadingScreen(boolean i){
   
   // set screen's color green
   lcd.setRGB(100, 100, 0);
+}
+
+void MQTTLoadingScreen(boolean i) {
+  // set mqtt connection loading screen (or disable it)
+  
+  if (i==false){
+    lcd.noBlink();
+    lcd.setRGB(50,50,50);
+    return;
+  }
+  lcd.clear();
+  lcd.setRGB(100, 0, 100);
+  lcd.print("Connecting to");
+        lcd.setCursor(0, 1);
+
+  lcd.print("mqtt broker");  
+  lcd.blink();
 }
 
 void updateInfoScreenRows(int connectedDevices, boolean wifi, boolean isMySqlConnected) {

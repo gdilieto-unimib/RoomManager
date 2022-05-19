@@ -11,15 +11,8 @@
 
   Room manager: an IOT application that allows you to monitorate your rooms' temperature and light sensors and control your actuators (thermostats and lights).
 
-  Components for a room device:
-    1x MKR1000
-    1x MKR connector carrier
-    6x GROVE 4 pins cable
-    1x GROVE Temperature Sensor
-    1x GROVE Light Sensor
-    1x GROVE LED
-    1x GROVE Buzzer
-
+  This is the master component of the architecture.
+  
   Notes:
     - MKR pin mapping -> https://docs.arduino.cc/static/a5b251782d7fa7d0212e7a8b34c45a9e/ABX00004-pinout.png
 
@@ -29,12 +22,14 @@
 #include "wifi_controller_room_manager_master.h"
 #include "database_controller_room_manager_master.h"
 #include "rgb_lcd_controller_room_manager_master.h"
+#include "mqtt_controller_room_manager_master.h"
 
 long timeDb, timeLogging, timeScreen;
 
 void setup()
 {
   setupLcd();
+  MQTTSetup();
   timeDb = timeLogging = timeScreen = millis();
 }
 
@@ -42,10 +37,18 @@ void loop()
 {
   // Connect to wifi
   tryWifiConnection();
+  
+  // Connect to mqtt broker
+  tryMQTTBrokerConnection();
+
+  // Check new messages if connected to the Broker
+  if (isMQTTBrokerConnected()) {
+    getMqttClient().loop(); // MQTT client loop  
+  }
    
   // Connect to db
-  tryDbConnection();
-
+  //tryDbConnection();
+  
   // Update screen
   updateScreen();
 }
@@ -70,6 +73,14 @@ void tryDbConnection() {
     dbLoadingScreen(false);
     updateScreen();
     timeDb = millis();
+  }
+}
+
+void tryMQTTBrokerConnection() {
+  if (isWifiConnected() && !isMQTTBrokerConnected()) {
+    MQTTLoadingScreen(true);
+    connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
+    MQTTLoadingScreen(false);
   }
 }
 

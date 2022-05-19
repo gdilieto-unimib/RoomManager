@@ -18,4 +18,6 @@ void dbLoadingScreen(boolean i);
 
 void loggingLoadingScreen(boolean i);
 
+void MQTTLoadingScreen(boolean i);
+
 #endif
