@@ -30,4 +30,7 @@ void dbLoadingScreen(boolean i);
 
 void loggingLoadingScreen(boolean i);
 
+// Function to validate an IP address
+bool validateIP(String ip);
+
 #endif

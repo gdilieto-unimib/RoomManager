@@ -59,6 +59,7 @@ boolean fireAlarm = true;
 boolean attemptDatabaseConnection = true;
 boolean monitoringActivated = false;
 boolean dbConfigured = false;
+boolean needToSendIp = true;
 boolean startServer= true;
 
 int roomId = -1;
@@ -81,16 +82,13 @@ void setup()
   
   
   tryWifiConnection();
-  if (isWifiConnected()) {
-    tryToggleDbConnection();
-  }
-  if (isMySqlConnected()) {
-    tryGetRoomConfig();
-  }
+
   
   lastLight = getLight();
   lastTemp = getTemp();
   lastWifiRssi = getWifiRssi();
+
+  MQTTSetup();
   
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
@@ -98,21 +96,7 @@ void setup()
 
 void loop()
 {
-  if (isWifiConnected()) {
-    // if wifi is connected, start http server
-    if (startServer) {
-      server.begin();
-      startServer = false;
-    }
-    // listen for http requests
-    listenForClients();
-  MQTTSetup();
-  connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
-  getMqttClient().loop();       // MQTT client loop  
-  }
-  
-  // connect to WiFi (if not already connected) every 10 seconds
-  if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
+   if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
     
     // if wifi was disconnected, monitoring and http server are resetted
     monitoringActivated = false;
@@ -123,24 +107,23 @@ void loop()
     
     timeWifi = millis();
   }
-  
-  // eventually toggle connection to MySql database every 10 seconds
-  if (( (millis() - timeDb) > 10000 ) && isWifiConnected()){
-    // try to enable/disable db connection
-    tryToggleDbConnection();
-    timeDb = millis();
-  }
-  
-  // get configuration from database (if not already connected) every 10 seconds
-  if (( (millis() - timeConfig) > 10000 ) && isWifiConnected() && !dbConfigured) {
-    // try to download room's device configuration
-    tryGetRoomConfig();
-    timeConfig = millis();
-  }
-  if (( (millis() - timeMqtt) > 10000 ) && isWifiConnected()){
+
+    
+
+
+  if (( (millis() - timeMqtt) > 10000 ) && isWifiConnected() && isRoomConfigured()){
     mqttSendData(lastTemp,lastLight);
+    
     timeMqtt = millis();
   }
+  
+  // Connect to mqtt broker
+  tryMQTTBrokerConnection();
+
+
+
+  if (needToSendIp && isMQTTBrokerConnected()){ mqttSendIP();needToSendIp=false;} //Alla prima conessione e ogni volta che laconnessione viene persa e restabilita
+  loopMqttClient();
   
 
   // get the actual pressed button
@@ -167,14 +150,10 @@ void loop()
       timeSensors = millis();
   }
 
-  //log (each ten seconds) measures of the sensors
-  if ( (millis() - timeLogging) > 10000 && dbConfigured && monitoringActivated && isMySqlConnected()) {
-      tryLogMeasures();
-      timeLogging = millis();
-  }
+
 
   //set hot or cold alarm
-  setHotColdAlarm(lastTemp);
+  //setHotColdAlarm(lastTemp);
 }
 
 void tryWifiConnection() {
@@ -200,7 +179,7 @@ void tryLogMeasures() {
   // try to log measures into db (with loading screen)
   
   loggingLoadingScreen(true);
-  logSensorsMeasure();
+  mqttSendData(lastTemp,lastLight);
   loggingLoadingScreen(false);
   updateScreen();
 }
@@ -214,86 +193,8 @@ void tryGetRoomConfig() {
   updateScreen();
 }
 
-void listenForClients() {
-  // listen for http requests from a webapp
-  
- WiFiClient client = server.available();   // listen for incoming clients
+
     
- if (client) {                             // if you get a client,
-    Serial.println("new client");           // print a message out the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
-        char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
-        if (c == '\n' && currentLine.length() == 0) {                    // if the byte is a newline character
-          break;
-        }
-        else if (c == '\r'){      // if you got a newline, then clear currentLine:
-          currentLine = "";
-        }
-        else if (c != '\r') {    // if you got anything else but a carriage return character,
-          currentLine += c;      // add it to the end of the currentLine
-        }
-
-        // Check to see which client request was sent
-        if (currentLine.endsWith("GET /IsConnected")) {
-            String response = "{\"connected\":true, ";
-            if(monitoringActivated) {
-              response += "\"monitoringActivated\": true}";
-            } else {
-              response += "\"monitoringActivated\": false}";
-            }
-            client.print(response);
-            client.println();
-        }
-        if (currentLine.endsWith("GET /StartMonitoring")) {
-            client.print("{\"monitoringActivated\": true}");
-            monitoringActivated = true;               // GET /StartMonitoring turns on the monitor logging
-            attemptDatabaseConnection = true;
-            client.println();
-        }
-        else if (currentLine.endsWith("GET /StopMonitoring")) {
-            client.print("{\"monitoringActivated\": false}");
-            monitoringActivated = false;             // GET /StartMonitoring turns off the monitor logging
-            attemptDatabaseConnection = false;
-            client.println();
-        }
-        else if (currentLine.endsWith("GET /OnTemp")) {
-            tempConfig = CONFIG_ON;                 // GET /OnTemp turns on the thermostat
-            client.print("{\"temp\": \"on\"}");
-            client.println();
-        }
-        else if (currentLine.endsWith("GET /OffTemp")) {
-            tempConfig = CONFIG_OFF;                // GET /OnTemp turns off the thermostat
-            client.print("{\"temp\": \"off\"}");
-            client.println();
-
-        }
-        else if (currentLine.endsWith("GET /OnLight")) {
-            lightConfig = CONFIG_ON;                // GET /OnLight turns on the thermostat
-            client.print("{\"light\": \"on\"}");
-            client.println();
-
-        }
-        else if (currentLine.endsWith("GET /OffLight")) {
-            lightConfig = CONFIG_OFF;               // GET /OffLight turns off the room's light
-            client.print("{\"light\": \"off\"}");
-            client.println();
-
-        }
-        else if (currentLine.endsWith("GET /AutoLight")) {
-            lightConfig = CONFIG_AUTO;              // GET /Autoght turns on/off the room's light automatically based on the light sensor's threshold
-            client.print("{\"light\": \"auto\"}");
-            client.println();
-        }
-      }
-    }
-    // close the connection:
-    client.stop();
-    Serial.println("client disonnected");
-  }
-}
 
 int getPressedButton(){
 
@@ -465,7 +366,16 @@ void setHotColdAlarm(int temp) {
     
   }
 }
-
+void tryMQTTBrokerConnection() {
+  // Connect to MQTTBroker if not already connected and if wifi is connected
+  
+  if (isWifiConnected() && !isMQTTBrokerConnected()) {
+    MQTTLoadingScreen(true);
+    connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
+    MQTTLoadingScreen(false);
+    updateScreen();
+  }
+}
 void logSensorsMeasure() {
   
   // for each configured sensor (with id != -1), log last measure
