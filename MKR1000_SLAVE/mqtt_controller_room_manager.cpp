@@ -152,8 +152,8 @@ boolean isRoomConfigured(){
 
 void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
       DynamicJsonDocument doc(1024);
-      String str = "CIAO";
-      doc[String(MQTT_sensorsId[0])] = str;//lastLight;
+      
+      doc[String(MQTT_sensorsId[0])] = lastLight;
       doc[String(MQTT_sensorsId[1])] = lastTemp;
       doc[String(MQTT_sensorsId[2])] = lastWifiRssi;
       
