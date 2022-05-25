@@ -14,8 +14,6 @@ void connectWifi();
 
 boolean isWifiConnected();
 
-void setupWiFi();
-
 WiFiClient* getClient();
 
 #endif

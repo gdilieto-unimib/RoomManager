@@ -12,10 +12,6 @@ void loopMqttClient() {
   mqttClient.loop();
 }
 
-MQTTClient getMqttClient(){
-  return mqttClient;
-}
-
 void connectToMQTTBroker() {
   if (!mqttClient.connected()) {   // not connected
     Serial.print(F("\nConnecting to MQTT broker..."));
@@ -99,19 +95,19 @@ bool validateIP(String ip) {
 }
 
 void mqttSendConfig(String ip, int roomId, int sensorsId[3]) {
-
-  const int capacity = JSON_OBJECT_SIZE(3);
-  StaticJsonDocument<capacity> doc;
+  DynamicJsonDocument doc(2048);
 
   doc["ip"] = ip;
-  //doc["room"] = roomId;
-  //doc["sensors"] = sensorsId;
-  
-  char buffer[128];
+  doc["room"] = roomId;
+  for (int i = 0; i < 3; i++) {
+    doc["sensors"][i] = sensorsId[i];
+  }
+    
+  char buffer[128] = {0};
   size_t n = serializeJson(doc, buffer);
   Serial.print(F("JSON message: "));
   Serial.println(buffer);
-  getMqttClient().publish(MQTT_CONFIG_TOPIC, buffer, n);
+  mqttClient.publish(MQTT_CONFIG_TOPIC, buffer, n);
 }
 
 void mqttMessageReceived(String &topic, String &payload) {
@@ -128,12 +124,19 @@ void mqttMessageReceived(String &topic, String &payload) {
 
       // if device hasn't already a config, create a new config
       if (!getRoomConfig(payload, &roomId, sensorsId)) {
-        createRoomConfig(payload, &roomId, sensorsId);
+        createRoomConfig(payload);
+        createSensorsConfig(payload);
         getRoomConfig(payload, &roomId, sensorsId);
       }
+      char newRoomTopic[128] = {0};
+      sprintf(newRoomTopic, "%s/%d", MQTT_ROOM_TOPIC, roomId);
+      mqttClient.subscribe(newRoomTopic);
       
       mqttSendConfig(payload, roomId, sensorsId);
     }
+  } else if (true) {
+    Serial.println(topic.substring(topic.lastIndexOf('/')+1, topic.length()));
+    Serial.println(F("MQTT NEW ROOM"));
   } else {
     Serial.println(F("MQTT Topic not recognized, message skipped"));
   }

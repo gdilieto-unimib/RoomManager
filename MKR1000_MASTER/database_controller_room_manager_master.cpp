@@ -51,8 +51,7 @@ boolean getRoomConfig(String ipv4, int* roomId, int sensorsId[3]) {
   Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
-  cur_mem->execute(query); 
-  Serial.println("CIAO");
+  cur_mem->execute(query);
   
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
@@ -97,7 +96,56 @@ boolean getRoomConfig(String ipv4, int* roomId, int sensorsId[3]) {
   }
 }
 
-boolean createRoomConfig(String ipv4, int* roomId, int sensorsId[3]) {
+
+boolean getRoomId(String ipv4, int* roomId) { 
+  // retrieve room and sensor's configuration
+  
+  if (!connectToMySql()) {
+    return false;
+  }
+  
+  char query[128]={0};
+  Serial.println(ipv4); 
+  char SELECT_ROOM[] = "SELECT r.id FROM gdilieto.room r WHERE r.ipv4='%s'"; 
+
+  sprintf(query, SELECT_ROOM, &ipv4[0]); 
+  Serial.println(query); 
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
+  cur_mem->execute(query);
+  
+  row_values *row = NULL;
+  column_names *columns = cur_mem->get_columns();
+
+  for (int f = 0; f < columns->num_fields; f++) {
+      Serial.print(columns->fields[f]->name);
+      if (f < columns->num_fields - 1) {
+          Serial.print(',');
+      } else {
+          Serial.println(' ');
+      }
+  }
+
+
+  do {
+    row = cur_mem->get_next_row();
+    if (row != NULL) {
+        
+        *roomId = atoi(row->values[0]);
+        
+    }
+  } while (row != NULL);
+  
+  delete cur_mem; 
+
+  if (*roomId != -1){
+    return true;
+  } else {
+    return false;
+  }
+}
+
+boolean createRoomConfig(String ipv4) {
   if (!connectToMySql()) {
     return false;
   }
@@ -115,4 +163,28 @@ boolean createRoomConfig(String ipv4, int* roomId, int sensorsId[3]) {
   delete cur_mem;
   
   return true;
+}
+
+boolean createSensorsConfig(String ipv4) {
+  if (!connectToMySql()) {
+    return false;
+  }
+  
+  char query[256];
+  char INSERT_ROOM[] = "INSERT INTO `gdilieto`.`sensor` (`room`, `type`, `name`) VALUES ('%d', 'Light', 'Light'), ('%d', 'Temperature', 'Temperature'), ('%d', 'Wifi', 'Wifi')";
+
+  int roomId = -1;
+  getRoomId(ipv4, &roomId);
+   
+  sprintf(query, INSERT_ROOM, roomId, roomId, roomId);
+  
+  Serial.println(query);
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+  cur_mem->execute(query);
+  
+  delete cur_mem;
+  
+  return true;
+  
 }

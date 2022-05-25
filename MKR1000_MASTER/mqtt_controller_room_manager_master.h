@@ -10,6 +10,7 @@
 // MQTT data
 #define MQTT_BUFFER_SIZE 128               // the maximum size for packets being published and received
 #define MQTT_CONFIG_TOPIC "LabIOT/gdltf/config"   // topic for config
+#define MQTT_ROOM_TOPIC "LabIOT/gdltf/room"
 
 #include "macros_room_manager_master.h"
 #include "database_controller_room_manager_master.h"
@@ -24,8 +25,6 @@ boolean isMQTTBrokerConnected();
 void mqttMessageReceived(String &topic, String &payload);
 
 void MQTTSetup();
-
-MQTTClient getMqttClient();
 
 void mqttSendData(int lastTemp, int lastLight);
 

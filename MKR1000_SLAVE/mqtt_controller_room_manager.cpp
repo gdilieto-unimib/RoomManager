@@ -20,7 +20,6 @@ void MQTTSetup(){
 
 }
 
-
 // Function to validate an IP address
 bool validateIP(String ip) {
     char* ipCharArr = &ip[0];
@@ -89,7 +88,6 @@ boolean isMQTTBrokerConnected() {
   return mqttClient.connected();
 }
 
-
 void loopMqttClient() {
   mqttClient.loop();
 }
@@ -112,7 +110,6 @@ void connectToMQTTBroker() {
   MQTTLoadingScreen(false);
 
 }
-
 
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
@@ -153,18 +150,12 @@ boolean isRoomConfigured(){
   return MQTT_roomId!= -1;
 }
 
-void mqttSendData(int lastTemp, int lastLight) {
+void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
       DynamicJsonDocument doc(1024);
-
-      char temperature[10];
-      char light[10];
-
-      sprintf(temperature, "%d", MQTT_sensorsId[0]);
-      sprintf(light, "%d", MQTT_sensorsId[1]);
-
-      doc[String(MQTT_sensorsId[0])] = lastLight;
+      String str = "CIAO";
+      doc[String(MQTT_sensorsId[0])] = str;//lastLight;
       doc[String(MQTT_sensorsId[1])] = lastTemp;
-      
+      doc[String(MQTT_sensorsId[2])] = lastWifiRssi;
       
       char buffer[128];
       size_t n = serializeJson(doc, buffer);

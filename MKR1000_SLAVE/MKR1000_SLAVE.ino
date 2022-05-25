@@ -56,10 +56,7 @@ boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
 
-boolean attemptDatabaseConnection = true;
 boolean monitoringActivated = false;
-boolean dbConfigured = false;
-boolean needToSendIp = true;
 boolean startServer= true;
 
 int roomId = -1;
@@ -67,65 +64,41 @@ int roomId = -1;
 //Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
 int sensorsId[3] = { -1, -1, -1};
 
-long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt;
+long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat;
 
 WiFiServer server(80);
 
-
-
 void setup()
 {
-  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = millis();
-  setupWiFi();
+  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
   setupLcd();
   setupIO();
-  
-  
-  tryWifiConnection();
-
-  
-  lastLight = getLight();
-  lastTemp = getTemp();
-  lastWifiRssi = getWifiRssi();
-
   MQTTSetup();
-  
+    
+  tryWifiConnection();
+  updateSensors();
+
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
 }
 
 void loop()
 {
-   if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
-    
-    // if wifi was disconnected, monitoring and http server are resetted
-    monitoringActivated = false;
-    startServer = true;
+  // Connect to wifi
+  tryWifiConnection();
 
-    // try to connect to wifi
-    tryWifiConnection();
-    
-    timeWifi = millis();
-  }
-
-    
-
-
-  if (( (millis() - timeMqtt) > 10000 ) && isWifiConnected() && isRoomConfigured()){
-    mqttSendData(lastTemp,lastLight);
-    
-    timeMqtt = millis();
-  }
-  
   // Connect to mqtt broker
   tryMQTTBrokerConnection();
+  
+  // Log measures to master
+  tryLogMeasures();
 
+  // Send hearthbeat if connected to wifi and mqtt broker to get configuration
+  trySendRoomHearthbeat();
 
-
-  if (needToSendIp && isMQTTBrokerConnected()){ mqttSendIP();needToSendIp=false;} //Alla prima conessione e ogni volta che laconnessione viene persa e restabilita
+  // Loop for mqtt messages
   loopMqttClient();
   
-
   // get the actual pressed button
   int pressedButton = getPressedButton();
 
@@ -137,64 +110,73 @@ void loop()
     action(pressedButton);
   }
 
-  //update screen if an operation has been made
+  // update screen if an operation has been made
   if (pressedButton != NO_OP) {
       updateScreen();
   }  
 
-  //check (each second) if sensors are changed, if so update the screen
-  if ( (millis() - timeSensors) > 2000 ) {    
-      updateSensors();
-      updateScreen();
-      
-      timeSensors = millis();
-  }
-
-
+  // refresh sensors and screen periodically
+  refreshScreenInfo();
 
   //set hot or cold alarm
   //setHotColdAlarm(lastTemp);
 }
 
 void tryWifiConnection() {
-  // try to connect to wifi (with loading screen)
+   // try to connect to wifi (with loading screen)
   
-  wifiLoadingScreen(true);
-  connectWifi();
-  wifiLoadingScreen(false);
-  updateScreen();
+   if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
+    
+    // if wifi was disconnected, monitoring is resetted
+    monitoringActivated = true;
+
+    // try to connect to wifi
+    wifiLoadingScreen(true);
+    connectWifi();
+    wifiLoadingScreen(false);
+    updateScreen();
+    
+    timeWifi = millis();
+  }
 }
 
-void tryToggleDbConnection() {
-  // try to toggle database connection
+void tryMQTTBrokerConnection() {
+  // Connect to MQTTBroker if not already connected and if wifi is connected
   
-  if (!isMySqlConnected() && attemptDatabaseConnection)
-    connectToMySql();
-  else if (isMySqlConnected() && !attemptDatabaseConnection)
-    disconnectMySql();
-  monitoringActivated = attemptDatabaseConnection;
+  if (isWifiConnected() && !isMQTTBrokerConnected()) {
+    MQTTLoadingScreen(true);
+    connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
+    MQTTLoadingScreen(false);
+    updateScreen();
+  }
 }
 
 void tryLogMeasures() {
   // try to log measures into db (with loading screen)
   
-  loggingLoadingScreen(true);
-  mqttSendData(lastTemp,lastLight);
-  loggingLoadingScreen(false);
-  updateScreen();
+  if (( (millis() - timeMqtt) > 10000 ) && isWifiConnected() && isRoomConfigured() && monitoringActivated){
+    loggingLoadingScreen(true);
+    mqttSendData(lastTemp, lastLight, lastWifiRssi);
+    loggingLoadingScreen(false);
+    updateScreen();
+
+    timeMqtt = millis();
+  }
 }
 
-void tryGetRoomConfig() {
+void trySendRoomHearthbeat() {
   // try to get device's room configuration (with loading screen)
   
-  dbLoadingScreen(true);
-  dbConfigured = setupConfig(&roomId, sensorsId);
-  dbLoadingScreen(false);
-  updateScreen();
-}
+  if (( (millis() - timeSendHearthbeat) > 10000 ) && isWifiConnected() && isMQTTBrokerConnected()){
+    // try to send an hearthbeat to master (with loading screen)
+    dbLoadingScreen(true);
+    mqttSendIP();
+    dbLoadingScreen(false);
+    updateScreen();
 
-
-    
+    timeSendHearthbeat = millis();
+  }
+}   
 
 int getPressedButton(){
 
@@ -242,7 +224,7 @@ void action(int pressedButton) {
       
       // do specific actions for the info screen
       case INFO_SCREEN: {
-        actionInfoScreen(pressedButton, &displayRow, &navigationMode, isMySqlConnected(), &attemptDatabaseConnection);
+        actionInfoScreen(pressedButton, &displayRow, &navigationMode, isMySqlConnected(), &monitoringActivated);
         break;
       }
       
@@ -264,6 +246,15 @@ void action(int pressedButton) {
         break;
       }
     }
+}
+
+void refreshScreenInfo() {
+  if ( (millis() - timeSensors) > 2000 ) {    
+      updateSensors();
+      updateScreen();
+      
+      timeSensors = millis();
+  }
 }
 
 void updateSensors() {
@@ -366,16 +357,7 @@ void setHotColdAlarm(int temp) {
     
   }
 }
-void tryMQTTBrokerConnection() {
-  // Connect to MQTTBroker if not already connected and if wifi is connected
-  
-  if (isWifiConnected() && !isMQTTBrokerConnected()) {
-    MQTTLoadingScreen(true);
-    connectToMQTTBroker();   // connect to MQTT broker (if not already connected)
-    MQTTLoadingScreen(false);
-    updateScreen();
-  }
-}
+
 void logSensorsMeasure() {
   
   // for each configured sensor (with id != -1), log last measure

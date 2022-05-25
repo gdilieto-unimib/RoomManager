@@ -36,12 +36,6 @@ boolean isWifiConnected() {
   return (WiFi.status() == WL_CONNECTED);
 }
 
-void setupWiFi(){
-  // initial setup for wifi connection
-  
-  udp.begin(localPort);
-}
-
 WiFiClient* getClient(){
   // get pointer to the wifi client
   

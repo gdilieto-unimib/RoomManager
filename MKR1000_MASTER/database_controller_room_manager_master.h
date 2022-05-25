@@ -19,4 +19,6 @@ boolean isMySqlConnected();
 
 boolean getRoomConfig(String ipv4, int* roomId, int sensorsId[3]);
 
-boolean createRoomConfig(String ipv4, int* roomId, int sensorsId[3]);
+boolean createRoomConfig(String ipv4);
+
+boolean createSensorsConfig(String ipv4);
