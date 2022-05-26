@@ -20,7 +20,7 @@
     1x GROVE LED
     1x GROVE Buzzer
 
-  Notes:
+  Notes: 
     - MKR pin mapping -> https://docs.arduino.cc/static/a5b251782d7fa7d0212e7a8b34c45a9e/ABX00004-pinout.png
 
 */
@@ -30,8 +30,10 @@
 #include "action_controller_room_manager.h"
 #include "wifi_controller_room_manager.h"
 #include "io_controller_room_manager.h"
-#include "database_controller_room_manager.h"
 #include "mqtt_controller_room_manager.h"
+#include "accesspoint_controller_room_manager.h"
+#include "flashmem_controller_room_manager.h"
+
 
 int screen = INFO_SCREEN;
 boolean navigationMode = true;
@@ -61,6 +63,9 @@ boolean startServer= true;
 
 int roomId = -1;
 
+FlashStorage(my_flash_store, WiFi_Credentials);
+WiFi_Credentials MyWiFi_Credentials;
+
 //Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
 int sensorsId[3] = { -1, -1, -1};
 
@@ -70,20 +75,22 @@ WiFiServer server(80);
 
 void setup()
 {
-  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
+ 
+ timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();  
   setupLcd();
   setupIO();
   MQTTSetup();
-    
-  tryWifiConnection();
+  setupAP();
   updateSensors();
 
+  MyWiFi_Credentials = my_flash_store.read();
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
 }
 
 void loop()
 {
+  
   // Connect to wifi
   tryWifiConnection();
 
@@ -123,19 +130,43 @@ void loop()
 }
 
 void tryWifiConnection() {
+   String password; 
+
    // try to connect to wifi (with loading screen)
   
    if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
+    wifiLoadingScreen(true);
+    if (MyWiFi_Credentials.valid == true) {
+          Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
+          Serial.println(MyWiFi_Credentials.ssid_RM);
+          Serial.println( MyWiFi_Credentials.pssw_RM);
+           WiFi.begin(String(MyWiFi_Credentials.ssid_RM), String(MyWiFi_Credentials.pssw_RM));
+           Serial.println("CONNESSO!");
+
+
+    } else {
+    Serial.println("TRY WIFI CONNECTION: ");
+    password  = connectToWifiAP();
+
+    if (isWifiConnected()){
+      MyWiFi_Credentials.valid=true;
+      String ssidfl = WiFi.SSID();
+
+      ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
+      password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
+
+      Serial.println("SCRIVO......");
+      my_flash_store.write(MyWiFi_Credentials);
+      delay(1000);
+
+    }
     
-    // if wifi was disconnected, monitoring is resetted
+    }
     monitoringActivated = true;
 
     // try to connect to wifi
-    wifiLoadingScreen(true);
-    connectWifi();
     wifiLoadingScreen(false);
     updateScreen();
-    
     timeWifi = millis();
   }
 }
@@ -224,7 +255,7 @@ void action(int pressedButton) {
       
       // do specific actions for the info screen
       case INFO_SCREEN: {
-        actionInfoScreen(pressedButton, &displayRow, &navigationMode, isMySqlConnected(), &monitoringActivated);
+        actionInfoScreen(pressedButton, &displayRow, &navigationMode, monitoringActivated, &monitoringActivated);
         break;
       }
       
@@ -274,7 +305,7 @@ void updateScreen() {
     // screen update if you are on info screen
     case INFO_SCREEN: {
 
-      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), isMySqlConnected());
+      updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), monitoringActivated);
       updateScreenCursor(!navigationMode, displayRow);
       
       break;
@@ -321,7 +352,7 @@ void setHotColdAlarm(int temp) {
     
       char alarmMessage[64] = {0};
       sprintf(alarmMessage, "Too hot! Temp:%d C", temp);
-      logAlarm(alarmMessage, HOT_ALARM_CODE, roomId); 
+      //logAlarm(alarmMessage, HOT_ALARM_CODE, roomId); 
       tooHotAlarmMonitored = true;
     }
      
@@ -346,7 +377,7 @@ void setHotColdAlarm(int temp) {
         
         char alarmMessage[64] = {0};
         sprintf(alarmMessage, "Too cold! Temp:%d C", temp);
-        logAlarm(alarmMessage, COLD_ALARM_CODE, roomId); 
+        //logAlarm(alarmMessage, COLD_ALARM_CODE, roomId); 
         tooColdAlarmMonitored = true; 
       }
       
@@ -378,7 +409,7 @@ void logSensorsMeasure() {
           break;
         }
       }
-      logSensorMeasure(sensorsId[i], value);
+    //  logSensorMeasure(sensorsId[i], value);
     }
   }
 }
