@@ -1,8 +1,5 @@
 #include "wifi_controller_room_manager.h"
 
-// WiFi cfg
-char ssid[] = SECRET_SSID;   // your network SSID (name)
-char pass[] = SECRET_PASS;   // your network password
 #ifdef IP
 IPAddress ip(IP);
 IPAddress subnet(SUBNET);
@@ -20,7 +17,7 @@ WiFiUDP udp;                                   // UDP instance to send and recei
 unsigned int localPort = 2390;
 String mac=""; 
 
-void connectWifi(){
+void connectWifi(char* ssid, char* pass){
   // connect to wifi if not already connected
   
   if (WiFi.status() != WL_CONNECTED) {

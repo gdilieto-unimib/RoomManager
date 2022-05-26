@@ -141,9 +141,8 @@ void tryWifiConnection() {
           Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
           Serial.println(MyWiFi_Credentials.ssid_RM);
           Serial.println( MyWiFi_Credentials.pssw_RM);
-           WiFi.begin(String(MyWiFi_Credentials.ssid_RM), String(MyWiFi_Credentials.pssw_RM));
-           Serial.println("CONNESSO!");
-
+          connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
+          Serial.println("CONNESSO!");
 
     } else {
       

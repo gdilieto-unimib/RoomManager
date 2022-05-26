@@ -10,7 +10,7 @@
 
 #include "secrets.h"
 
-void connectWifi();
+void connectWifi(char* ssid, char* pass);
 
 boolean isWifiConnected();
 

@@ -1,8 +1,5 @@
 #include "wifi_controller_room_manager_master.h"
 
-// WiFi cfg
-char ssid[] = SECRET_SSID;   // your network SSID (name)
-char pass[] = SECRET_PASS;   // your network password
 #ifdef IP
 IPAddress ip(IP);
 IPAddress subnet(SUBNET);
@@ -11,7 +8,7 @@ IPAddress gateway(GATEWAY);
 #endif
 WiFiClient client;
 
-void connectWifi(){
+void connectWifi(char* ssid, char* pass){
   // connect to wifi if not already connected
   
   if (WiFi.status() != WL_CONNECTED) {

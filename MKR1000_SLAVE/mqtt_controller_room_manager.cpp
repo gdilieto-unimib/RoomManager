@@ -92,6 +92,12 @@ void mqttMessageReceived(String &topic, String &payload) {
         Serial.println(MQTT_roomId);
         for (int i = 0 ; i < 3 ; i++)
           Serial.println(MQTT_sensorsId[i]);
+          
+        //subscribe to room's monitoring queue
+        char roomMonitoringTopic[128] = {0};
+        sprintf(roomMonitoringTopic, "%s/%d/monitoring", MQTT_ROOM_TOPIC, roomId);
+        mqttClient.subscribe(roomMonitoringTopic);
+        Serial.println("\nSubscribed to " + String(roomMonitoringTopic) + " topic!"); 
       
         sprintf(roomTopic, "%s/%d", MQTT_ROOM_TOPIC ,MQTT_roomId);
           

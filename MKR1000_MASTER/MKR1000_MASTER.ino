@@ -41,15 +41,9 @@ void setup()
   
   if(!MyWiFi_Credentials.valid)
       setupAP();
-  
-  // Connect to wifi
-  tryWifiConnection();
-  
-  // Connect to db
-  tryDbConnection();
-  
-  // Connect to mqtt broker
-  tryMQTTBrokerConnection();
+      
+  Serial.begin(115200);
+  Serial.println(F("\n\nSetup completed.\n\n"));
 }
 
 void loop()
@@ -83,8 +77,8 @@ void tryWifiConnection() {
           Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
           Serial.println(MyWiFi_Credentials.ssid_RM);
           Serial.println( MyWiFi_Credentials.pssw_RM);
-           WiFi.begin(String(MyWiFi_Credentials.ssid_RM), String(MyWiFi_Credentials.pssw_RM));
-           Serial.println("CONNESSO!");
+          connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
+          Serial.println("CONNESSO!");
     
     
     } else {
