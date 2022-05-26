@@ -31,73 +31,33 @@ boolean isMQTTBrokerConnected() {
   return mqttClient.connected();
 }
 
-// Function to validate an IP address
-bool validateIP(String ip) {
-    char* ipCharArr = &ip[0];
-    int segs = 0;   /* Segment count. */
-    int chcnt = 0;  /* Character count within segment. */
-    int accum = 0;  /* Accumulator for segment. */
+int isValidMacAddress(const char* mac) {
+    int i = 0;
+    int s = 0;
 
-    /* Catch NULL pointer. */
+    while (*mac) {
+       if (isxdigit(*mac)) {
+          i++;
+       }
+       else if (*mac == ':' || *mac == '-') {
 
-    if (ipCharArr == NULL)
-        return false;
+          if (i == 0 || i / 2 - 1 != s)
+            break;
 
-    /* Process every character in string. */
-
-    while (*ipCharArr != '\0') {
-        /* Segment changeover. */
-
-        if (*ipCharArr == '.') {
-            /* Must have some digits in segment. */
-
-            if (chcnt == 0)
-                return false;
-
-            /* Limit number of segments. */
-
-            if (++segs == 4)
-                return false;
-
-            /* Reset segment values and restart loop. */
-
-            chcnt = accum = 0;
-            ipCharArr++;
-            continue;
-        }
-        /* Check numeric. */
-
-        if ((*ipCharArr < '0') || (*ipCharArr > '9'))
-            return false;
-
-        /* Accumulate and check segment. */
-
-        if ((accum = accum * 10 + *ipCharArr - '0') > 255)
-            return false;
-
-        /* Advance other segment specific stuff and continue loop. */
-
-        chcnt++;
-        ipCharArr++;
+          ++s;
+       }
+       else {
+           s = -1;
+       }
+       ++mac;
     }
-
-    /* Check enough segments and enough characters in last segment. */
-
-    if (segs != 3)
-        return 0;
-
-    if (chcnt == 0)
-        return 0;
-
-    /* Address okay. */
-
-    return true;
+    return (i == 12 && (s == 5 || s == 0));
 }
 
-void mqttSendConfig(String ip, int roomId, int sensorsId[3]) {
+void mqttSendConfig(String mac, int roomId, int sensorsId[3]) {
   DynamicJsonDocument doc(2048);
 
-  doc["ip"] = ip;
+  doc["mac"] = mac;
   doc["room"] = roomId;
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
@@ -113,13 +73,13 @@ void mqttSendConfig(String ip, int roomId, int sensorsId[3]) {
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
   Serial.println("Incoming MQTT message: " + topic + " - " + payload);
-
+  int roomId = -1;
+  
   if (topic == MQTT_CONFIG_TOPIC) {
     Serial.println("MQTT Topic : config");
     // If a new device sent me his ip
-    if (validateIP(payload)) {
+    if (isValidMacAddress(&payload[0])) {
       
-      int roomId = -1;
       int sensorsId[3] = {-1, -1, -1};
 
       // if device hasn't already a config, create a new config
@@ -128,16 +88,25 @@ void mqttMessageReceived(String &topic, String &payload) {
         createSensorsConfig(payload);
         getRoomConfig(payload, &roomId, sensorsId);
       }
-      char newRoomTopic[128] = {0};
-      sprintf(newRoomTopic, "%s/%d", MQTT_ROOM_TOPIC, roomId);
-      mqttClient.subscribe(newRoomTopic);
+
+      //subscribe to room's logging queue
+      char roomLoggingTopic[128] = {0};
+      sprintf(roomLoggingTopic, "%s/%d/logging", MQTT_ROOM_TOPIC, roomId);
+      mqttClient.subscribe(roomLoggingTopic);
+      Serial.println("\nSubscribed to " + String(roomLoggingTopic) + " topic!"); 
+
+      // update timestamp of tha last heartbeat
+      updateLastHBTimestamp(roomId);
       
+      // send room config to the slave
       mqttSendConfig(payload, roomId, sensorsId);
     }
-  } else if (true) {
-    Serial.println(topic.substring(topic.lastIndexOf('/')+1, topic.length()));
-    Serial.println(F("MQTT NEW ROOM"));
   } else {
-    Serial.println(F("MQTT Topic not recognized, message skipped"));
+    if (sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/logging"))[0]), &roomId)) {
+      Serial.println(roomId);
+      Serial.println(F("MQTT NEW ROOM"));
+    } else {
+      Serial.println(F("MQTT Topic not recognized, message skipped"));
+  }
   }
 }

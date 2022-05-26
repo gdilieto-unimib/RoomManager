@@ -17,8 +17,10 @@ void disconnectMySql();
 
 boolean isMySqlConnected();
 
-boolean getRoomConfig(String ipv4, int* roomId, int sensorsId[3]);
+boolean getRoomConfig(String mac, int* roomId, int sensorsId[3]);
 
-boolean createRoomConfig(String ipv4);
+boolean createRoomConfig(String mac);
 
-boolean createSensorsConfig(String ipv4);
+boolean createSensorsConfig(String mac);
+
+boolean updateLastHBTimestamp(int roomId);

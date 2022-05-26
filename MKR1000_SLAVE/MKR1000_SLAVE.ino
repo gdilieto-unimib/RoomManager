@@ -128,7 +128,7 @@ void tryWifiConnection() {
    if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
     
     // if wifi was disconnected, monitoring is resetted
-    monitoringActivated = true;
+    monitoringActivated = false;
 
     // try to connect to wifi
     wifiLoadingScreen(true);
@@ -170,7 +170,7 @@ void trySendRoomHearthbeat() {
   if (( (millis() - timeSendHearthbeat) > 10000 ) && isWifiConnected() && isMQTTBrokerConnected()){
     // try to send an hearthbeat to master (with loading screen)
     dbLoadingScreen(true);
-    mqttSendIP();
+    mqttSendMac();
     dbLoadingScreen(false);
     updateScreen();
 

@@ -16,4 +16,6 @@ boolean isWifiConnected();
 
 WiFiClient* getClient();
 
+String getMac();
+
 #endif
