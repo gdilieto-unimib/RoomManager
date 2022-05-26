@@ -22,27 +22,34 @@
 #include "wifi_controller_room_manager_master.h"
 #include "database_controller_room_manager_master.h"
 #include "rgb_lcd_controller_room_manager_master.h"
+#include "accesspoint_controller_room_manager_master.h"
 #include "mqtt_controller_room_manager_master.h"
+#include "flashmem_controller_room_manager_master.h"
 
 long timeDb, timeLogging, timeScreen;
 
+FlashStorage(my_flash_store, WiFi_Credentials);
+WiFi_Credentials MyWiFi_Credentials;
+
 void setup()
 {
+  timeDb = timeLogging = timeScreen = millis();
+  
   setupLcd();
   MQTTSetup();
-
+  MyWiFi_Credentials = my_flash_store.read();
+  
+  if(!MyWiFi_Credentials.valid)
+      setupAP();
+  
   // Connect to wifi
   tryWifiConnection();
   
   // Connect to db
-  dbLoadingScreen(true);
-  connectToMySql();
-  dbLoadingScreen(false);
+  tryDbConnection();
   
   // Connect to mqtt broker
   tryMQTTBrokerConnection();
-  
-  timeDb = timeLogging = timeScreen = millis();
 }
 
 void loop()
@@ -67,14 +74,41 @@ void loop()
 }
 
 void tryWifiConnection() {
-  // Connect to wifi if not already connected
+  // try to connect to wifi (with loading screen)
+  if (!isWifiConnected()) {
+    String password; 
   
-  while (!isWifiConnected()) {
     wifiLoadingScreen(true);
-    connectWifi();
+    if (MyWiFi_Credentials.valid == true) {
+          Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
+          Serial.println(MyWiFi_Credentials.ssid_RM);
+          Serial.println( MyWiFi_Credentials.pssw_RM);
+           WiFi.begin(String(MyWiFi_Credentials.ssid_RM), String(MyWiFi_Credentials.pssw_RM));
+           Serial.println("CONNESSO!");
+    
+    
+    } else {
+      Serial.println("TRY WIFI CONNECTION: ");
+  
+      while(!isWifiConnected()) {
+        // activate the access point until wifi is connected
+        password  = connectToWifiAP();
+      }
+    
+      MyWiFi_Credentials.valid=true;
+      String ssidfl = WiFi.SSID();
+      
+      ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
+      password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
+  
+      Serial.println("SCRIVO......");
+      my_flash_store.write(MyWiFi_Credentials);
+      delay(1000);
+    
+      // try to connect to wifi
+      wifiLoadingScreen(false);
+    }
   }
-  wifiLoadingScreen(false);
-  updateScreen();
 }
 
 void tryDbConnection() {

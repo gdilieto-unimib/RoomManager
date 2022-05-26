@@ -1,6 +1,4 @@
 #include "action_controller_room_manager.h"
-#include "database_controller_room_manager.h"
-
 // action pursued in temperature's controller screen (based on pressed button)
 void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThreshold, int* tempConfig, boolean* navigationMode) {
   switch (pressedButton) {
@@ -109,31 +107,7 @@ void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fire
 // action pursued in temperature controller's screen (based on pressed button)
 void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean isMySqlConnected, boolean* attemptDatabaseConnection){
   switch (pressedButton) {
-      case MENO: {
-        // toggle db connection
-        if(isMySqlConnected){
-          disconnectMySql();
-          *attemptDatabaseConnection = false;
-
-        }else{
-          connectToMySql();   
-          *attemptDatabaseConnection = true;
-       
-        }
-        break;
-      }
-      case PIU: {
-        // toggle db connection
-        if(isMySqlConnected){
-          disconnectMySql();
-          *attemptDatabaseConnection = false;
-        }else{
-          connectToMySql();  
-          *attemptDatabaseConnection = true;
-        
-        }
-        break;
-      }
+      
       case OK: {
         // return to navigation mode
         *navigationMode = true;
