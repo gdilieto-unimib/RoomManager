@@ -1,14 +1,12 @@
 #include "wifi_controller_room_manager.h"
+
 #include "accesspoint_controller_room_manager.h"
 
 
-
-char ssidAP[] = "Room_Manager_AP";        // your network SSID (name)
-int keyIndex = 0;                // your network key Index number (needed only for WEP)
+char ssidAP[] = "Room_Manager_AP"; // your network SSID (name)
+int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
-
-
 
 char apssid[] = "MKR1000AP";
 WiFiServer serverAP(80);
@@ -27,10 +25,9 @@ boolean needCredentials = true;
 boolean needWiFi = false;
 boolean connectPubNub = false;
 
-void setupAP(){
+void setupAP() {
 
   Serial.println("Access Point Web Server");
-
 
   // print the network name (SSID);
   Serial.print("Creating access point named: ");
@@ -55,7 +52,7 @@ void setupAP(){
 }
 
 String connectToWifiAP() {
-    Serial.println("INSIDE AP");
+  Serial.println("INSIDE AP");
   // compare the previous status to the current status
   if (status != WiFi.status()) {
     // it has changed update the variable
@@ -70,22 +67,21 @@ String connectToWifiAP() {
     }
   }
 
-  WiFiClient client = serverAP.available();   // listen for incoming clients
+  WiFiClient client = serverAP.available(); // listen for incoming clients
 
-  if (client) {                             // if you get a client,
-    Serial.println("new client");           // print a message out the serial port
-    String currentLine = "";                // make a String to hold incoming data from the client
-    while (client.connected()) {            // loop while the client's connected
-      if (client.available()) {             // if there's bytes to read from the client,
+  if (client) { // if you get a client,
+    Serial.println("new client"); // print a message out the serial port
+    String currentLine = ""; // make a String to hold incoming data from the client
+    while (client.connected()) { // loop while the client's connected
+      if (client.available()) { // if there's bytes to read from the client,
 
+        if (needCredentials) {
+          getCredentials();
+        }
+        if (needWiFi) {
+          getWiFi();
+        }
 
-      if (needCredentials) {
-        getCredentials();
-      }
-      if (needWiFi) {
-        getWiFi();
-      }
-        
       }
     }
     // close the connection:
@@ -94,7 +90,6 @@ String connectToWifiAP() {
   }
   return password;
 }
-
 
 void printWiFiStatus() {
   // print the SSID of the network you're attached to:
@@ -112,8 +107,8 @@ void printWiFiStatus() {
 
 }
 
-String getWifiList(){
-  String reti = ""; 
+String getWifiList() {
+  String reti = "";
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1) {
     reti = reti + "NON CE NULLA";
@@ -127,65 +122,57 @@ String getWifiList(){
   }
 }
 
-
 void getCredentials() {
-  
-
-
 
   WiFiClient client = serverAP.available();
-  if (client) {                     
-    boolean firstExclamative = true;       
-    Serial.println("new client");           
-    String currentLine = "";               
-    while (client.connected()) {            
-      if (client.available()) {            
-        char c = client.read();           
+  if (client) {
+    boolean firstExclamative = true;
+    Serial.println("new client");
+    String currentLine = "";
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
         Serial.print(c);
-        if (c=='?') readingNetwork = true;
+        if (c == '?') readingNetwork = true;
         if (readingNetwork) {
-          if (c=='!') {
+          if (c == '!') {
             readingPassword = true;
             readingNetwork = false;
-          }
-          else if (c!='?') {
+          } else if (c != '?') {
             network += c;
           }
         }
         if (readingPassword) {
-          if (c==',') {
+          if (c == ',') {
             readingPubkey = true;
-            readingPassword = false; 
+            readingPassword = false;
           } else {
             if (firstExclamative) {
               firstExclamative = false;
-            }
-            else {
+            } else {
               password += c;
-            }  
+            }
           }
-          
+
         }
         if (readingPubkey) {
-          if (c=='*') {
+          if (c == '*') {
             readingSubkey = true;
-            readingPubkey = false; 
-          }
-          else if (c!=',') {
+            readingPubkey = false;
+          } else if (c != ',') {
             pubkey += c;
           }
         }
         if (readingSubkey) {
-          if (c=='!') {
+          if (c == '!') {
             readingChannel = true;
-            readingSubkey = false; 
-          }
-          else if (c!='*') {
+            readingSubkey = false;
+          } else if (c != '*') {
             subkey += c;
           }
         }
         if (readingChannel) {
-          if (c==',') {
+          if (c == ',') {
             Serial.println();
             Serial.print("Network Name: ");
             Serial.println(network);
@@ -195,24 +182,26 @@ void getCredentials() {
             WiFi.end();
             readingChannel = false;
             needCredentials = false;
-            needWiFi = true;  
-          }
-          else if (c!='!') {
+            needWiFi = true;
+          } else if (c != '!') {
             channel += c;
           }
         }
-        if (c == '\n') {   
+        if (c == '\n') {
           if (currentLine.length() == 0) {
             client.println("HTTP/1.1 200 OK");
             client.println("Content-type:text/html");
             client.println();
             client.println("<html>");
             client.println("<head>");
+
             client.println("<style type=\"text/css\"> body {font-family: sans-serif; margin:50px; padding:20px; line-height: 250% } </style>");
+            client.println("<style>.loader { border: 16px solid #f3f3f3;  border-radius: 50%;  border-top: 16px solid #3498db;  width: 20px;  height: 20px;  -webkit-animation: spin 2s linear infinite; /* Safari */  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}</style>");
+
             client.println("<title>Arduino Setup</title>");
             client.println("</head>");
             client.println("<body>");
-
+            client.print("<div class=\"loader\"></div>");
             client.println("<h2>WIFI CREDENTIALS</h2>");
             client.print("NETWORK NAME: ");
             client.print("<input id=\"network\"/><br>");
@@ -230,8 +219,9 @@ void getCredentials() {
             client.print("<input id=\"channel\"/><br>");
             client.print("<br>");
             client.print("</div>");
-        
+
             client.print("<button type=\"button\" onclick=\"SendText()\">Enter</button>");
+
             client.println("</body>");
             client.println("<script>");
             client.println("var network = document.querySelector('#network');");
@@ -239,7 +229,7 @@ void getCredentials() {
             client.println("var pubkey = document.querySelector('#pubkey');");
             client.println("var subkey = document.querySelector('#subkey');");
             client.println("var channel = document.querySelector('#channel');");
-            
+
             client.println("function SendText() {");
             client.println("nocache=\"&nocache=\" + Math.random() * 1000000;");
             client.println("var request =new XMLHttpRequest();");
@@ -250,37 +240,40 @@ void getCredentials() {
             client.println("password.value=''");
             client.println("pubkey.value=''");
             client.println("subkey.value=''");
-            client.println("channel.value=''}");
+            client.println("channel.value=''");
+            //client.println("setTimeout(function(){ window.location.href=\"http://www.lilas.com\" }, 5000);}"); 
+            client.println("alert(\"PROVANDO LA CONNESSIONE...\");}");
             client.println("</script>");
+
             client.println("</html>");
             client.println();
             break;
-          }
-          else { 
+          } else {
             currentLine = "";
           }
-        }
-        else if (c != '\r') { 
+        } else if (c != '\r') {
           currentLine += c;
         }
       }
     }
+
     client.stop();
     Serial.println("client disconnected");
     Serial.println();
   }
 }
-void getWiFi () {
-  if (network == "" or password == "") {
-        Serial.println("Invalid WiFi credentials");
-        while (true);
-   }
+void getWiFi() {
+  if (network == ""
+    or password == "") {
+    Serial.println("Invalid WiFi credentials");
+    while (true);
+  }
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print("Attempting to connect to SSID: ");
     Serial.println(network);
     WiFi.begin(network, password);
     delay(5000);
-    
+
   }
   Serial.println("WiFi connection successful");
   printWiFiStatus();
