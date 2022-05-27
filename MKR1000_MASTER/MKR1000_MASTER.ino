@@ -25,11 +25,14 @@
 #include "accesspoint_controller_room_manager_master.h"
 #include "mqtt_controller_room_manager_master.h"
 #include "flashmem_controller_room_manager_master.h"
+#include "api_controller_room_manager_master.h"
 
-long timeDb, timeLogging, timeScreen;
+long timeDb, timeLogging, timeScreen, timeDevices;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
+
+int devices;
 
 void setup()
 {
@@ -62,6 +65,9 @@ void loop()
 
   // Check new messages if connected to the Broker
   //Serial.print("CICAI"); // MQTT client loop  
+
+  // Update the number of devices configured
+  updateDevicesNumber();
   
   // Update screen
   updateScreen();
@@ -74,11 +80,12 @@ void tryWifiConnection() {
   
     wifiLoadingScreen(true);
     if (MyWiFi_Credentials.valid == true) {
-          Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
-          Serial.println(MyWiFi_Credentials.ssid_RM);
-          Serial.println( MyWiFi_Credentials.pssw_RM);
-          connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
-          Serial.println("CONNESSO!");
+          Serial.println("Loading existing WiFi credentials");
+          while(!isWifiConnected()) {
+            connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
+          }
+          Serial.println("WIFI CONNESSO!");
+          setupApiServer();
     
     
     } else {
@@ -95,13 +102,15 @@ void tryWifiConnection() {
       ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
       password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
   
-      Serial.println("SCRIVO......");
+      Serial.println("Writing WiFi credentials");
       my_flash_store.write(MyWiFi_Credentials);
       delay(1000);
     
       // try to connect to wifi
       wifiLoadingScreen(false);
     }
+  } else {
+    listenForClients();
   }
 }
 
@@ -128,11 +137,20 @@ void tryMQTTBrokerConnection() {
   }
 }
 
+void updateDevicesNumber() {
+  // Updated the number of devices configured
+  
+  if ((millis() - timeDevices) > DEVICES_UPDATE_TIMER_MILLIS) {
+    getDevices(&devices);
+    timeDevices = millis();
+  }
+}
+
 void updateScreen() {
   // Update screen each SCREEN_UPDATE_TIMER_MILLIS ms
   
   if ((millis() - timeScreen) > SCREEN_UPDATE_TIMER_MILLIS) {
-    updateInfoScreenRows(0, isWifiConnected(), isMySqlConnected());
+    updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected());
     timeScreen = millis();
   }
 }

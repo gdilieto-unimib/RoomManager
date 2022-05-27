@@ -101,7 +101,7 @@ void MQTTLoadingScreen(boolean i) {
   lcd.blink();
 }
 
-void updateInfoScreenRows(int connectedDevices, boolean wifi, boolean isMySqlConnected) {
+void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected) {
   // update rows for the info screen
   
   lcd.clear();  // clear text
@@ -126,7 +126,7 @@ void updateInfoScreenRows(int connectedDevices, boolean wifi, boolean isMySqlCon
 
   lcd.setCursor(0, 1);
   lcd.print("Devices: "); // show devices number
-  lcd.print(connectedDevices);
+  lcd.print(devices);
 
 }
 

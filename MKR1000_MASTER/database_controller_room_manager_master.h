@@ -17,6 +17,8 @@ void disconnectMySql();
 
 boolean isMySqlConnected();
 
+boolean getDevices(int* devices);
+
 boolean getRoomConfig(String mac, int* roomId, int sensorsId[3]);
 
 boolean createRoomConfig(String mac);
@@ -24,3 +26,11 @@ boolean createRoomConfig(String mac);
 boolean createSensorsConfig(String mac);
 
 boolean updateLastHBTimestamp(int roomId);
+
+boolean updateRoomMonitoring(int roomId, boolean monitoring);
+
+boolean updateSensorConfig(int sensorId, String configuration);
+
+boolean logSensorMeasure(int sensor, char* value);
+
+boolean logAlarm(char* message, int code, int roomId);

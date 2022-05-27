@@ -21,7 +21,7 @@ void connectWifi(char* ssid, char* pass){
   // connect to wifi if not already connected
   
   if (WiFi.status() != WL_CONNECTED) {
-   #ifdef IP
+    #ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
     #endif
     WiFi.begin(ssid, pass);

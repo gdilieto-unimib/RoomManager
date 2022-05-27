@@ -47,7 +47,7 @@ int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
 int tooHotTempThreshold = 32;
-int tooColdTempThreshold = 20;
+int tooColdTempThreshold = 25;
 
 int displayRow = 0;
 int lastLight = 0;
@@ -61,13 +61,8 @@ boolean fireAlarm = true;
 boolean monitoringActivated = false;
 boolean startServer= true;
 
-int roomId = -1;
-
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
-
-//Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
-int sensorsId[3] = { -1, -1, -1};
 
 long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat;
 
@@ -77,7 +72,7 @@ void setup()
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();  
   setupLcd();
   setupIO();
-  MQTTSetup();
+  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig);
   updateSensors();
 
   MyWiFi_Credentials = my_flash_store.read();
@@ -127,7 +122,7 @@ void loop()
   refreshScreenInfo();
 
   //set hot or cold alarm
-  //setHotColdAlarm(lastTemp);
+  setHotColdAlarm(lastTemp);
 }
 
 void tryWifiConnection() {
@@ -138,15 +133,10 @@ void tryWifiConnection() {
    if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
     wifiLoadingScreen(true);
     if (MyWiFi_Credentials.valid == true) {
-          Serial.println("STO USANDO LE CREDENZIALI PERSISTENTI");
-          Serial.println(MyWiFi_Credentials.ssid_RM);
-          Serial.println( MyWiFi_Credentials.pssw_RM);
+          Serial.println("Loading existing WiFi credentials");
           connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
-          Serial.println("CONNESSO!");
 
     } else {
-      
-      Serial.println("TRY WIFI CONNECTION: ");
       password  = connectToWifiAP();
   
       if (isWifiConnected()){
@@ -156,7 +146,7 @@ void tryWifiConnection() {
         ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
         password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
   
-        Serial.println("SCRIVO......");
+        Serial.println("Writing WiFi credentials");
         my_flash_store.write(MyWiFi_Credentials);
         delay(1000);
   
@@ -257,7 +247,7 @@ void action(int pressedButton) {
       
       // do specific actions for the info screen
       case INFO_SCREEN: {
-        actionInfoScreen(pressedButton, &displayRow, &navigationMode, monitoringActivated, &monitoringActivated);
+        actionInfoScreen(pressedButton, &displayRow, &navigationMode, &monitoringActivated);
         break;
       }
       
@@ -354,7 +344,7 @@ void setHotColdAlarm(int temp) {
     
       char alarmMessage[64] = {0};
       sprintf(alarmMessage, "Too hot! Temp:%d C", temp);
-      //logAlarm(alarmMessage, HOT_ALARM_CODE, roomId); 
+      mqttSendAlarm(alarmMessage, HOT_ALARM_CODE); 
       tooHotAlarmMonitored = true;
     }
      
@@ -379,7 +369,7 @@ void setHotColdAlarm(int temp) {
         
         char alarmMessage[64] = {0};
         sprintf(alarmMessage, "Too cold! Temp:%d C", temp);
-        //logAlarm(alarmMessage, COLD_ALARM_CODE, roomId); 
+        mqttSendAlarm(alarmMessage, COLD_ALARM_CODE); 
         tooColdAlarmMonitored = true; 
       }
       
@@ -388,30 +378,5 @@ void setHotColdAlarm(int temp) {
       tooColdAlarmMonitored = false; 
     }
     
-  }
-}
-
-void logSensorsMeasure() {
-  
-  // for each configured sensor (with id != -1), log last measure
-  for (int i = 0; i < 3; i++) {
-    if (sensorsId[i] != -1) {
-      char value[128] = {0};
-      switch(i) {
-        case LIGHT_SENSOR: {
-          sprintf(value, "%d lux", lastLight);
-          break;
-        }
-        case TEMP_SENSOR: {
-          sprintf(value, "%d C", lastTemp);
-          break;
-        }
-        case WIFI_SENSOR: {
-          sprintf(value, "%d dB", lastWifiRssi);
-          break;
-        }
-      }
-    //  logSensorMeasure(sensorsId[i], value);
-    }
   }
 }

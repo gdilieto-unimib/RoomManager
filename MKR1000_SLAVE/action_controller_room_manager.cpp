@@ -1,4 +1,5 @@
 #include "action_controller_room_manager.h"
+
 // action pursued in temperature's controller screen (based on pressed button)
 void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThreshold, int* tempConfig, boolean* navigationMode) {
   switch (pressedButton) {
@@ -7,6 +8,8 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
         // on the first row we can change the thermostat's configuration
         if (*displayRow == 0){
           *tempConfig = (NUMBER_OF_TEMP_CONFIGS + *tempConfig - 1) % NUMBER_OF_TEMP_CONFIGS;
+        // send new temp configuration to master
+          mqttSendTempConfig(*tempConfig);
         } else{
         // on the second row we can decrease the temperature's activation threshold
           if (*tempActivationThreshold>0){
@@ -20,6 +23,8 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
         // on the first row we can change the thermostat's configuration
         if (*displayRow == 0) {
           *tempConfig = (*tempConfig + 1) % NUMBER_OF_TEMP_CONFIGS;
+        // send new temp configuration to master
+          mqttSendTempConfig(*tempConfig);
         } else {
         // on the second row we can increment the temperature's activation threshold
           if (*tempActivationThreshold<50){
@@ -49,6 +54,8 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
         // on the first row we can change the light's configuration
         if (*displayRow == 0){
           *lightConfig = (NUMBER_OF_LIGHT_CONFIGS + *lightConfig - 1) % NUMBER_OF_LIGHT_CONFIGS;
+        // send new light configuration to master
+          mqttSendLightConfig(*lightConfig);
         } else{
         // on the second row we can decrease the light's activation threshold
           if (*lightActivationThreshold>0){
@@ -61,6 +68,8 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
         // on the first row we can change the light's configuration
         if (*displayRow == 0){
           *lightConfig = (*lightConfig + 1) % NUMBER_OF_LIGHT_CONFIGS;
+        // send new light configuration to master
+          mqttSendLightConfig(*lightConfig);
         } else{
         // on the first row we can increment the light's activation threshold
           if (*lightActivationThreshold<1000){
@@ -105,9 +114,22 @@ void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fire
 
 
 // action pursued in temperature controller's screen (based on pressed button)
-void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean isMySqlConnected, boolean* attemptDatabaseConnection){
+void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean* monitoringActivated){
   switch (pressedButton) {
-      
+      case MENO: {
+        // toggle monitoring
+        *monitoringActivated = !*monitoringActivated;
+        // send new monitoring configuration to master
+        mqttSendMonitoringConfig(*monitoringActivated);
+        break;
+      }
+      case PIU: {
+        // toggle monitoring
+        *monitoringActivated = !*monitoringActivated;
+        // send new monitoring configuration to master
+        mqttSendMonitoringConfig(*monitoringActivated);
+        break;
+      }
       case OK: {
         // return to navigation mode
         *navigationMode = true;

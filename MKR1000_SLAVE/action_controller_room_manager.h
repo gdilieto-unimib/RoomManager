@@ -2,7 +2,7 @@
 
 #define ACTION_CONTROLLER_ROOM_MANAGER
 #include <Arduino.h>
-#include "macros_room_manager.h"
+#include "mqtt_controller_room_manager.h"
 
 void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThreshold, int* tempConfig, boolean* navigationMode);
 
@@ -10,7 +10,7 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
 
 void actionAlarmScreen(int pressedButton, boolean* navigationMode, boolean* fireAlarm);
 
-void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean isMySqlConnected, boolean* attemptDatabaseConnection);
+void actionInfoScreen(int pressedButton, int* displayRow, boolean* navigationMode, boolean* monitoringActivated);
 
 
 #endif

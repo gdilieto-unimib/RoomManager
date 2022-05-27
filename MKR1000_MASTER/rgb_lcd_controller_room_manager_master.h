@@ -6,7 +6,7 @@
 
 void setupLcd();
 
-void updateInfoScreenRows(int connectedDevices, boolean wifi, boolean isMySqlConnected);
+void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected);
 
 void updateScreenCursor(int active, int displayRow);
 

@@ -26,6 +26,16 @@ byte databaseIcon[] = {
   B01110
 };
 
+byte grade[] = {
+  B01110,
+  B01010,
+  B01110,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000
+};
 
 void setupLcd() {
   // setup lcd initial state
@@ -34,6 +44,7 @@ void setupLcd() {
   lcd.setRGB(255, 255, 255);
   lcd.createChar(0, wifiIcon);
   lcd.createChar(1, databaseIcon);
+  lcd.createChar(2, grade);
 
 }
 
@@ -137,6 +148,7 @@ void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConn
   lcd.clear();  // clear text
   lcd.print("T: "); // show temp
   lcd.print(temp);
+  lcd.write(2);
   lcd.setCursor(0, 1);
   lcd.print("L: "); // show light
   lcd.print(light);

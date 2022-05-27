@@ -22,7 +22,7 @@ void connectToMQTTBroker() {
     Serial.println(F("\nConnected!"));
 
     // connected to broker, subscribe topics
-    mqttClient.subscribe(MQTT_CONFIG_TOPIC);
+    mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
     Serial.println(F("\nSubscribed to config topic!"));
   }
 }
@@ -65,48 +65,100 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3]) {
     
   char buffer[128] = {0};
   size_t n = serializeJson(doc, buffer);
-  Serial.print(F("JSON message: "));
-  Serial.println(buffer);
   mqttClient.publish(MQTT_CONFIG_TOPIC, buffer, n);
+}
+
+void mqttSendMonitoringControl(int roomId, String control) {
+  mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+ "/monitoring/control", control);
+}
+
+void mqttSendSensorControl(int sensorId, String control) {
+  mqttClient.publish(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorId)+ "/control", control);
 }
 
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
   Serial.println("Incoming MQTT message: " + topic + " - " + payload);
   int roomId = -1;
+  int sensorId = -1;
   
-  if (topic == MQTT_CONFIG_TOPIC) {
-    Serial.println("MQTT Topic : config");
-    // If a new device sent me his ip
-    if (isValidMacAddress(&payload[0])) {
-      
-      int sensorsId[3] = {-1, -1, -1};
+  if (topic == MQTT_HEARTBEAT_TOPIC) {
+    // If a new device sent me his mac
+    
+    int sensorsId[3] = {-1, -1, -1};
 
-      // if device hasn't already a config, create a new config
-      if (!getRoomConfig(payload, &roomId, sensorsId)) {
-        createRoomConfig(payload);
-        createSensorsConfig(payload);
-        getRoomConfig(payload, &roomId, sensorsId);
-      }
-
-      //subscribe to room's logging queue
-      char roomLoggingTopic[128] = {0};
-      sprintf(roomLoggingTopic, "%s/%d/logging", MQTT_ROOM_TOPIC, roomId);
-      mqttClient.subscribe(roomLoggingTopic);
-      Serial.println("\nSubscribed to " + String(roomLoggingTopic) + " topic!"); 
-
-      // update timestamp of tha last heartbeat
-      updateLastHBTimestamp(roomId);
-      
-      // send room config to the slave
-      mqttSendConfig(payload, roomId, sensorsId);
+    // if device hasn't already a config, create a new config
+    if (!getRoomConfig(payload, &roomId, sensorsId)) {
+      createRoomConfig(payload);
+      createSensorsConfig(payload);
+      getRoomConfig(payload, &roomId, sensorsId);
     }
+
+    //subscribe to room's logging queue
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/logging");
+
+    //subscribe to room's monitoring queue
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/alarm");
+
+    //subscribe to room's monitoring queue
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/monitoring/control");
+    
+    //subscribe to sensor's monitoring queue
+    for (int i=0; i<3; i++) {
+      mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorsId[i])+ "/control");
+    }
+
+    // update timestamp of tha last heartbeat
+    updateLastHBTimestamp(roomId);
+    
+    // send room config to the slave
+    mqttSendConfig(payload, roomId, sensorsId);
+  
   } else {
-    if (sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/logging"))[0]), &roomId)) {
-      Serial.println(roomId);
-      Serial.println(F("MQTT NEW ROOM"));
+    
+    if (topic.endsWith("/alarm")) {
+      // if topic is room's logging
+    
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/alarm"))[0]), &roomId);
+      
+      DynamicJsonDocument doc(1024);
+      deserializeJson(doc, payload);
+
+      logAlarm(&(doc["message"].as<String>())[0], doc["code"].as<int>(), roomId);
+    
+    }
+    if (topic.endsWith("/logging")) {
+      // if topic is room's logging
+    
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/logging"))[0]), &roomId);
+      
+      DynamicJsonDocument doc(2048);
+      deserializeJson(doc, payload);
+
+      for (JsonPair keyValue : doc.as<JsonObject>()) {
+        Serial.println("SENSOR");
+        Serial.println(keyValue.key().c_str());
+        Serial.println(keyValue.value().as<String>());
+        logSensorMeasure(atoi(keyValue.key().c_str()), &(keyValue.value().as<String>())[0]);
+      }
+    
+    } else if (topic.endsWith("/monitoring/control")) {
+      // if topic is room's monitoring control
+      
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/monitoring/control"))[0]), &roomId);
+      updateRoomMonitoring(roomId, payload=="START"?true:false);
+ 
+    } else if (topic.endsWith("/control")) { 
+      // if topic is room's sensor's control
+
+      sscanf(&topic[0], &((MQTT_SENSOR_TOPIC+String("/%d/control"))[0]), &sensorId);
+      updateSensorConfig(sensorId, payload);
+      
     } else {
+      // no topic matched
+      
       Serial.println(F("MQTT Topic not recognized, message skipped"));
-  }
+    }
+    
   }
 }
