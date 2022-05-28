@@ -2,7 +2,7 @@
 
 #include "accesspoint_controller_room_manager.h"
 
-
+String wifiList = "";
 char ssidAP[] = "Room_Manager_AP"; // your network SSID (name)
 int keyIndex = 0; // your network key Index number (needed only for WEP)
 
@@ -28,6 +28,7 @@ boolean connectPubNub = false;
 void setupAP() {
 
   Serial.println("Access Point Web Server");
+  listNetworks();
 
   // print the network name (SSID);
   Serial.print("Creating access point named: ");
@@ -40,7 +41,7 @@ void setupAP() {
     // don't continue
     while (true);
   }
-
+  
   // wait 10 seconds for connection:
   delay(10000);
 
@@ -102,6 +103,8 @@ void printWiFiStatus() {
   Serial.println(ip);
 
   // print where to go in a browser:
+    Serial.print(wifiList);
+
   Serial.print("To see this page in action, open a browser to http://");
   Serial.println(ip);
 
@@ -189,6 +192,7 @@ void getCredentials() {
         }
         if (c == '\n') {
           if (currentLine.length() == 0) {
+            listNetworks();
             client.println("HTTP/1.1 200 OK");
             client.println("Content-type:text/html");
             client.println();
@@ -196,17 +200,28 @@ void getCredentials() {
             client.println("<head>");
 
             client.println("<style type=\"text/css\"> body {font-family: sans-serif; margin:50px; padding:20px; line-height: 250% } </style>");
-            client.println("<style>.loader { border: 16px solid #f3f3f3;  border-radius: 50%;  border-top: 16px solid #3498db;  width: 20px;  height: 20px;  -webkit-animation: spin 2s linear infinite; /* Safari */  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}</style>");
+            client.println("<style>.loader {margin: auto; border: 16px solid #f3f3f3;  border-radius: 50%;  border-top: 16px solid #3498db;  width: 20px;  height: 20px;  -webkit-animation: spin 2s linear infinite; /* Safari */  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}</style>");
+            client.println("<style>.center {text-align: center;}</style>");
 
             client.println("<title>Arduino Setup</title>");
             client.println("</head>");
             client.println("<body>");
+            
+
+
+           
+            client.print("<div class=\"center\">");
+                        client.print("<div style=\"border-style: solid; border-color: green;\">");           
+
             client.print("<div class=\"loader\"></div>");
-            client.println("<h2>WIFI CREDENTIALS</h2>");
+            client.println("<h2>ROOM MANAGER WIFI SETUP</h2>");
+
             client.print("NETWORK NAME: ");
             client.print("<input id=\"network\"/><br>");
             client.print("PASSWORD: ");
             client.print("<input id=\"password\"/><br>");
+            
+
 
             client.print("<div id=\"divCheckbox\" style=\"display: none;\">");
 
@@ -221,7 +236,13 @@ void getCredentials() {
             client.print("</div>");
 
             client.print("<button type=\"button\" onclick=\"SendText()\">Enter</button>");
-
+            client.print("<div style=\"margin: auto; text-align:center;border-style: solid; border-color: coral;width:70%;\">");           
+            client.println("<h3>LIST OF AVAILABLE NETWORKS: </h3>");           
+            client.println(wifiList);
+            client.print("</div>");
+            client.print("<br>");            
+            client.print("</div>");
+            client.println("</div>");
             client.println("</body>");
             client.println("<script>");
             client.println("var network = document.querySelector('#network');");
@@ -293,3 +314,21 @@ void printAPStatus() {
   Serial.print("To connect, open a browser to http://");
   Serial.println(ip);
 }
+
+
+void listNetworks() {    // scan for nearby networks:
+    Serial.println("** Scan Networks **");
+    int numSsid = WiFi.scanNetworks();
+    if (numSsid == -1)
+    {
+      Serial.println("Couldn't get a wifi connection");
+      while (true);
+    }
+  
+    // print the network number and name for each network found:
+    for (int thisNet = 0; thisNet < numSsid; thisNet++) {
+      wifiList = wifiList + WiFi.SSID(thisNet);
+      wifiList = wifiList + "<br>";
+      Serial.flush();
+    }
+  }
