@@ -198,33 +198,21 @@ void getCredentials() {
             client.println();
             client.println("<html>");
             client.println("<head>");
-
             client.println("<style type=\"text/css\"> body {font-family: sans-serif; margin:50px; padding:20px; line-height: 250% } </style>");
             client.println("<style>.loader {margin: auto; border: 16px solid #f3f3f3;  border-radius: 50%;  border-top: 16px solid #3498db;  width: 20px;  height: 20px;  -webkit-animation: spin 2s linear infinite; /* Safari */  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}</style>");
-            client.println("<style>.center {text-align: center;}</style>");
-
+            client.println("<style>.center {text-align: center;}</style>")
             client.println("<title>Arduino Setup</title>");
             client.println("</head>");
             client.println("<body>");
-            
-
-
-           
             client.print("<div class=\"center\">");
-                        client.print("<div style=\"border-style: solid; border-color: green;\">");           
-
+            client.print("<div style=\"border-style: solid; border-color: green;\">");           
             client.print("<div class=\"loader\"></div>");
             client.println("<h2>ROOM MANAGER WIFI SETUP</h2>");
-
             client.print("NETWORK NAME: ");
             client.print("<input id=\"network\"/><br>");
             client.print("PASSWORD: ");
             client.print("<input id=\"password\"/><br>");
-            
-
-
             client.print("<div id=\"divCheckbox\" style=\"display: none;\">");
-
             client.println("<h2>PUBNUB CREDENTIALS</h2>");
             client.print("PUBLISH KEY: ");
             client.print("<input id=\"subkey\"/><br>");
@@ -234,7 +222,6 @@ void getCredentials() {
             client.print("<input id=\"channel\"/><br>");
             client.print("<br>");
             client.print("</div>");
-
             client.print("<button type=\"button\" onclick=\"SendText()\">Enter</button>");
             client.print("<div style=\"margin: auto; text-align:center;border-style: solid; border-color: coral;width:70%;\">");           
             client.println("<h3>LIST OF AVAILABLE NETWORKS: </h3>");           
@@ -250,7 +237,6 @@ void getCredentials() {
             client.println("var pubkey = document.querySelector('#pubkey');");
             client.println("var subkey = document.querySelector('#subkey');");
             client.println("var channel = document.querySelector('#channel');");
-
             client.println("function SendText() {");
             client.println("nocache=\"&nocache=\" + Math.random() * 1000000;");
             client.println("var request =new XMLHttpRequest();");
@@ -262,10 +248,8 @@ void getCredentials() {
             client.println("pubkey.value=''");
             client.println("subkey.value=''");
             client.println("channel.value=''");
-            //client.println("setTimeout(function(){ window.location.href=\"http://www.lilas.com\" }, 5000);}"); 
             client.println("alert(\"PROVANDO LA CONNESSIONE...\");}");
             client.println("</script>");
-
             client.println("</html>");
             client.println();
             break;
