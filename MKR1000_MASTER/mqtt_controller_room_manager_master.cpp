@@ -54,10 +54,11 @@ int isValidMacAddress(const char* mac) {
     return (i == 12 && (s == 5 || s == 0));
 }
 
-void mqttSendConfig(String mac, int roomId, int sensorsId[3]) {
+void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
   DynamicJsonDocument doc(2048);
 
   doc["mac"] = mac;
+  doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
@@ -86,12 +87,13 @@ void mqttMessageReceived(String &topic, String &payload) {
     // If a new device sent me his mac
     
     int sensorsId[3] = {-1, -1, -1};
+    boolean monitoringActivated;
 
     // if device hasn't already a config, create a new config
-    if (!getRoomConfig(payload, &roomId, sensorsId)) {
+    if (!getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated)) {
       createRoomConfig(payload);
       createSensorsConfig(payload);
-      getRoomConfig(payload, &roomId, sensorsId);
+      getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated);
     }
 
     //subscribe to room's logging queue
@@ -112,7 +114,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     updateLastHBTimestamp(roomId);
     
     // send room config to the slave
-    mqttSendConfig(payload, roomId, sensorsId);
+    mqttSendConfig(payload, roomId, sensorsId, monitoringActivated);
   
   } else {
     

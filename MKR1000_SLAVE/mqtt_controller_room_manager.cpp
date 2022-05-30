@@ -85,16 +85,20 @@ void mqttMessageReceived(String &topic, String &payload) {
       deserializeJson(doc, payload);
   
       const char *mac = doc["mac"];
-      MQTT_roomId = (int)doc["room"];
-      for (int i = 0 ; i < 3 ; i++)
-        MQTT_sensorsId[i] = doc["sensors"][i];
+      if(String(mac)==getMac()) {
+        MQTT_roomId = (int)doc["room"];
+        for (int i = 0 ; i < 3 ; i++)
+          MQTT_sensorsId[i] = doc["sensors"][i];
+          
+        //subscribe to room's monitoring queue
+        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control");
         
-      //subscribe to room's monitoring queue
-      mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control");
-      
-      //subscribe to sensor's actuators control queue
-      for (int i=0; i<3; i++) {
-        mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[i])+ "/control");
+        //subscribe to sensor's actuators control queue
+        for (int i=0; i<3; i++) {
+          mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[i])+ "/control");
+        }
+
+        *monitoringActivatedRef = doc["monitoring"];
       }
        
     } else if (topic == String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control"){

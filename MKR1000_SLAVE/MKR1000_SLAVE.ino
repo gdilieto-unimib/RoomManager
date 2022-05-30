@@ -47,7 +47,7 @@ int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
 int tooHotTempThreshold = 32;
-int tooColdTempThreshold = 25;
+int tooColdTempThreshold = 10;
 
 int displayRow = 0;
 int lastLight = 0;

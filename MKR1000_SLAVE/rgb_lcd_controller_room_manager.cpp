@@ -17,13 +17,13 @@ byte wifiIcon[] = {
 // character for db icon
 byte databaseIcon[] = {
   B00000,
+  B00000,
   B01110,
-  B10001,
+  B10101,
   B01110,
-  B10001,
-  B01110,
-  B10001,
-  B01110
+  B00000,
+  B00000,
+  B00000
 };
 
 byte grade[] = {

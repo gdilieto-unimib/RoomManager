@@ -36,7 +36,7 @@ boolean isMySqlConnected(){
   return conn.connected();
 }
 
-boolean getRoomConfig(String mac, int* roomId, int sensorsId[3]) { 
+boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monitoringActivated) { 
   // retrieve room and sensor's configuration
   
   if (!connectToMySql()) {
@@ -45,7 +45,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3]) {
   
   char query[128]={0};
   Serial.println(mac); 
-  char SELECT_ROOM[] = "SELECT r.id, s.type, s.id FROM gdilieto.room r JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'"; 
+  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id FROM gdilieto.room r JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'"; 
 
   sprintf(query, SELECT_ROOM, &mac[0]); 
   Serial.println(query); 
@@ -71,8 +71,9 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3]) {
     if (row != NULL) {
         
         *roomId = atoi(row->values[0]);
+        *monitoringActivated = atoi(row->values[1]);
         
-        String sensorType = row->values[1];
+        String sensorType = row->values[2];
         
         if (sensorType.equals("Light")){
           sensorsId[LIGHT_SENSOR]=atoi(row->values[2]);

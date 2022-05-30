@@ -3,7 +3,7 @@
 #include "accesspoint_controller_room_manager.h"
 
 String wifiList = "";
-char ssidAP[] = "Room_Manager_AP_TIBE"; // your network SSID (name)
+char ssidAP[] = "Room_Manager_Slave_AP"; // your network SSID (name)
 int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -53,7 +53,6 @@ void setupAP() {
 }
 
 String connectToWifiAP() {
-  Serial.println("INSIDE AP");
   // compare the previous status to the current status
   if (status != WiFi.status()) {
     // it has changed update the variable
@@ -83,6 +82,8 @@ String connectToWifiAP() {
           getWiFi();
         }
 
+      } else {
+        client = serverAP.available();
       }
     }
     // close the connection:
@@ -210,7 +211,7 @@ void getCredentials() {
             client.print("NETWORK NAME: ");
             client.print("<input id=\"network\"/><br>");
             client.print("PASSWORD: ");
-            client.print("<input id=\"password\"/><br>");
+            client.print("<input type=\"password\" id=\"password\"/><br>");
             client.print("<div id=\"divCheckbox\" style=\"display: none;\">");
             client.println("<h2>PUBNUB CREDENTIALS</h2>");
             client.print("PUBLISH KEY: ");
@@ -247,7 +248,8 @@ void getCredentials() {
             client.println("pubkey.value=''");
             client.println("subkey.value=''");
             client.println("channel.value=''");
-            client.println("alert(\"PROVANDO LA CONNESSIONE...\");}");
+            client.println("document.body.innerHTML = '<h1>WIFI CONFIGURED</h1>'"); 
+            client.println("alert(\"WIFI CONFIGURED\");}");
             client.println("</script>");
             client.println("</html>");
             client.println();
@@ -258,6 +260,8 @@ void getCredentials() {
         } else if (c != '\r') {
           currentLine += c;
         }
+      } else {
+        client = serverAP.available();
       }
     }
 
