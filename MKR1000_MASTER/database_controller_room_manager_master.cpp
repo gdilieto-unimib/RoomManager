@@ -45,7 +45,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
   
   char query[128]={0};
   Serial.println(mac); 
-  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id FROM gdilieto.room r JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'"; 
+  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'"; 
 
   sprintf(query, SELECT_ROOM, &mac[0]); 
   Serial.println(query); 
@@ -71,16 +71,17 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
     if (row != NULL) {
         
         *roomId = atoi(row->values[0]);
-        *monitoringActivated = atoi(row->values[1]);
+        Serial.print(row->values[1]);
+        *monitoringActivated = atoi(row->values[1])==0?false:true;
         
         String sensorType = row->values[2];
         
         if (sensorType.equals("Light")){
-          sensorsId[LIGHT_SENSOR]=atoi(row->values[2]);
+          sensorsId[LIGHT_SENSOR]=atoi(row->values[3]);
         }else if (sensorType.equals("Temperature")){
-          sensorsId[TEMP_SENSOR]=atoi(row->values[2]);
+          sensorsId[TEMP_SENSOR]=atoi(row->values[3]);
         }else if (sensorType.equals("Wifi")){
-          sensorsId[WIFI_SENSOR]=atoi(row->values[2]);
+          sensorsId[WIFI_SENSOR]=atoi(row->values[3]);
         }
         
         for (int f = 0; f < columns->num_fields; f++) {
@@ -95,6 +96,49 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
   } else {
     return false;
   }
+}
+
+boolean getConfiguration(boolean* singleMode) {
+  // retrieve number of configured devices
+  if (!connectToMySql()) {
+    return false;
+  }
+
+  char query[128]={0};
+  char SELECT_ROOM[] = "SELECT c.name, c.value FROM gdilieto.configuration c"; 
+
+  sprintf(query, SELECT_ROOM); 
+  Serial.println(query); 
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
+  cur_mem->execute(query);
+  
+  row_values *row = NULL;
+  column_names *columns = cur_mem->get_columns();
+
+  for (int f = 0; f < columns->num_fields; f++) {
+      Serial.print(columns->fields[f]->name);
+      if (f < columns->num_fields - 1) {
+          Serial.print(',');
+      } else {
+          Serial.println(' ');
+      }
+  }
+
+
+  do {
+    row = cur_mem->get_next_row();
+    if (row != NULL) {
+        
+        if (row->values[0]=="singleMode") {
+          *singleMode = row->values[1]=="0"?false:true;
+        }
+        
+    }
+  } while (row != NULL);
+  
+  delete cur_mem; 
+
 }
 
 boolean getDevices(int* devices) {

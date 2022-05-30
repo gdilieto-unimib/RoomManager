@@ -77,7 +77,7 @@ void setup()
 
   MyWiFi_Credentials = my_flash_store.read();
 
-  if(!MyWiFi_Credentials.valid)
+  if(!!MyWiFi_Credentials.valid)
       setupAP();
   
   Serial.begin(115200);
@@ -132,7 +132,7 @@ void tryWifiConnection() {
   
    if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
     wifiLoadingScreen(true);
-    if (MyWiFi_Credentials.valid == true) {
+    if (!MyWiFi_Credentials.valid == true) {
           Serial.println("Loading existing WiFi credentials");
           connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 

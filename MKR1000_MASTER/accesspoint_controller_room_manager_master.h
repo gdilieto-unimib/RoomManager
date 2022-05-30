@@ -9,7 +9,7 @@
 String connectToWifiAP();
 void printWiFiStatus();
 void getCredentials();
-void getWiFi ();
+void getWiFi();
 void printAPStatus();
 void setupAP();
 String getWifiList();

@@ -92,6 +92,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     // if device hasn't already a config, create a new config
     if (!getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated)) {
       createRoomConfig(payload);
+      Serial.println("CIAO");
       createSensorsConfig(payload);
       getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated);
     }

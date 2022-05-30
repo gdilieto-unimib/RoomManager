@@ -98,9 +98,32 @@ void mqttMessageReceived(String &topic, String &payload) {
           mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[i])+ "/control");
         }
 
+        //subscribe to singleMode queue for light
+        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/singleMode/light/control");
+
         *monitoringActivatedRef = doc["monitoring"];
       }
        
+    } else if (topic == String(MQTT_ROOM_TOPIC)+"/singleMode/light/control") {
+      
+      // deserialize the JSON object
+      DynamicJsonDocument doc(2048);
+      deserializeJson(doc, payload);
+      const int roomId = doc["room"].as<int>();
+      if(roomId==MQTT_roomId) {
+        const char *lightConfig = doc["config"];
+        
+        if (String(lightConfig)=="ON") {
+          *lightConfigRef = CONFIG_ON;
+        } else if (String(lightConfig)=="AUTO"){
+          *lightConfigRef = CONFIG_AUTO;
+        } else {
+          *lightConfigRef = CONFIG_OFF;
+        }
+      } else {
+          *lightConfigRef = CONFIG_OFF;        
+      }
+      
     } else if (topic == String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control"){
       
       if (payload=="START") {

@@ -27,16 +27,18 @@
 #include "flashmem_controller_room_manager_master.h"
 #include "api_controller_room_manager_master.h"
 
-long timeDb, timeLogging, timeScreen, timeDevices;
+long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
+
+boolean singleMode;
 
 int devices;
 
 void setup()
 {
-  timeDb = timeLogging = timeScreen = millis();
+  timeDb = timeLogging = timeScreen = timeConfiguration = millis();
   
   setupLcd();
   MQTTSetup();
@@ -61,13 +63,13 @@ void loop()
   tryMQTTBrokerConnection();
 
   // Loop for mqtt messages
-  loopMqttClient();
-
-  // Check new messages if connected to the Broker
-  //Serial.print("CICAI"); // MQTT client loop  
+  loopMqttClient(); 
 
   // Update the number of devices configured
   updateDevicesNumber();
+  
+  // Update the configuration of the app
+  updateConfiguration();
   
   // Update screen
   updateScreen();
@@ -143,6 +145,16 @@ void updateDevicesNumber() {
   if ((millis() - timeDevices) > DEVICES_UPDATE_TIMER_MILLIS) {
     getDevices(&devices);
     timeDevices = millis();
+  }
+}
+
+void updateConfiguration() {
+  // Updated the configuration of the app
+  
+  if ((millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
+    getConfiguration(&singleMode);
+    Serial.println(singleMode);
+    timeConfiguration = millis();
   }
 }
 
