@@ -25,7 +25,6 @@
 #include "accesspoint_controller_room_manager_master.h"
 #include "mqtt_controller_room_manager_master.h"
 #include "flashmem_controller_room_manager_master.h"
-#include "api_controller_room_manager_master.h"
 
 long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration;
 
@@ -44,8 +43,7 @@ void setup()
   MQTTSetup();
   MyWiFi_Credentials = my_flash_store.read();
   
-  if(!MyWiFi_Credentials.valid)
-      setupAP();
+  setupAP(MyWiFi_Credentials.valid);
       
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
@@ -86,13 +84,11 @@ void tryWifiConnection() {
           while(!isWifiConnected()) {
             connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
           }
-          Serial.println("WIFI CONNESSO!");
-          setupApiServer();
-    
+          Serial.println("WIFI CONNESSO!");    
     
     } else {
       Serial.println("TRY WIFI CONNECTION: ");
-  
+      
       while(!isWifiConnected()) {
         // activate the access point until wifi is connected
         password  = connectToWifiAP();
@@ -106,11 +102,13 @@ void tryWifiConnection() {
   
       Serial.println("Writing WiFi credentials");
       my_flash_store.write(MyWiFi_Credentials);
+      
       delay(1000);
     
       // try to connect to wifi
       wifiLoadingScreen(false);
     }
+    setupAP(true);
   } else {
     listenForClients();
   }

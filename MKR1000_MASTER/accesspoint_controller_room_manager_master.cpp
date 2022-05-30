@@ -25,25 +25,27 @@ boolean needCredentials = true;
 boolean needWiFi = false;
 boolean connectPubNub = false;
 
-void setupAP() {
+void setupAP(boolean configured) {
 
-  Serial.println("Access Point Web Server\n");
-  listNetworks();
-
-  // print the network name (SSID);
-  Serial.print("Creating access point named: ");
-  Serial.println(ssidAP);
-
-  // Create open network. Change this line if you want to create an WEP network:
-  status = WiFi.beginAP(ssidAP);
-  if (status != WL_AP_LISTENING) {
-    Serial.println("Creating access point failed");
-    // don't continue
-    while (true);
-  }
+  if (!configured) {
+    Serial.println("Access Point Web Server\n");
+    listNetworks();
   
-  // wait 10 seconds for connection:
-  delay(10000);
+    // print the network name (SSID);
+    Serial.print("Creating access point named: ");
+    Serial.println(ssidAP);
+    
+    // Create open network. Change this line if you want to create an WEP network:
+    status = WiFi.beginAP(ssidAP);
+    if (status != WL_AP_LISTENING) {
+      Serial.println("Creating access point failed");
+      // don't continue
+      while (true);
+    }  
+    
+    // wait 10 seconds for connection:
+    delay(10000);
+  }
 
   // start the web server on port 80
   serverAP.begin();
@@ -184,6 +186,7 @@ void getCredentials() {
             Serial.println(password);
             client.stop();
             WiFi.end();
+            Serial.println("STOP AP");
             readingChannel = false;
             needCredentials = false;
             needWiFi = true;
@@ -304,18 +307,97 @@ void printAPStatus() {
 
 
 void listNetworks() {    // scan for nearby networks:
-    Serial.println("** Scan Networks **");
-    int numSsid = WiFi.scanNetworks();
-    if (numSsid == -1)
-    {
-      Serial.println("Couldn't get a wifi connection");
-      while (true);
-    }
-  
-    // print the network number and name for each network found:
-    for (int thisNet = 0; thisNet < numSsid; thisNet++) {
-      wifiList = wifiList + WiFi.SSID(thisNet);
-      wifiList = wifiList + "<br>";
-      Serial.flush();
-    }
+  Serial.println("** Scan Networks **");
+  int numSsid = WiFi.scanNetworks();
+  if (numSsid == -1)
+  {
+    Serial.println("Couldn't get a wifi connection");
+    while (true);
   }
+
+  // print the network number and name for each network found:
+  for (int thisNet = 0; thisNet < numSsid; thisNet++) {
+    wifiList = wifiList + WiFi.SSID(thisNet);
+    wifiList = wifiList + "<br>";
+    Serial.flush();
+  }
+}
+
+void printHeaders(WiFiClient client) {
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-type:application/json");
+  client.println("Access-Control-Allow-Origin: *");
+  client.println("Access-Control-Allow-Credentials: true");
+  client.println("Access-Control-Allow-Methods: OPTIONS, GET, POST");
+  client.println("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
+  client.println();
+}
+
+void listenForClients() {
+  // listen for http requests from a webapp
+  
+ WiFiClient client = serverAP.available();   // listen for incoming clients
+    
+ if (client) {                             // if you get a client,
+    Serial.println("new client");           // print a message out the serial port
+    String currentLine = "";                // make a String to hold incoming data from the client
+    while (client.connected()) {            // loop while the client's connected
+      if (client.available()) {             // if there's bytes to read from the client,
+        char c = client.read();             // read a byte, then
+        Serial.write(c);                    // print it out the serial monitor
+        if (c == '\n' && currentLine.length() == 0) {                    // if the byte is a newline character
+          break;
+        }
+        else if (c == '\r'){      // if you got a newline, then clear currentLine:
+          currentLine = "";
+        }
+        else if (c != '\r') {    // if you got anything else but a carriage return character,
+          currentLine += c;      // add it to the end of the currentLine
+        }
+        
+        int roomId = -1;
+        int sensorId = -1;
+        
+        // Check to see which client request was sent
+        if (currentLine.endsWith("/monitoring/start")) {
+          sscanf(&currentLine[0], "GET /rooms/%d/monitoring/start", &roomId);
+          printHeaders(client);   // Print response headers
+          mqttSendMonitoringControl(roomId, "START");    // GET /rooms/:id/monitoring/start starts the room's monitoring
+          client.print("{\"monitoringActivated\": true}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/monitoring/stop")) {
+          sscanf(&currentLine[0], "GET /rooms/%d/monitoring/stop", &roomId);
+          printHeaders(client);   // Print response headers
+          mqttSendMonitoringControl(roomId, "STOP");    // GET /rooms/:id/monitoring/stop stops the room's monitoring
+          client.print("{\"monitoringActivated\": false}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/on")) {
+          sscanf(&currentLine[0], "GET /sensors/%d/control/on", &sensorId);
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "ON");    // GET /sensors/:id/on turns on the sensor's actuator activation
+          client.print("{"+String(sensorId)+": \"on\"}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/auto")) {
+          sscanf(&currentLine[0], "GET /sensors/%d/control/auto", &sensorId);
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "AUTO");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          client.print("{"+String(sensorId)+": \"auto\"}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/off")) {
+          sscanf(&currentLine[0], "GET /sensors/%d/control/off  ", &sensorId);
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "OFF");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          client.print("{"+String(sensorId)+": \"off\"}");
+          client.println();
+        }
+      }
+    }
+    // close the connection:
+    client.stop();
+    Serial.println("client disonnected");
+  }
+}
