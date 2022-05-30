@@ -3,7 +3,7 @@
 #include "accesspoint_controller_room_manager.h"
 
 String wifiList = "";
-char ssidAP[] = "Room_Manager_AP"; // your network SSID (name)
+char ssidAP[] = "Room_Manager_AP_TIBE"; // your network SSID (name)
 int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -27,7 +27,7 @@ boolean connectPubNub = false;
 
 void setupAP() {
 
-  Serial.println("Access Point Web Server");
+  Serial.println("Access Point Web Server\n");
   listNetworks();
 
   // print the network name (SSID);
@@ -71,7 +71,7 @@ String connectToWifiAP() {
   WiFiClient client = serverAP.available(); // listen for incoming clients
 
   if (client) { // if you get a client,
-    Serial.println("new client"); // print a message out the serial port
+    Serial.println("new client 1"); // print a message out the serial port
     String currentLine = ""; // make a String to hold incoming data from the client
     while (client.connected()) { // loop while the client's connected
       if (client.available()) { // if there's bytes to read from the client,
@@ -130,7 +130,7 @@ void getCredentials() {
   WiFiClient client = serverAP.available();
   if (client) {
     boolean firstExclamative = true;
-    Serial.println("new client");
+    Serial.println("new client 2");
     String currentLine = "";
     while (client.connected()) {
       if (client.available()) {
@@ -192,7 +192,6 @@ void getCredentials() {
         }
         if (c == '\n') {
           if (currentLine.length() == 0) {
-            listNetworks();
             client.println("HTTP/1.1 200 OK");
             client.println("Content-type:text/html");
             client.println();
@@ -200,7 +199,7 @@ void getCredentials() {
             client.println("<head>");
             client.println("<style type=\"text/css\"> body {font-family: sans-serif; margin:50px; padding:20px; line-height: 250% } </style>");
             client.println("<style>.loader {margin: auto; border: 16px solid #f3f3f3;  border-radius: 50%;  border-top: 16px solid #3498db;  width: 20px;  height: 20px;  -webkit-animation: spin 2s linear infinite; /* Safari */  animation: spin 2s linear infinite;}@-webkit-keyframes spin {  0% { -webkit-transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); }}@keyframes spin {  0% { transform: rotate(0deg); }  100% { transform: rotate(360deg); }}</style>");
-            client.println("<style>.center {text-align: center;}</style>")
+            client.println("<style>.center {text-align: center;}</style>");
             client.println("<title>Arduino Setup</title>");
             client.println("</head>");
             client.println("<body>");

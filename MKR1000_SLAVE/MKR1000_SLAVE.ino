@@ -137,8 +137,8 @@ void tryWifiConnection() {
           connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
     } else {
+      Serial.print("CALLING CONNECT TO WIFI AP");
       password  = connectToWifiAP();
-  
       if (isWifiConnected()){
         MyWiFi_Credentials.valid=true;
         String ssidfl = WiFi.SSID();
