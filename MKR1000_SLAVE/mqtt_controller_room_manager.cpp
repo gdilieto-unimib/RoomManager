@@ -86,6 +86,7 @@ void mqttMessageReceived(String &topic, String &payload) {
   
       const char *mac = doc["mac"];
       if(String(mac)==getMac()) {
+        Serial.println("CONFIG FOR ME");
         MQTT_roomId = (int)doc["room"];
         for (int i = 0 ; i < 3 ; i++)
           MQTT_sensorsId[i] = doc["sensors"][i];

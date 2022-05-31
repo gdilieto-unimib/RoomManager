@@ -43,10 +43,11 @@ void setup()
   setupLcd();
   MQTTSetup();
   MyWiFi_Credentials = my_flash_store.read();
+
+  if (!MyWiFi_Credentials.valid) {
+    setupAP();  
+  }
   
-  if(!MyWiFi_Credentials.valid)
-      setupAP();
-      
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
 }
@@ -86,12 +87,12 @@ void tryWifiConnection() {
           while(!isWifiConnected()) {
             connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
           }
-          Serial.println("WIFI CONNESSO!");
+          Serial.println("Wifi Connected!");
           setupApiServer();
     
     
     } else {
-      Serial.println("TRY WIFI CONNECTION: ");
+      Serial.println("Waiting for WiFi credentials");
   
       while(!isWifiConnected()) {
         // activate the access point until wifi is connected
@@ -110,6 +111,8 @@ void tryWifiConnection() {
     
       // try to connect to wifi
       wifiLoadingScreen(false);
+      NVIC_SystemReset();
+      Serial.print("CIAO");
     }
   } else {
     listenForClients();

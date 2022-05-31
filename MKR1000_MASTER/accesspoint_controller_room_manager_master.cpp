@@ -26,7 +26,6 @@ boolean needWiFi = false;
 boolean connectPubNub = false;
 
 void setupAP() {
-
   Serial.println("Access Point Web Server\n");
   listNetworks();
 
@@ -43,11 +42,11 @@ void setupAP() {
   }
   
   // wait 10 seconds for connection:
-  delay(10000);
-
+  delay(10000);  
+  
   // start the web server on port 80
   serverAP.begin();
-
+  
   // you're connected now, so print out the status
   printWiFiStatus();
 }
@@ -102,9 +101,6 @@ void printWiFiStatus() {
   IPAddress ip = WiFi.localIP();
   Serial.print("IP Address: ");
   Serial.println(ip);
-
-  // print where to go in a browser:
-    Serial.print(wifiList);
 
   Serial.print("To see this page in action, open a browser to http://");
   Serial.println(ip);
@@ -183,6 +179,7 @@ void getCredentials() {
             Serial.print("Password: ");
             Serial.println(password);
             client.stop();
+            WiFi.disconnect();
             WiFi.end();
             readingChannel = false;
             needCredentials = false;
