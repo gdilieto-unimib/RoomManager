@@ -25,6 +25,7 @@
 
 */
 #include <ArduinoJson.h>
+#include <ArduinoLowPower.h>
 #include "macros_room_manager.h"
 #include "rgb_lcd_controller_room_manager.h"
 #include "action_controller_room_manager.h"
@@ -46,7 +47,7 @@ int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
-int tooHotTempThreshold = 32;
+int tooHotTempThreshold = 30;
 int tooColdTempThreshold = 10;
 
 int displayRow = 0;
@@ -57,6 +58,9 @@ int lastWifiRssi = 0;
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
+boolean low_Power_Mode = false;
+boolean lowPowerButtonPressed = false; 
+boolean mode_just_changed = false;
 
 boolean monitoringActivated = false;
 boolean startServer= true;
@@ -77,54 +81,80 @@ void setup()
 
   MyWiFi_Credentials = my_flash_store.read();
 
-  if(!!MyWiFi_Credentials.valid)
+  if(!MyWiFi_Credentials.valid)
       setupAP();
   
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
+  LowPower.attachInterruptWakeup(BUTTON_OK, wakeUp, CHANGE);
 }
 
-void loop()
-{
+void loop(){
+if (low_Power_Mode){
+  lowPowerModeLCD();
   
-  // Connect to wifi
-  tryWifiConnection();
-
-  // Connect to mqtt broker
-  tryMQTTBrokerConnection();
-  
-  // Log measures to master
-  tryLogMeasures();
-
-  // Send hearthbeat if connected to wifi and mqtt broker to get configuration
-  trySendRoomHearthbeat();
-
-  // Loop for mqtt messages
-  loopMqttClient();
-  
-  // get the actual pressed button
-  int pressedButton = getPressedButton();
-
-  if (navigationMode) {
-    // if navigating though screen
-    navigate(pressedButton);
-  } else {
-    // if acting on a screen
-    action(pressedButton);
+  if(getTemp() > tooHotTempThreshold){
+          Serial.print("ALLARME TROPPO CALDO DA LOW POWER MODE");
+          low_Power_Mode = false;          
   }
+      
+  Serial.println("BEGIN SLEEPING");
+  LowPower.sleep(10000);
+  Serial.println("STOP SLEEPING");
+  Serial.print("TEMPREATURA: ");
 
-  // update screen if an operation has been made
-  if (pressedButton != NO_OP) {
-      updateScreen();
-  }  
+  Serial.println(getTemp());
 
-  // refresh sensors and screen periodically
-  refreshScreenInfo();
-
-  //set hot or cold alarm
-  setHotColdAlarm(lastTemp);
+}else{
+    if(mode_just_changed){
+      delay(1000);
+      mode_just_changed=false;
+      screen = INFO_SCREEN;
+    }
+    notLowPowerModeLCD();
+    
+  
+  
+    
+    // Connect to wifi
+    tryWifiConnection();
+  
+    // Connect to mqtt broker
+    tryMQTTBrokerConnection();
+    
+    // Log measures to master
+    tryLogMeasures();
+  
+    // Send hearthbeat if connected to wifi and mqtt broker to get configuration
+    trySendRoomHearthbeat();
+  
+    // Loop for mqtt messages
+    loopMqttClient();
+    
+    // get the actual pressed button
+    int pressedButton = getPressedButton();
+  
+    if (navigationMode) {
+      // if navigating though screen
+      navigate(pressedButton);
+    } else {
+      // if acting on a screen
+      action(pressedButton);
+    }
+  
+    // update screen if an operation has been made
+    if (pressedButton != NO_OP) {
+        updateScreen();
+    }  
+  
+    // refresh sensors and screen periodically
+    refreshScreenInfo();
+  
+    //set hot or cold alarm
+    setHotColdAlarm(lastTemp);
+  
 }
-
+}
 void tryWifiConnection() {
    String password; 
 
@@ -132,7 +162,7 @@ void tryWifiConnection() {
   
    if (( (millis() - timeWifi) > 10000 ) && !isWifiConnected()) {
     wifiLoadingScreen(true);
-    if (!MyWiFi_Credentials.valid == true) {
+    if (MyWiFi_Credentials.valid == true) {
           Serial.println("Loading existing WiFi credentials");
           connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
@@ -202,10 +232,23 @@ void trySendRoomHearthbeat() {
 }   
 
 int getPressedButton(){
-
+        
   byte val_MENO = digitalRead(BUTTON_MENO); // read the meno button state
   byte val_PIU = digitalRead(BUTTON_PIU); // read the piu button state
   byte val_OK = digitalRead(BUTTON_OK); // read the ok button state
+
+
+  if (val_MENO == HIGH && val_PIU == HIGH) { 
+    delay(2000);
+    if (val_MENO == HIGH && val_PIU == HIGH) {
+      low_Power_Mode = !low_Power_Mode ; 
+      Serial.print("Changing power mode to: ");
+      Serial.println(low_Power_Mode);
+
+      delay(3000);
+    }
+  }
+
 
   if (val_MENO == HIGH) { // meno button is pressed
     delay(250);
@@ -379,4 +422,9 @@ void setHotColdAlarm(int temp) {
     }
     
   }
+}
+
+void wakeUp(){
+  mode_just_changed = true;
+  low_Power_Mode = false;
 }

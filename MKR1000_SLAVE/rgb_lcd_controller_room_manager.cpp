@@ -246,3 +246,13 @@ void updateScreenRowsText(char screenRows[2][16]) {
   lcd.setCursor(0,1);
   lcd.print(screenRows[1]); // show second row
 }
+
+void lowPowerModeLCD() {
+  lcd.setRGB(0,0,0);
+  lcd.noDisplay();
+}
+void notLowPowerModeLCD() {
+  lcd.display();
+  lcd.setRGB(50,50,50);
+
+}
