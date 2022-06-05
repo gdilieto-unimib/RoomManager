@@ -9,7 +9,7 @@
      Tiberio Falsiroli - t.falsiroli@unimib.it
  * ****************************************************************************
 
-  Room manager: an IOT application that allows you to monitorate your rooms' temperature and light sensors and control your actuators (thermostats and lights).
+  Room manager: an  IOT application that allows you to monitorate your rooms' temperature and light sensors and control your actuators (thermostats and lights).
 
   Components for a room device:
     1x MKR1000
