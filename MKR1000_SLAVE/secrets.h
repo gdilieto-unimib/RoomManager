@@ -23,3 +23,8 @@
 #define MQTT_CLIENTID "mkr21_tf"                 // client identifier
 #define MQTT_USERNAME "tfalsiroli"            // mqtt user's name
 #define MQTT_PASSWORD "iot874971"            // mqtt user's password
+
+
+#define WEATHER_API_KEY "20bf48d2e0b208a53dcf3c35bfb81edf"           // api key form https://home.openweathermap.org/api_keys
+#define WEATHER_CITY "Milan"                     // city
+#define WEATHER_COUNTRY "it"                     // ISO3166 country code 
