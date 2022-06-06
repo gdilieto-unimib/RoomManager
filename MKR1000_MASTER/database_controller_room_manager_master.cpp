@@ -44,11 +44,9 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
   }
   
   char query[128]={0};
-  Serial.println(mac); 
   char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'"; 
 
   sprintf(query, SELECT_ROOM, &mac[0]); 
-  Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
   cur_mem->execute(query);
@@ -57,11 +55,8 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
   column_names *columns = cur_mem->get_columns();
 
   for (int f = 0; f < columns->num_fields; f++) {
-      Serial.print(columns->fields[f]->name);
       if (f < columns->num_fields - 1) {
-          Serial.print(',');
       } else {
-          Serial.println(' ');
       }
   }
 
@@ -71,7 +66,6 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
     if (row != NULL) {
         
         *roomId = atoi(row->values[0]);
-        Serial.print(row->values[1]);
         *monitoringActivated = atoi(row->values[1])==0?false:true;
         
         String sensorType = row->values[2];
@@ -108,7 +102,6 @@ boolean getConfiguration(boolean* singleMode) {
   char SELECT_ROOM[] = "SELECT c.name, c.value FROM gdilieto.configuration c"; 
 
   sprintf(query, SELECT_ROOM); 
-  Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
   cur_mem->execute(query);
@@ -117,11 +110,8 @@ boolean getConfiguration(boolean* singleMode) {
   column_names *columns = cur_mem->get_columns();
 
   for (int f = 0; f < columns->num_fields; f++) {
-      Serial.print(columns->fields[f]->name);
       if (f < columns->num_fields - 1) {
-          Serial.print(',');
       } else {
-          Serial.println(' ');
       }
   }
 
@@ -151,7 +141,6 @@ boolean getDevices(int* devices) {
   char SELECT_ROOM[] = "SELECT COUNT(*) FROM gdilieto.room"; 
 
   sprintf(query, SELECT_ROOM); 
-  Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
   cur_mem->execute(query);
@@ -160,11 +149,8 @@ boolean getDevices(int* devices) {
   column_names *columns = cur_mem->get_columns();
 
   for (int f = 0; f < columns->num_fields; f++) {
-      Serial.print(columns->fields[f]->name);
       if (f < columns->num_fields - 1) {
-          Serial.print(',');
       } else {
-          Serial.println(' ');
       }
   }
 
@@ -190,11 +176,9 @@ boolean getRoomId(String mac, int* roomId) {
   }
   
   char query[128]={0};
-  Serial.println(mac); 
   char SELECT_ROOM[] = "SELECT r.id FROM gdilieto.room r WHERE r.mac='%s'"; 
 
   sprintf(query, SELECT_ROOM, &mac[0]); 
-  Serial.println(query); 
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn); 
   cur_mem->execute(query);
@@ -203,11 +187,8 @@ boolean getRoomId(String mac, int* roomId) {
   column_names *columns = cur_mem->get_columns();
 
   for (int f = 0; f < columns->num_fields; f++) {
-      Serial.print(columns->fields[f]->name);
       if (f < columns->num_fields - 1) {
-          Serial.print(',');
       } else {
-          Serial.println(' ');
       }
   }
 
@@ -239,8 +220,6 @@ boolean createRoomConfig(String mac) {
   char INSERT_ROOM[] = "INSERT INTO `gdilieto`.`room` (`mac`) VALUES ('%s')";
    
   sprintf(query, INSERT_ROOM, &mac[0]);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -262,8 +241,6 @@ boolean createSensorsConfig(String mac) {
   getRoomId(mac, &roomId);
    
   sprintf(query, INSERT_ROOM, roomId, roomId, roomId);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -282,8 +259,6 @@ boolean updateLastHBTimestamp(int roomId) {
   char UPDATE_HB_ROOM[] = "UPDATE `gdilieto`.`room` SET `lastHB` = CURRENT_TIMESTAMP WHERE id='%d'";
 
   sprintf(query, UPDATE_HB_ROOM, roomId);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -302,9 +277,7 @@ boolean updateRoomMonitoring(int roomId, boolean monitoring) {
   char UPDATE_ROOM_MONITORING[] = "UPDATE `gdilieto`.`room` SET `monitoring` = '%d' WHERE id = '%d'" ;
 
   sprintf(query, UPDATE_ROOM_MONITORING, monitoring, roomId);
-  
-  Serial.println(query);
-
+ 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
   
@@ -323,8 +296,6 @@ boolean updateSensorConfig(int sensorId, String configuration) {
   char UPDATE_SENSOR_CONFIG[] = "UPDATE `gdilieto`.`sensor` SET `auto` = '%d', `active` = '%d' WHERE id = '%d'" ;
 
   sprintf(query, UPDATE_SENSOR_CONFIG, configuration=="AUTO", configuration=="ON", sensorId);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -345,8 +316,6 @@ boolean logSensorMeasure(int sensor, char* value) {
   char INSERT_MEASURE[] = "INSERT INTO `gdilieto`.`measure` (`sensor`, `value`) VALUES ('%d', '%s')";
    
   sprintf(query, INSERT_MEASURE, sensor, value);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -366,8 +335,6 @@ boolean logAlarm(char* message, int code, int roomId) {
   char INSERT_ALARM[] = "INSERT INTO `gdilieto`.`alarm` (`message`, `code`, `room_alert`) VALUES ('%s', '%d', '%d')";
    
   sprintf(query, INSERT_ALARM, message, code, roomId);
-  
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);

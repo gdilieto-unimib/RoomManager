@@ -107,12 +107,10 @@ void tryWifiConnection() {
   
       Serial.println("Writing WiFi credentials");
       my_flash_store.write(MyWiFi_Credentials);
-      delay(1000);
     
       // try to connect to wifi
       wifiLoadingScreen(false);
       NVIC_SystemReset();
-      Serial.print("CIAO");
     }
   } else {
     listenForClients();
