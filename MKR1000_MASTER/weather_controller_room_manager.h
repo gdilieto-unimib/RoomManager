@@ -5,12 +5,10 @@
 #include <SPI.h>
 #include <WiFi101.h>
 
-#include "secrets.h"
+#include "secrets_master.h"
 
 // JSON library
 #include <ArduinoJson.h>
-
-#include "secrets.h"
 
 float getExternalTemperature();
 #endif
