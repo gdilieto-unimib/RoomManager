@@ -26,7 +26,6 @@
 #include "mqtt_controller_room_manager_master.h"
 #include "flashmem_controller_room_manager_master.h"
 #include "api_controller_room_manager_master.h"
-#include "weather_controller_room_manager_master.h"
 
 long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration;
 
