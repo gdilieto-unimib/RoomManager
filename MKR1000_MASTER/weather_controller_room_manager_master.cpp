@@ -1,4 +1,4 @@
-#include "weather_controller_room_manager.h"
+#include "weather_controller_room_manager_master.h"
 
 const char weather_server[] = "api.openweathermap.org";
 const char weather_query[] = "GET /data/2.5/weather?q=%s,%s&units=metric&APPID=%s";
@@ -28,6 +28,9 @@ float getExternalTemperature() {
     char c = client.read();
     result = result + c;
   }
+
+
+  
 
   client.stop();   // end communication
   // Serial.println(result);  // print JSON
