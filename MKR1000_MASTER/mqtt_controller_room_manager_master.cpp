@@ -1,11 +1,17 @@
 #include "mqtt_controller_room_manager_master.h"
 
+boolean ecoMode;
+
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
 void MQTTSetup(){
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
+}
+
+void setEcoMode(boolean value){
+  ecoMode = value;
 }
 
 void loopMqttClient() {
@@ -54,7 +60,7 @@ int isValidMacAddress(const char* mac) {
     return (i == 12 && (s == 5 || s == 0));
 }
 
-void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
+void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated, boolean ecoMode) {
   DynamicJsonDocument doc(2048);
 
   doc["mac"] = mac;
@@ -114,7 +120,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     updateLastHBTimestamp(roomId);
     
     // send room config to the slave
-    mqttSendConfig(payload, roomId, sensorsId, monitoringActivated);
+    mqttSendConfig(payload, roomId, sensorsId, monitoringActivated, ecoMode);
   
   } else {
     
