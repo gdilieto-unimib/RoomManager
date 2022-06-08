@@ -71,6 +71,7 @@ boolean fireAlarm = true;
 boolean low_Power_Mode = false;
 boolean lowPowerButtonPressed = false;
 boolean mode_just_changed = false;
+boolean ecoMode = false;
 
 boolean monitoringActivated = false;
 boolean startServer = true;
@@ -85,7 +86,7 @@ void setup() {
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
   setupLcd();
   setupIO();
-  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature);
+  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode);
   updateSensors();
 
   MyWiFi_Credentials = my_flash_store.read();
@@ -335,7 +336,7 @@ void updateSensors() {
 
   // update actuators based on thresholds
   updateLight(lastLight, lightConfig, & lightStatus, lightActivationThreshold);
-  updateTemp(lastTemp, tempConfig, & tempStatus, tempActivationThreshold);
+  updateTemp(lastTemp, tempConfig, & tempStatus, tempActivationThreshold, ecoMode, externalTemperature);
 }
 
 void updateScreen() {

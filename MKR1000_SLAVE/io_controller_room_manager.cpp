@@ -119,13 +119,22 @@ void updateLight(int light, int lightConfig, int* lightStatus, int lightActivati
   
 }
 
-void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold) {
+void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold, boolean ecoMode, int externalTemperature) {
   
   switch(tempConfig) {
     // set thermostat's status automatically based on temperature's activation threshold
     
     case CONFIG_ON: {
-      if (temp < tempActivationThreshold) {
+      if(ecoMode == true && temp < tempActivationThreshold && externalTemperature >= tempActivationThreshold){
+        Serial.println("NON ATTIVO IL RISCALDAMENTO PERCHE SONO IN ECOMODE");
+        *tempStatus = TEMP_STATUS_OFF;
+
+      } else if (ecoMode == true && temp > tempActivationThreshold && externalTemperature <= tempActivationThreshold) {
+                Serial.println("NON ATTIVO IL CLIMATIZZATOR PERCHE SONO IN ECOMODE");
+
+        *tempStatus = TEMP_STATUS_OFF;
+        
+      } else if (temp < tempActivationThreshold) {
         // UP to increase temperature
         *tempStatus = TEMP_STATUS_UP;
       } else if (temp > tempActivationThreshold) {
