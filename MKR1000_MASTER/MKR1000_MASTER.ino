@@ -43,6 +43,8 @@ int devices;
 
 void setup()
 {
+    Serial.println(("\begin setup"));
+
   timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = millis();
   
   setupLcd();
@@ -113,6 +115,8 @@ void tryWifiConnection() {
 
       if(!configureWifi) {
         while(!isWifiConnected()) {
+                Serial.println("iswificonnectesd");
+
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
       } else {
