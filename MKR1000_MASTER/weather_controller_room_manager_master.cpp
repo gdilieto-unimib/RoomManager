@@ -32,7 +32,6 @@ float getExternalTemperature() {
 
 
   
-
   client2.stop();   // end communication
   // Serial.println(result);  // print JSON
 

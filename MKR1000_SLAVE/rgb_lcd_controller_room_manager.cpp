@@ -172,14 +172,14 @@ void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConn
   }
 }
 
-void updateTempScreenRows(int temp, int tempConfig, int tempActivationThreshold) {
+void updateTempScreenRows(int temp, int tempConfig,int  tempActivationThreshold,int tempStatus) {
   // update rows for the temperature's controller screen
   
   char tempScreenRows[2][16] = {"Temp: ", ""};
   
   if (tempConfig == CONFIG_ON) {
     // show thermostat status based on temperature's activation threshold
-    strcat(tempScreenRows[0], temp < tempActivationThreshold ? "ON +" : temp > tempActivationThreshold ? "ON -" : "ON =");
+    strcat(tempScreenRows[0], tempStatus==TEMP_STATUS_UP ? "ON +" : tempStatus==TEMP_STATUS_DOWN ? "ON -" : tempStatus==TEMP_STATUS_OFF ? "ON =" : "ON ECO");
   } else {
     // show thermostat status off
     strcat(tempScreenRows[0], "OFF");

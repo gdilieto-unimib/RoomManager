@@ -14,9 +14,9 @@ void setTooColdAlarm(boolean active);
 
 void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected);
 
-void updateTempScreenRows(int tempStatus, int tempConfig, int tempActivationThreshold);
+void updateTempScreenRows(int temp, int tempConfig, int tempActivationThreshold,int tempStatus);
 
-void updateLightScreenRows(int lightStatus, int lightConfig, int lightActivationThreshold);
+void updateLightScreenRows(int light, int lightConfig, int lightActivationThreshold);
 
 void updateAlarmScreenRows(boolean fireAlarm);
 

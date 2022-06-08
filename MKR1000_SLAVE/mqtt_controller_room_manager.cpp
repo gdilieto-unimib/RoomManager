@@ -176,13 +176,13 @@ boolean isRoomConfigured(){
 }
 
 void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
-  DynamicJsonDocument doc(1024);
+  DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
   
   doc[String(MQTT_sensorsId[0])] = String(lastLight)+" lux";
   doc[String(MQTT_sensorsId[1])] = String(lastTemp)+" C";
   doc[String(MQTT_sensorsId[2])] = String(lastWifiRssi)+" dB";
   
-  char buffer[128];
+  char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
   mqttClient.publish(&(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/logging")[0], buffer, n);
@@ -201,11 +201,11 @@ void mqttSendMonitoringConfig(boolean monitoringConfig) {
 }
 
 void mqttSendAlarm(char* message, int code) {
-  DynamicJsonDocument doc(1024);
+  DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
   doc["message"] = message;
   doc["code"] = code;
   
-  char buffer[256];
+  char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
   mqttClient.publish(&(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/alarm")[0], buffer, n);

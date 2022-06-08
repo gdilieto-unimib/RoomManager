@@ -102,6 +102,7 @@ void setup() {
 
 void loop() {
   if (low_Power_Mode) {
+    mode_just_changed = true;
     lowPowerModeLCD();
 
     if (getTemp() > tooHotTempThreshold) {
@@ -120,9 +121,9 @@ void loop() {
     if (mode_just_changed) {
       delay(1000);
       mode_just_changed = false;
-      screen = INFO_SCREEN;
+      //screen = INFO_SCREEN;
+      notLowPowerModeLCD();
     }
-    notLowPowerModeLCD();
 
     // Connect to wifi
     tryWifiConnection();
@@ -234,10 +235,7 @@ void trySendRoomHearthbeat() {
 
   if (((millis() - timeSendHearthbeat) > 10000) && isWifiConnected() && isMQTTBrokerConnected()) {
     // try to send an hearthbeat to master (with loading screen)
-    dbLoadingScreen(true);
     mqttSendMac();
-    dbLoadingScreen(false);
-    updateScreen();
 
     timeSendHearthbeat = millis();
   }
@@ -359,7 +357,7 @@ void updateScreen() {
   // screen update if you are on temperature's control screen
   case TEMP_SCREEN: {
 
-    updateTempScreenRows(lastTemp, tempConfig, tempActivationThreshold);
+    updateTempScreenRows(lastTemp, tempConfig, tempActivationThreshold,tempStatus);
     updateScreenCursor(!navigationMode, displayRow);
 
     break;
@@ -439,6 +437,5 @@ void setHotColdAlarm(int temp) {
 }
 
 void wakeUp() {
-  mode_just_changed = true;
   low_Power_Mode = false;
 }
