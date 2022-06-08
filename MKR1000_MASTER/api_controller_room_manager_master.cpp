@@ -58,6 +58,21 @@ void listenForClients() {
           client.print("{\"monitoringActivated\": false}");
           client.println();
         }
+        else if (currentLine.endsWith("/ecoMode/on")) {
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "AUTO");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          updateSensorConfig(sensorId, "AUTO");
+          client.print("{"+String(sensorId)+": \"auto\"}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/ecoMode/off")) {
+          sscanf(&currentLine[0], "GET /sensors/%d/control/auto", &sensorId);
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "AUTO");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          updateSensorConfig(sensorId, "AUTO");
+          client.print("{"+String(sensorId)+": \"auto\"}");
+          client.println();
+        }
         else if (currentLine.endsWith("/off")) {
           sscanf(&currentLine[0], "GET /sensors/%d/control/off  ", &sensorId);
           printHeaders(client);   // Print response headers
