@@ -180,20 +180,18 @@ void tryWifiConnection() {
         connectWifi(SECRET_SSID, SECRET_PASS);
         Serial.print("CIAO");
       } else {
-        password = connectToWifiAP();   
-      }
-      
-      if (isWifiConnected()) {
-        MyWiFi_Credentials.valid = true;
-        String ssidfl = WiFi.SSID();
-
-        ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
-        password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
-
-        Serial.println("Writing WiFi credentials");
-        my_flash_store.write(MyWiFi_Credentials);
-        delay(1000);
-
+        password = connectToWifiAP(); 
+        if (isWifiConnected()) {
+          MyWiFi_Credentials.valid = true;
+          String ssidfl = WiFi.SSID();
+  
+          ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
+          password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
+  
+          Serial.println("Writing WiFi credentials");
+          my_flash_store.write(MyWiFi_Credentials);
+          delay(1000);
+        }  
       }
 
       // if wifi was disconnected, monitoring is resetted

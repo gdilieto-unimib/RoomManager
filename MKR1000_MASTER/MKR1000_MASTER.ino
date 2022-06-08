@@ -61,36 +61,27 @@ void loop()
 {
   // Connect to wifi
   tryWifiConnection();
-      Serial.println("HO PROVATO A CONNNETTERMI AL WIFI");
-
+  
   // Connect to db
   tryDbConnection();
-      Serial.println("HO PROVATO A CONNETTERMI AL DB");
-
+  
   // Connect to mqtt broker
   tryMQTTBrokerConnection();
-    Serial.println("HO PROVATO A CONNETTERMI A MQTT");
 
   // Loop for mqtt messages
-  if(isMQTTBrokerConnected())loopMqttClient(); 
-  Serial.println("ESCO DA LOOP MQTT");
+  loopMqttClient(); 
+
   // Update the number of devices configured
   updateDevicesNumber();
-  Serial.println("ESCO DA UPDATE DEVICE");
   
   // Update the configuration of the app
   updateConfiguration();
-  Serial.println("ESCO DA UPDATE CONFIGURATION");
   
   // Update screen
   updateScreen();
 
   //if connected send external temperature to slave
-    Serial.println("PROVO A INVIARE TEMP");
-
   trySendExternalTemperature();
-    Serial.println("HO INVIATO TEMP");
-
 }
 
 void tryWifiConnection() {
@@ -119,22 +110,21 @@ void tryWifiConnection() {
         while(!isWifiConnected()) {
           // activate the access point until wifi is connected
           password  = connectToWifiAP();
-        }  
+        }
+      
+        MyWiFi_Credentials.valid=true;
+        String ssidfl = WiFi.SSID();
+        
+        ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
+        password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
+    
+        Serial.println("Writing WiFi credentials");
+        my_flash_store.write(MyWiFi_Credentials);
+      
+        // try to connect to wifi
+        wifiLoadingScreen(false);
+        NVIC_SystemReset();  
       }
-      
-    
-      MyWiFi_Credentials.valid=true;
-      String ssidfl = WiFi.SSID();
-      
-      ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
-      password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
-  
-      Serial.println("Writing WiFi credentials");
-      my_flash_store.write(MyWiFi_Credentials);
-    
-      // try to connect to wifi
-      wifiLoadingScreen(false);
-      NVIC_SystemReset();
     }
   } else {
     listenForClients();
