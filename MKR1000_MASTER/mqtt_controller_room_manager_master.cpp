@@ -1,12 +1,12 @@
 #include "mqtt_controller_room_manager_master.h"
 
 boolean* ecoModeR;
-boolean* externalTemperatureR;
+int* externalTemperatureR;
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
-void MQTTSetup(boolean* externalTemperature, boolean* ecoMode){
+void MQTTSetup(int* externalTemperature, boolean* ecoMode){
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
    externalTemperatureR = externalTemperature;
@@ -28,7 +28,7 @@ void connectToMQTTBroker() {
 
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
-    Serial.println(F("\nSubscribed to config topic!"));
+    Serial.println(F("\nSubscribed to heartbeat topic!"));
   }
 }
 

@@ -28,20 +28,20 @@
 #include "api_controller_room_manager_master.h"
 #include "weather_controller_room_manager_master.h"
 
-long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration;
+long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
 
 boolean singleMode;
 boolean ecoMode;
-boolean externalTemperature;
+int externalTemperature;
 
 int devices;
 
 void setup()
 {
-  timeDb = timeLogging = timeScreen = timeConfiguration = millis();
+  timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = millis();
   
   setupLcd();
   MQTTSetup(&externalTemperature, &ecoMode);
@@ -160,7 +160,6 @@ void updateConfiguration() {
   
   if ((millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
     getConfiguration(&singleMode);
-    Serial.println(singleMode);
     timeConfiguration = millis();
   }
 }
@@ -173,10 +172,12 @@ void updateScreen() {
     timeScreen = millis();
   }
 }
+
 void trySendExternalTemperature() {
-  if ((millis() - timeScreen) > EXTERNALTEMP_UPDATE_TIMER_MILLIS) {
-    externalTemperature = getExternalTemperature();
+  if ((millis() - timeExtenalTemperature) > EXTERNAL_TEMP_UPDATE_TIMER_MILLIS) {
+    externalTemperature = round(getExternalTemperature());
     mqttSendExternalTemperature(externalTemperature);
+    timeExtenalTemperature = millis();
   }
 
 }
