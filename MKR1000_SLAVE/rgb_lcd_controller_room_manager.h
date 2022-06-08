@@ -26,6 +26,11 @@ void updateScreenRowsText(char screenRows[2][16]);
 
 void wifiLoadingScreen(boolean i);
 
+void lowPowerModeLCD();
+
+void notLowPowerModeLCD() ;
+
+
 void dbLoadingScreen(boolean i);
 
 void loggingLoadingScreen(boolean i);

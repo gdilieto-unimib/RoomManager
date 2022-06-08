@@ -25,6 +25,8 @@ void connectToMQTTBroker();
 
 boolean isMQTTBrokerConnected();
 
+void setEcoMode(boolean value);
+
 void mqttMessageReceived(String &topic, String &payload);
 
 void MQTTSetup();

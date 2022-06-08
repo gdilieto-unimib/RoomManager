@@ -22,6 +22,9 @@ void setupIO() {
   // set BUTTON_OK pin as input
   pinMode(BUTTON_OK, INPUT);
 
+   // set BUTTON_LOW_POWER_MODE pin as input
+  pinMode(BUTTON_LOW_POWER_MODE, INPUT);
+
   // set COLD_TEMP_LED pin as output
   pinMode(COLD_TEMP_LED, OUTPUT);
   

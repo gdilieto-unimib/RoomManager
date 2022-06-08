@@ -24,8 +24,6 @@ void connectWifi(char* ssid, char* pass){
     #ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
     #endif
-    ssid = "IoTLabThingsU14";
-    pass = "L@b%I0T*Ui4!P@sS**0%Lessons!";
     WiFi.begin(ssid, pass);
   }
 }
