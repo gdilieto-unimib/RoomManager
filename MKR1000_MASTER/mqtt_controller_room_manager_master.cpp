@@ -6,7 +6,7 @@ boolean* externalTemperatureR;
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
-void MQTTSetup(){
+void MQTTSetup(boolean* externalTemperature, boolean* ecoMode){
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
    externalTemperatureR = externalTemperature;
