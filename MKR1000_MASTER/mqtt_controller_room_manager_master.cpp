@@ -61,12 +61,14 @@ int isValidMacAddress(const char* mac) {
 
 void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
   DynamicJsonDocument doc(2048);
-
-  boolean ecoMode = *ecoModeR;
   
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
+  doc["externalTemp"] = *externalTemperatureR;
+  doc["ecoMode"] = *ecoModeR;
+
+
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
   }

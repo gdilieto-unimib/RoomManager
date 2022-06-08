@@ -89,6 +89,8 @@ void mqttMessageReceived(String &topic, String &payload) {
       deserializeJson(doc, payload);
 
       *ecoModeRef = doc["ecoMode"].as<boolean>();
+      *externalTemperatureRef = doc["externalTemp"].as<int>();
+
   
       const char *mac = doc["mac"];
       if(String(mac)==getMac()) {

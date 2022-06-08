@@ -130,7 +130,7 @@ void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThr
         *tempStatus = TEMP_STATUS_OFF;
 
       } else if (ecoMode == true && temp > tempActivationThreshold && externalTemperature <= tempActivationThreshold) {
-                Serial.println("NON ATTIVO IL CLIMATIZZATOR PERCHE SONO IN ECOMODE");
+                Serial.println("NON ATTIVO IL CLIMATIZZATORE PERCHE SONO IN ECOMODE");
 
         *tempStatus = TEMP_STATUS_OFF;
         

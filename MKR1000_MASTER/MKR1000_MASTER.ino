@@ -26,6 +26,7 @@
 #include "mqtt_controller_room_manager_master.h"
 #include "flashmem_controller_room_manager_master.h"
 #include "api_controller_room_manager_master.h"
+#include "weather_controller_room_manager_master.h"
 
 long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration;
 
@@ -171,4 +172,11 @@ void updateScreen() {
     updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected(), ecoMode);
     timeScreen = millis();
   }
+}
+void trySendExternalTemperature() {
+  if ((millis() - timeScreen) > EXTERNALTEMP_UPDATE_TIMER_MILLIS) {
+    externalTemperature = getExternalTemperature();
+    mqttSendExternalTemperature(externalTemperature);
+  }
+
 }
