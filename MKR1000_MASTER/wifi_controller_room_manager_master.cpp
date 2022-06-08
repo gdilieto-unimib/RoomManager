@@ -20,6 +20,14 @@ void connectWifi(char* ssid, char* pass){
   }
 }
 
+void disconnectWifi(){
+  // connect to wifi if not already connected
+  
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFi.disconnect();
+  }
+}
+
 boolean isWifiConnected() {
   // check if wifi is connected
   

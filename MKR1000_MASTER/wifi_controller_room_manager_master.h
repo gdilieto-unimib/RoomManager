@@ -12,6 +12,8 @@
 
 void connectWifi(char* ssid, char* pass);
 
+void disconnectWifi();
+
 boolean isWifiConnected();
 
 WiFiClient* getClient();

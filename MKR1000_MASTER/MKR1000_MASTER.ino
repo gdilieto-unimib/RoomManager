@@ -43,8 +43,6 @@ int devices;
 
 void setup()
 {
-    Serial.println(("\begin setup"));
-
   timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = millis();
   
   setupLcd();
@@ -72,7 +70,7 @@ void loop()
 
   // Loop for mqtt messages
   loopMqttClient(); 
-
+  
   // Update the number of devices configured
   updateDevicesNumber();
   
@@ -84,6 +82,8 @@ void loop()
 
   //if connected send external temperature to slave
   trySendExternalTemperature();
+
+  delay(1000);
 }
 
 void tryWifiConnection() {
@@ -161,7 +161,7 @@ void tryMQTTBrokerConnection() {
 void updateDevicesNumber() {
   // Updated the number of devices configured
   
-  if ((millis() - timeDevices) > DEVICES_UPDATE_TIMER_MILLIS) {
+  if (isWifiConnected() && isMySqlConnected() && (millis() - timeDevices) > DEVICES_UPDATE_TIMER_MILLIS) {
     getDevices(&devices);
     timeDevices = millis();
   }
@@ -170,7 +170,7 @@ void updateDevicesNumber() {
 void updateConfiguration() {
   // Updated the configuration of the app
   
-  if ((millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
+  if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
     getConfiguration(&singleMode);
     timeConfiguration = millis();
   }
@@ -186,7 +186,7 @@ void updateScreen() {
 }
 
 void trySendExternalTemperature() {
-  if ((millis() - timeExtenalTemperature) > EXTERNAL_TEMP_UPDATE_TIMER_MILLIS) {
+  if (isWifiConnected() && (millis() - timeExtenalTemperature) > EXTERNAL_TEMP_UPDATE_TIMER_MILLIS) {
     externalTemperature = round(getExternalTemperature());
     mqttSendExternalTemperature(externalTemperature);
     timeExtenalTemperature = millis();
