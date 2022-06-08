@@ -14,7 +14,9 @@ void MQTTSetup(int* externalTemperature, boolean* ecoMode){
 }
 
 void loopMqttClient() {
-  mqttClient.loop();
+  if(isMQTTBrokerConnected()) {
+    mqttClient.loop();  
+  }
 }
 
 void connectToMQTTBroker() {
@@ -30,6 +32,10 @@ void connectToMQTTBroker() {
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
     Serial.println(F("\nSubscribed to heartbeat topic!"));
   }
+}
+
+void disconnectMQTTBroker() {
+  mqttClient.disconnect();
 }
 
 boolean isMQTTBrokerConnected() {
@@ -60,7 +66,7 @@ int isValidMacAddress(const char* mac) {
 }
 
 void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
-  DynamicJsonDocument doc(2048);
+  DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
   
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
@@ -68,12 +74,11 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
   doc["externalTemp"] = *externalTemperatureR;
   doc["ecoMode"] = *ecoModeR;
 
-
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
   }
     
-  char buffer[128] = {0};
+  char buffer[MQTT_BUFFER_SIZE] = {0};
   size_t n = serializeJson(doc, buffer);
   mqttClient.publish(MQTT_CONFIG_TOPIC, buffer, n);
 }
@@ -136,7 +141,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     
       sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/alarm"))[0]), &roomId);
       
-      DynamicJsonDocument doc(1024);
+      DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
       deserializeJson(doc, payload);
 
       logAlarm(&(doc["message"].as<String>())[0], doc["code"].as<int>(), roomId);
@@ -147,7 +152,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     
       sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/logging"))[0]), &roomId);
       
-      DynamicJsonDocument doc(2048);
+      DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
       deserializeJson(doc, payload);
 
       for (JsonPair keyValue : doc.as<JsonObject>()) {

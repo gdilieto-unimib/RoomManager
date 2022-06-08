@@ -8,7 +8,7 @@
 #include <MQTT.h>
 
 // MQTT data
-#define MQTT_BUFFER_SIZE 128                              // the maximum size for packets being published and received
+#define MQTT_BUFFER_SIZE 256                              // the maximum size for packets being published and received
 
 #define MQTT_HEARTBEAT_TOPIC "LabIOT/gdltf/heartbeat"       // topic for heartbeats
 #define MQTT_CONFIG_TOPIC "LabIOT/gdltf/config"            // topic for room's configuration
@@ -22,6 +22,8 @@
 void loopMqttClient();
 
 void connectToMQTTBroker();
+
+void disconnectMQTTBroker();
 
 boolean isMQTTBrokerConnected();
 

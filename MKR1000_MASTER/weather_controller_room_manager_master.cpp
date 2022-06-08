@@ -1,39 +1,41 @@
 #include "weather_controller_room_manager_master.h"
 #include "wifi_controller_room_manager_master.h"
 #include "database_controller_room_manager_master.h"
+#include "mqtt_controller_room_manager_master.h"
 
 const char weather_server[] = "api.openweathermap.org";
 const char weather_query[] = "GET /data/2.5/weather?q=%s,%s&units=metric&APPID=%s";
 
-WiFiClient client2; 
+WiFiClient* client2 = getClient(); 
 
 float getExternalTemperature() {
   // Current weather api documentation at: https://openweathermap.org/current
   
   // call API for current weather
-  if (client2.connect(weather_server, 80)) {
+  if (client2->connect(weather_server, 80)) {
     char request[100];
     sprintf(request, weather_query, WEATHER_CITY, WEATHER_COUNTRY, WEATHER_API_KEY);
-    client2.println(request);
-    client2.println(F("Host: api.openweathermap.org"));
-    client2.println(F("User-Agent: ArduinoWiFi/1.1"));
-    client2.println(F("Connection: close"));
-    client2.println();
+    client2->println(request);
+    client2->println(F("Host: api.openweathermap.org"));
+    client2->println(F("User-Agent: ArduinoWiFi/1.1"));
+    client2->println(F("Connection: close"));
+    client2->println();
   } else {
     Serial.println(F("Connection to api.openweathermap.org failed!\n"));
   }
 
-  while (client2.connected() && !client2.available()) {delay(1);}   // wait for data
+  while (client2->connected() && !client2->available()) {delay(1);}   // wait for data
   String result;
-  while (client2.connected() || client2.available()) {   // read data
-    char c = client2.read();
+  while (client2->connected() || client2->available()) {   // read data
+    char c = client2->read();
     result = result + c;
   }
+  
+  client2->stop();   // end communication
 
+  disconnectWifi();
 
   
-
-  client2.stop();   // end communication
   // Serial.println(result);  // print JSON
 
   char jsonArray[result.length() + 1];
