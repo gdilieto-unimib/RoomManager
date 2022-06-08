@@ -59,27 +59,36 @@ void loop()
 {
   // Connect to wifi
   tryWifiConnection();
-  
+      Serial.println("HO PROVATO A CONNNETTERMI AL WIFI");
+
   // Connect to db
   tryDbConnection();
-  
+      Serial.println("HO PROVATO A CONNETTERMI AL DB");
+
   // Connect to mqtt broker
   tryMQTTBrokerConnection();
+    Serial.println("HO PROVATO A CONNETTERMI A MQTT");
 
   // Loop for mqtt messages
-  loopMqttClient(); 
-
+  if(isMQTTBrokerConnected())loopMqttClient(); 
+  Serial.println("ESCO DA LOOP MQTT");
   // Update the number of devices configured
   updateDevicesNumber();
+  Serial.println("ESCO DA UPDATE DEVICE");
   
   // Update the configuration of the app
   updateConfiguration();
+  Serial.println("ESCO DA UPDATE CONFIGURATION");
   
   // Update screen
   updateScreen();
 
   //if connected send external temperature to slave
+    Serial.println("PROVO A INVIARE TEMP");
+
   trySendExternalTemperature();
+    Serial.println("HO INVIATO TEMP");
+
 }
 
 void tryWifiConnection() {

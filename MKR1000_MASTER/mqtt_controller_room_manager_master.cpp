@@ -60,12 +60,12 @@ int isValidMacAddress(const char* mac) {
 }
 
 void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
-  DynamicJsonDocument doc(2048);
-  
+  DynamicJsonDocument doc(4096);
+  Serial.println("Try to send config");
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
-  doc["externalTemp"] = *externalTemperatureR;
+  //doc["externalTemp"] = "15";
   doc["ecoMode"] = *ecoModeR;
 
 
@@ -73,9 +73,10 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
     doc["sensors"][i] = sensorsId[i];
   }
     
-  char buffer[128] = {0};
+  char buffer[512] = {0};
   size_t n = serializeJson(doc, buffer);
   mqttClient.publish(MQTT_CONFIG_TOPIC, buffer, n);
+
 }
 
 void mqttSendMonitoringControl(int roomId, String control) {
@@ -92,7 +93,7 @@ void mqttSendExternalTemperature(int temperature) {
 
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
-  //Serial.println("Incoming MQTT message: " + topic + " - " + payload);
+  Serial.println("Incoming MQTT message: " + topic + " - " + payload);
   int roomId = -1;
   int sensorId = -1;
   
