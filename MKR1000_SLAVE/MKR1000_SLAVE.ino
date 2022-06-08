@@ -53,6 +53,7 @@ int displayRow = 0;
 int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
+int externalTemperature = 0;
 
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
@@ -72,7 +73,7 @@ void setup()
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();  
   setupLcd();
   setupIO();
-  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig);
+  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature);
   updateSensors();
 
   MyWiFi_Credentials = my_flash_store.read();

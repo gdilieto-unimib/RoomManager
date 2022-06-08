@@ -77,9 +77,13 @@ void mqttSendSensorControl(int sensorId, String control) {
   mqttClient.publish(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorId)+ "/control", control);
 }
 
+void mqttSendExternalTemperature(int temperature) {
+  mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/externalTemperature", String(temperature));
+}
+
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
-  Serial.println("Incoming MQTT message: " + topic + " - " + payload);
+  //Serial.println("Incoming MQTT message: " + topic + " - " + payload);
   int roomId = -1;
   int sensorId = -1;
   
@@ -92,7 +96,6 @@ void mqttMessageReceived(String &topic, String &payload) {
     // if device hasn't already a config, create a new config
     if (!getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated)) {
       createRoomConfig(payload);
-      Serial.println("CIAO");
       createSensorsConfig(payload);
       getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated);
     }

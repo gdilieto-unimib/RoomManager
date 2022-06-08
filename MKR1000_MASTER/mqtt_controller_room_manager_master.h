@@ -33,4 +33,6 @@ void mqttSendMonitoringControl(int roomId, String action);
 
 void mqttSendSensorControl(int sensorId, String action);
 
+void mqttSendExternalTemperature(int temperature);
+
 #endif

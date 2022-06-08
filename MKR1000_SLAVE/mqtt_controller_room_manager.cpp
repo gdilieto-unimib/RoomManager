@@ -15,11 +15,13 @@ int MQTT_sensorsId[3] = { -1, -1, -1};
 boolean* monitoringActivatedRef;
 int* tempConfigRef;
 int* lightConfigRef;
+int* externalTemperatureRef;
 
-void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig){
+void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature){
    monitoringActivatedRef = monitoringActivated;
    tempConfigRef = tempConfig;
    lightConfigRef = lightConfig;
+   externalTemperatureRef = externalTemperature;
    
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
@@ -102,6 +104,9 @@ void mqttMessageReceived(String &topic, String &payload) {
         //subscribe to singleMode queue for light
         mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/singleMode/light/control");
 
+        //subscribe to externalTemperature queue to get external temperature (used in eco mode)
+        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/externalTemperature");
+
         *monitoringActivatedRef = doc["monitoring"];
       }
        
@@ -150,6 +155,10 @@ void mqttMessageReceived(String &topic, String &payload) {
       } else {
         *tempConfigRef = CONFIG_OFF;
       }
+      
+    } else if (topic == String(MQTT_ROOM_TOPIC)+"/externalTemperature") {
+      
+      *externalTemperatureRef = atoi(&payload[0]);
       
     } else {
       Serial.println(F("MQTT Topic not recognized, message skipped"));

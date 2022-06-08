@@ -46,6 +46,7 @@ void listenForClients() {
           sscanf(&currentLine[0], "GET /rooms/%d/monitoring/start", &roomId);
           printHeaders(client);   // Print response headers
           mqttSendMonitoringControl(roomId, "START");    // GET /rooms/:id/monitoring/start starts the room's monitoring
+          updateRoomMonitoring(roomId, 1);
           client.print("{\"monitoringActivated\": true}");
           client.println();
         }
@@ -53,13 +54,23 @@ void listenForClients() {
           sscanf(&currentLine[0], "GET /rooms/%d/monitoring/stop", &roomId);
           printHeaders(client);   // Print response headers
           mqttSendMonitoringControl(roomId, "STOP");    // GET /rooms/:id/monitoring/stop stops the room's monitoring
+          updateRoomMonitoring(roomId, 0);
           client.print("{\"monitoringActivated\": false}");
+          client.println();
+        }
+        else if (currentLine.endsWith("/off")) {
+          sscanf(&currentLine[0], "GET /sensors/%d/control/off  ", &sensorId);
+          printHeaders(client);   // Print response headers
+          mqttSendSensorControl(sensorId, "OFF");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          updateSensorConfig(sensorId, "OFF");
+          client.print("{"+String(sensorId)+": \"off\"}");
           client.println();
         }
         else if (currentLine.endsWith("/on")) {
           sscanf(&currentLine[0], "GET /sensors/%d/control/on", &sensorId);
           printHeaders(client);   // Print response headers
           mqttSendSensorControl(sensorId, "ON");    // GET /sensors/:id/on turns on the sensor's actuator activation
+          updateSensorConfig(sensorId, "ON");
           client.print("{"+String(sensorId)+": \"on\"}");
           client.println();
         }
@@ -67,16 +78,12 @@ void listenForClients() {
           sscanf(&currentLine[0], "GET /sensors/%d/control/auto", &sensorId);
           printHeaders(client);   // Print response headers
           mqttSendSensorControl(sensorId, "AUTO");    // GET /sensors/:id/off turns off the sensor's actuator activation
+          updateSensorConfig(sensorId, "AUTO");
           client.print("{"+String(sensorId)+": \"auto\"}");
           client.println();
         }
-        else if (currentLine.endsWith("/off")) {
-          sscanf(&currentLine[0], "GET /sensors/%d/control/off  ", &sensorId);
-          printHeaders(client);   // Print response headers
-          mqttSendSensorControl(sensorId, "OFF");    // GET /sensors/:id/off turns off the sensor's actuator activation
-          client.print("{"+String(sensorId)+": \"off\"}");
-          client.println();
-        }
+      } else {
+        client = apiServer.available();
       }
     }
     // close the connection:
