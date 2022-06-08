@@ -8,6 +8,6 @@
 
 #endif
 
-void setupApiServer();
+void setupApiServer(boolean* ecoMode);
 
 void listenForClients();

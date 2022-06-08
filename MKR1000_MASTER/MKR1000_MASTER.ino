@@ -34,6 +34,8 @@ FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
 
 boolean singleMode;
+boolean ecoMode;
+boolean externalTemperature;
 
 int devices;
 
@@ -42,7 +44,7 @@ void setup()
   timeDb = timeLogging = timeScreen = timeConfiguration = millis();
   
   setupLcd();
-  MQTTSetup();
+  MQTTSetup(&externalTemperature, &ecoMode);
   MyWiFi_Credentials = my_flash_store.read();
 
   if (!MyWiFi_Credentials.valid) {
@@ -89,7 +91,7 @@ void tryWifiConnection() {
             connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
           }
           Serial.println("Wifi Connected!");
-          setupApiServer();
+          setupApiServer(&ecoMode);
     
     
     } else {
@@ -164,7 +166,7 @@ void updateScreen() {
   // Update screen each SCREEN_UPDATE_TIMER_MILLIS ms
   
   if ((millis() - timeScreen) > SCREEN_UPDATE_TIMER_MILLIS) {
-    updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected());
+    updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected(), ecoMode);
     timeScreen = millis();
   }
 }

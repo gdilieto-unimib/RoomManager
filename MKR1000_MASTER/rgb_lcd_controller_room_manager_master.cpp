@@ -26,6 +26,16 @@ byte databaseIcon[] = {
   B01110
 };
 
+byte ecoIcon[] = {
+  B00100,
+  B01010,
+  B10001,
+  B10101,
+  B10101,
+  B10101,
+  B01110,
+  B00100
+};
 
 void setupLcd() {
   // setup lcd initial state
@@ -34,6 +44,7 @@ void setupLcd() {
   lcd.setRGB(255, 255, 255);
   lcd.createChar(0, wifiIcon);
   lcd.createChar(1, databaseIcon);
+  lcd.createChar(2, ecoIcon);
 
 }
 
@@ -101,7 +112,7 @@ void MQTTLoadingScreen(boolean i) {
   lcd.blink();
 }
 
-void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected) {
+void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, boolean ecoMode) {
   // update rows for the info screen
   
   lcd.clear();  // clear text
@@ -123,8 +134,17 @@ void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected) {
   }else{
     lcd.print(": OFF");
   }
-
+  
   lcd.setCursor(0, 1);
+  lcd.write(2); // show database connection
+
+  if(ecoMode){
+    lcd.print(": ON");
+  }else{
+    lcd.print(": OFF");
+  }
+  
+  lcd.setCursor(9, 1);
   lcd.print("Devices: "); // show devices number
   lcd.print(devices);
 
