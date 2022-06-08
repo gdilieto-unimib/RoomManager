@@ -13,15 +13,17 @@ int MQTT_roomId = -1;
 int MQTT_sensorsId[3] = { -1, -1, -1};
 
 boolean* monitoringActivatedRef;
+boolean * ecoModeRef;
 int* tempConfigRef;
 int* lightConfigRef;
 int* externalTemperatureRef;
 
-void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature){
+void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature, boolean * ecoMode){
    monitoringActivatedRef = monitoringActivated;
    tempConfigRef = tempConfig;
    lightConfigRef = lightConfig;
    externalTemperatureRef = externalTemperature;
+   ecoModeRef=ecoMode;
    
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
@@ -85,6 +87,8 @@ void mqttMessageReceived(String &topic, String &payload) {
       // deserialize the JSON object
       DynamicJsonDocument doc(2048);
       deserializeJson(doc, payload);
+
+      *ecoModeRef = doc["ecoMode"].as<boolean>();
   
       const char *mac = doc["mac"];
       if(String(mac)==getMac()) {

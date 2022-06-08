@@ -15,7 +15,7 @@ int getTemp();
 
 void updateLight(int light, int lightConfig, int* lightStatus, int lightActivationThreshold);
 
-void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold);
+void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThreshold, boolean ecoMode, int externalTemperature);
 
 void setBuzzerAlarm(boolean active);
 

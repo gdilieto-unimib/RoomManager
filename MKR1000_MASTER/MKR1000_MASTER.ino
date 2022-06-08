@@ -75,6 +75,9 @@ void loop()
   
   // Update screen
   updateScreen();
+
+  //if connected send external temperature to slave
+  trySendExternalTemperature();
 }
 
 void tryWifiConnection() {
