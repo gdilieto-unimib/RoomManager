@@ -112,7 +112,9 @@ void tryWifiConnection() {
       Serial.println("Waiting for WiFi credentials");
 
       if(!configureWifi) {
-        connectWifi(SECRET_SSID, SECRET_PASS);
+        while(!isWifiConnected()) {
+          connectWifi(SECRET_SSID, SECRET_PASS);
+        }
       } else {
         while(!isWifiConnected()) {
           // activate the access point until wifi is connected
