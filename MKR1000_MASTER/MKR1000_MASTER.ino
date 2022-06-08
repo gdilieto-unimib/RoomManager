@@ -37,6 +37,8 @@ boolean singleMode;
 boolean ecoMode;
 int externalTemperature;
 
+boolean configureWifi = false;
+
 int devices;
 
 void setup()
@@ -47,7 +49,7 @@ void setup()
   MQTTSetup(&externalTemperature, &ecoMode);
   MyWiFi_Credentials = my_flash_store.read();
 
-  if (!MyWiFi_Credentials.valid) {
+  if (!MyWiFi_Credentials.valid && configureWifi) {
     setupAP();  
   }
   
@@ -99,11 +101,16 @@ void tryWifiConnection() {
     
     } else {
       Serial.println("Waiting for WiFi credentials");
-  
-      while(!isWifiConnected()) {
-        // activate the access point until wifi is connected
-        password  = connectToWifiAP();
+
+      if(!configureWifi) {
+        connectWifi(SECRET_SSID, SECRET_PASS);
+      } else {
+        while(!isWifiConnected()) {
+          // activate the access point until wifi is connected
+          password  = connectToWifiAP();
+        }  
       }
+      
     
       MyWiFi_Credentials.valid=true;
       String ssidfl = WiFi.SSID();

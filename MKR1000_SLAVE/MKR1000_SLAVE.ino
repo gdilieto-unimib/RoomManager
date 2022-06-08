@@ -75,6 +75,7 @@ boolean ecoMode = false;
 
 boolean monitoringActivated = false;
 boolean startServer = true;
+boolean configureWifi = false;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
@@ -91,7 +92,7 @@ void setup() {
 
   MyWiFi_Credentials = my_flash_store.read();
 
-  if (!MyWiFi_Credentials.valid)
+  if (!MyWiFi_Credentials.valid && configureWifi)
     setupAP();
 
   Serial.begin(115200);
@@ -175,7 +176,13 @@ void tryWifiConnection() {
 
     } else {
       Serial.print("CALLING CONNECT TO WIFI AP");
-      password = connectToWifiAP();
+      if(!configureWifi) {
+        connectWifi(SECRET_SSID, SECRET_PASS);
+        Serial.print("CIAO");
+      } else {
+        password = connectToWifiAP();   
+      }
+      
       if (isWifiConnected()) {
         MyWiFi_Credentials.valid = true;
         String ssidfl = WiFi.SSID();
