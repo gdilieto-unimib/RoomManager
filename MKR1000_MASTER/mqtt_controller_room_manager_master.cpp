@@ -71,8 +71,8 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
-  doc["externalTemp"] = *externalTemperatureR;
-  doc["ecoMode"] = *ecoModeR;
+  doc["externalTemp"] = 15;//*externalTemperatureR;
+  doc["ecoMode"] = true;//*ecoModeR;
 
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
