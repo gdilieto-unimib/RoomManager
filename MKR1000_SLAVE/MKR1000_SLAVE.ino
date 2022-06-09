@@ -65,7 +65,12 @@ int lastTemp = 0;
 int lastWifiRssi = 0;
 int externalTemperature = 0;
 
+int sleepCycleDuration = 0;
+int lowPowerModeMillis = 0;
+int scheduleDuration = 200000;
+
 boolean tooHotAlarmMonitored = false;
+boolean schedulePresent=true;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
 boolean low_Power_Mode = false;
@@ -102,6 +107,7 @@ void setup() {
 
 void loop() {
   if (low_Power_Mode) {
+    lowPowerModeMillis = millis();
     mode_just_changed = true;
     lowPowerModeLCD();
 
@@ -110,17 +116,38 @@ void loop() {
       low_Power_Mode = false;
     }
 
-    Serial.println("BEGIN SLEEPING");
-    LowPower.sleep(10000);
+    Serial.println("\n\nBEGIN SLEEPING");
+    sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
+    lowPowerModeMillis = millis() - lowPowerModeMillis;
+    sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
+    
+    LowPower.sleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
+    
+    lowPowerModeMillis = millis();    
     Serial.println("STOP SLEEPING");
-    Serial.print("TEMPREATURA: ");
-
+    Serial.print("Total low power time: ");
+    Serial.print(sleepCycleDuration);   
+    Serial.println(" MILLISECONDS");
+ 
+    Serial.print("Temperature: ");
     Serial.println(getTemp());
 
+
+    if(schedulePresent==true) {
+      Serial.print("Time reamaining until wakeup: ");
+      Serial.println(scheduleDuration - sleepCycleDuration);
+      if (sleepCycleDuration > scheduleDuration )low_Power_Mode = false;
+    }
+    
+    lowPowerModeMillis = millis() - lowPowerModeMillis;
+    sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
+    
   } else {
     if (mode_just_changed) {
       delay(1000);
       mode_just_changed = false;
+      schedulePresent = false;
+
       //screen = INFO_SCREEN;
       notLowPowerModeLCD();
     }
@@ -438,4 +465,5 @@ void setHotColdAlarm(int temp) {
 
 void wakeUp() {
   low_Power_Mode = false;
+  sleepCycleDuration = 0;
 }
