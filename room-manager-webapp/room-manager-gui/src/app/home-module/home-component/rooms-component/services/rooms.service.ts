@@ -14,6 +14,9 @@ export class RoomsService {
   constructor(private http: HttpClient) { }
 
   roomUrl = environment.apiUrl+'/rooms'
+  masterIp = environment.masterIp
+
+  public updatingControl: boolean = false;
 
   getRooms(): Observable<Room[]> {
     return this.http.get<Room[]>(this.roomUrl);
@@ -43,35 +46,27 @@ export class RoomsService {
     return this.http.delete<number>(this.roomUrl+'/'+room.id);
   }
 
-  getIsRoomConnected(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/IsConnected`);
+  getIsRoomConnected(roomId: number): Observable<any> {
+    return this.http.get<any>(this.roomUrl+'/'+roomId+'/connected');
   }
 
-  setRoomTempOn(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/OnTemp`);
+  setSensorOn(sensorId: number): Observable<any> {
+    return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/on`);
   }
 
-  setRoomTempOff(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/OffTemp`);
-  }
-
-  setRoomLightOn(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/OnLight`);
-  }
-
-  setRoomLightOff(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/OffLight`);
+  setSensorOff(sensorId: number): Observable<any> {
+    return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/off`);
   }
   
-  setRoomLightAuto(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/AutoLight`);
+  setSensorAuto(sensorId: number): Observable<any> {
+    return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/auto`);
   }
 
-  postStartRoomMonitoring(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/StartMonitoring`);
+  setMonitoringStart(roomId: number): Observable<any> {
+    return this.http.get<any>(`http://${this.masterIp}:80/rooms/${roomId}/monitoring/start`);
   }
 
-  postStopRoomMonitoring(roomIp: string): Observable<any> {
-    return this.http.get<any>(`http://${roomIp}:80/StopMonitoring`);
+  setMonitoringStop(roomId: number): Observable<any> {
+    return this.http.get<any>(`http://${this.masterIp}:80/rooms/${roomId}/monitoring/stop`);
   }
 }

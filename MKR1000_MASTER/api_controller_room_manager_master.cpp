@@ -61,16 +61,6 @@ void listenForClients() {
           client.print("{\"monitoringActivated\": false}");
           client.println();
         }
-        else if (currentLine.endsWith("/ecoMode/off")) {
-          *ecoModeRef = false;
-          client.print("{ecoMode: \"off\"}");    // GET rooms/ecoMode/off turns off the eco mode
-          client.println();
-        }
-        else if (currentLine.endsWith("/ecoMode/on")) {
-          *ecoModeRef = true;
-          client.print("{ecoMode: \"on\"}");     // GET rooms/ecoMode/off turns on the eco mode
-          client.println();
-        }
         else if (currentLine.endsWith("/off")) {
           sscanf(&currentLine[0], "GET /sensors/%d/control/off  ", &sensorId);
           printHeaders(client);   // Print response headers

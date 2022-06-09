@@ -55,7 +55,7 @@ export class EditRoomDialog {
 
   onTestConnectionClick(): void {
     this.isTestingConnection = true
-    this.getIsRoomConnected(this.form.getValue('ipv4')).subscribe(
+    this.getIsRoomConnected(this.form.getValue('mac')).subscribe(
       (isConnected: any) => {
         this.isTestingConnection = false
         this.isConnected = isConnected.connected
@@ -63,7 +63,7 @@ export class EditRoomDialog {
     )
   }
 
-  getIsRoomConnected(roomIp: string) {
-    return this.roomsService.getIsRoomConnected(roomIp)
+  getIsRoomConnected(roomId: number) {
+    return this.roomsService.getIsRoomConnected(roomId)
   }
 }

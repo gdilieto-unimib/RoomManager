@@ -1,9 +1,9 @@
 <div class="container">
     <app-room (editedRoom)="onEditedRoom($event)" (deletedRoom)="onDeletedRoom($event)" class="room" *ngFor="let room of rooms" [room]="room"></app-room>
     <div class="room add-room">
-        <button mat-fab color="accent" aria-label="create-room" (click)="onCreateClick()">
+        <!--<button mat-fab color="accent" aria-label="create-room" (click)="onCreateClick()">
             +
-        </button>
+        </button>-->
     </div>
     <div *ngFor="let i of [1,2,3];" class="empty-div"></div>
 </div>

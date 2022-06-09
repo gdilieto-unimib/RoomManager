@@ -10,101 +10,42 @@ import { defaultRoom, Room } from "./models/room.model";
     templateUrl: './room.component.html',
     styleUrls: ['./room.component.scss']
 })
-export class RoomComponent implements OnInit {
+export class RoomComponent {
     @Input() room: Room = defaultRoom
     @Output() editedRoom: EventEmitter<Room> = new EventEmitter()
     @Output() deletedRoom: EventEmitter<Room> = new EventEmitter()
     
     isConnecting = false;
-    isUpdatePolling = false
 
     constructor(
         public dialog: MatDialog,
         public roomsService: RoomsService
     ) {}
 
-    ngOnInit() {
-        this.isConnectedRoomPolling();
-    }
-
-    isConnectedUpdate() : void {
-        this.getIsRoomConnected(this.room.ipv4).subscribe(
-            (isConnected) => {
-                console.log("CONNECTED")
-                console.log(isConnected)
-                this.room.connected = isConnected.connected
-                this.room.monitoring = isConnected.monitoringActivated
-
-                if (this.room.connected && this.room.monitoring) {
-                    if (this.isUpdatePolling == false) {
-                        this.updateRoomPolling()
-                    } 
-                    this.isUpdatePolling = true
-                } else {
-
-                    if (!this.room.connected) {
-                        this.room.monitoring = false
-                    }
-                    this.isUpdatePolling = false
-                }
-            },
-            (err) => {
-                console.log(err)
-                this.room.connected = false
-                this.room.monitoring = false
-            }
-        )
-    }
-
-    isConnectedRoomPolling(): void {
-        this.isConnectedUpdate();
-        setTimeout(() => {
-            this.isConnectedRoomPolling();
-        },10000);
-    }
-
-    updateRoomPolling(): void {
-        if(this.room.connected) {
-            this.getRoomSensors(this.room.id?this.room.id:0).subscribe(
-                (sensors) => {
-                    this.room.sensors = this.room.sensors.map(sensor => {
-                        sensor.measure = sensors.find((sensor_2) => sensor_2.id == sensor.id)?.measure
-                        return sensor
-                    })
-                }
-            )
-            this.getRoomAlarms(this.room.id?this.room.id:0).subscribe(
-                (alarms) => {
-                    this.room.alarms = alarms.map(
-                        alarm => {
-                            let alarmDate = new Date(alarm.datetime)
-                            let millis = alarmDate.getMilliseconds()
-                            alarmDate.setMilliseconds(millis + 7200000)
-                            alarm.datetime = alarmDate
-                            return alarm
-                        }
-                    )
-                }
-            )
-            setTimeout(() => {
-                this.updateRoomPolling();
-            },10000);
-        }
-    }
-
     toggleMonitoring(): void {
         this.isConnecting = true
+        this.roomsService.updatingControl = true
         if(this.room.monitoring) {
-            this.postStopRoomMonitoring(this.room.ipv4).subscribe(
+            this.setMonitoringStop(this.room.id?this.room.id:-1).subscribe(
                 stopped => {
+                    this.roomsService.updatingControl = false
                     this.room.monitoring = stopped.monitoringActivated
+                    this.isConnecting = false
+                },
+                err => {
+                    this.roomsService.updatingControl = false
                     this.isConnecting = false
                 }
             )
         } else {
-            this.postStartRoomMonitoring(this.room.ipv4).subscribe(
+            this.setMonitoringStart(this.room.id?this.room.id:-1).subscribe(
                 started => {
+                    this.roomsService.updatingControl = false
                     this.room.monitoring = started.monitoringActivated
+                    this.isConnecting = false
+                },
+                err => {
+                    this.roomsService.updatingControl = false
                     this.isConnecting = false
                 }
             )
@@ -165,15 +106,15 @@ export class RoomComponent implements OnInit {
         return this.roomsService.getRoomAlarms(roomId)
     }
 
-    getIsRoomConnected(roomIp: string) {
-        return this.roomsService.getIsRoomConnected(roomIp)
+    getIsRoomConnected(roomId: number) {
+        return this.roomsService.getIsRoomConnected(roomId)
     }
 
-    postStartRoomMonitoring(roomIp: string) {
-        return this.roomsService.postStartRoomMonitoring(roomIp)
+    setMonitoringStart(roomId: number) {
+        return this.roomsService.setMonitoringStart(roomId)
     }
 
-    postStopRoomMonitoring(roomIp: string) {
-        return this.roomsService.postStopRoomMonitoring(roomIp)
+    setMonitoringStop(roomId: number) {
+        return this.roomsService.setMonitoringStop(roomId)
     }
 }

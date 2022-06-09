@@ -12,16 +12,16 @@
           </mat-form-field>
         </div>
       </mat-step>
-
+      <!--
       <mat-step>
         <ng-template matStepLabel>Connection</ng-template>
         <div>
           <mat-form-field appearance="fill">
-            <mat-label>IPv4</mat-label>
-            <input matInput formControlName="ipv4" required>
+            <mat-label>MAC</mat-label>
+            <input matInput formControlName="mac" required>
           </mat-form-field>
         </div>
-        <!--
+        
         <div>
           <mat-form-field appearance="fill">
             <mat-label>SSID</mat-label>
@@ -37,12 +37,14 @@
             </button>
           </mat-form-field>
         </div>
-        -->
+        
         <button mat-raised-button color="primary" (click)="onTestConnectionClick()">Test Connection</button>
         <span [ngStyle]="{color: isConnected?'green':'red', margin:'10px'}">{{isTestingConnection?'':isConnected?'Connection successful':'Connection failed'}}</span>
       
       </mat-step>
       
+      -->
+
       <mat-step>
         <ng-template matStepLabel>Sensors</ng-template>
         <mat-button-toggle-group name="sensors" aria-label="Sensors" formControlName="sensors" multiple>

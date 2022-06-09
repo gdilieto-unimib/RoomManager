@@ -18,7 +18,24 @@ export class RoomsComponent implements OnInit{
     ) {}
 
     ngOnInit() {
-        this.getRooms()
+        this.roomsPolling();
+    }
+
+    roomsPolling() {
+        if (this.roomsService.updatingControl) {
+            setTimeout(
+                () => {
+                    this.roomsPolling();
+                }, 1000
+            )
+        } else {
+            this.getRooms();
+            setTimeout(
+                () => {
+                    this.roomsPolling();
+                }, 10000
+            )
+        }
     }
 
     onEditedRoom(editedRoom: Room) {
@@ -40,18 +57,6 @@ export class RoomsComponent implements OnInit{
                 this.addRoom(createdRoom)
             }
         });
-    }
-
-    getRooms() {
-        this.roomsService.getRooms().subscribe((rooms: Room[]) => {
-            this.rooms = rooms.map(
-                room => {
-                    room.connected = false
-                    room.monitoring = false
-                    return room
-                }
-            )
-        })
     }
 
     addRoom(createdRoom: Room) {
@@ -76,6 +81,22 @@ export class RoomsComponent implements OnInit{
                 this.rooms.splice(this.rooms.findIndex(room => room.id == idDeletedRoom), 1)
             }
         )
+    }
+
+    getRooms() {
+        this.roomsService.getRooms().subscribe(
+            (rooms) => {
+                if(!this.roomsService.updatingControl) {
+                    this.rooms = rooms.map(
+                        room => {
+                            room.connected = !!room.connected
+                            room.monitoring = !!room.monitoring
+                            return room
+                        }
+                    )
+                }
+            }
+        );
     }
 
 }

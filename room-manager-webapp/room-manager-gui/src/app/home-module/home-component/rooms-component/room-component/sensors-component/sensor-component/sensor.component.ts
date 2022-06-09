@@ -10,7 +10,7 @@ import { defaultSensor, Sensor, SensorType } from "./models/sensor.model";
 export class SensorComponent{
     @Input() sensor: Sensor = defaultSensor
     @Input() roomConnected: boolean = false;
-    @Input() roomIp: string = "";
+    @Input() roomId: number = -1;
 
     constructor(
         public roomsService: RoomsService
@@ -28,51 +28,42 @@ export class SensorComponent{
         this.setOnOff(this.sensor.active)
     }
 
-    setAuto(active: boolean) {
-        if (active) {
-            if(this.sensor.type == SensorType.Light) {
-                this.roomsService.setRoomLightAuto(this.roomIp).subscribe(
-                    (response) => {
-                    }
-                )
-            }
+    setAuto(auto: boolean) {
+        this.roomsService.updatingControl = true
+        if (auto) {
+            this.roomsService.setSensorAuto(this.sensor.id?this.sensor.id:-1).subscribe(
+                (response) => {
+                    this.roomsService.updatingControl = false
+                },
+                (err) => {
+                    this.roomsService.updatingControl = false
+                }
+            )
         } else {
-            this.sensor.active = false
-            this.setOnOff(this.sensor.active);
-        }
-        
-            
+            this.setOnOff(this.sensor.active);        
+        }            
     }
 
     setOnOff(active: boolean) {
+        this.roomsService.updatingControl = true
         if (active) {
-            if(this.sensor.type == SensorType.Light) {
-                this.roomsService.setRoomLightOn(this.roomIp).subscribe(
-                    (response) => {
-                    }
-                )
-            }
-            
-            if(this.sensor.type == SensorType.Temperature) {
-                this.roomsService.setRoomTempOn(this.roomIp).subscribe(
-                    (response) => {
-                    }
-                )
-            }
+            this.roomsService.setSensorOn(this.sensor.id?this.sensor.id:-1).subscribe(
+                (response) => {
+                    this.roomsService.updatingControl = false
+                },
+                (err) => {
+                    this.roomsService.updatingControl = false
+                }
+            )
         } else {
-            if(this.sensor.type == SensorType.Light) {
-                this.roomsService.setRoomLightOff(this.roomIp).subscribe(
-                    (response) => {
-                    }
-                )
-            }
-            console.log(this.sensor.type)
-            if(this.sensor.type == SensorType.Temperature) {
-                this.roomsService.setRoomTempOff(this.roomIp).subscribe(
-                    (response) => {
-                    }
-                )
-            }
+            this.roomsService.setSensorOff(this.sensor.id?this.sensor.id:-1).subscribe(
+                (response) => {
+                    this.roomsService.updatingControl = false
+                },
+                (err) => {
+                    this.roomsService.updatingControl = false
+                }
+            )
         }
             
     }
