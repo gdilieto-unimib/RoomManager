@@ -48,6 +48,7 @@ int devices;
 void setup()
 {
   timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = millis();
+  timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
   
   setupLcd();
   MQTTSetup(&externalTemperature, &ecoMode);
@@ -118,11 +119,11 @@ void tryWifiConnection() {
 
       if(!configureWifi) {
         while(!isWifiConnected()) {
-                Serial.println("iswificonnectesd");
-
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
+
         setupRtc();
+        setupApiServer(&ecoMode);
       } else {
         while(!isWifiConnected()) {
           // activate the access point until wifi is connected
@@ -184,7 +185,10 @@ void updateConfiguration() {
   // Updated the configuration of the app
   
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
-    getConfiguration(&singleMode);
+    getConfiguration(&singleMode, &ecoMode);
+    Serial.println("CONFIGURATION");
+    Serial.println(singleMode);
+    Serial.println(ecoMode);
     timeConfiguration = millis();
   }
 }

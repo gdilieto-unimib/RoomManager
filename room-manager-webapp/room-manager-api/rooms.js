@@ -5,7 +5,10 @@ var async = require('async')
 const WebSocket = require('ws')
 
 router.get('/', (req, res)=>{
-    var roomsQuery = 'SELECT * FROM room'
+    var roomsQuery = `SELECT r.*, CASE 
+                            WHEN TIMESTAMPDIFF(SECOND, r.lastHB, CURRENT_TIMESTAMP) < 30 THEN 1
+                            ELSE 0
+                        END as connected from room r`
     pool.query(roomsQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
@@ -15,11 +18,11 @@ router.get('/', (req, res)=>{
 
         async.each(
             rooms, 
-            function (room, callback) {
+            function (room, callback1) {
                 var sensorsQuery = `SELECT * FROM sensor WHERE sensor.room = ${room.id}`
                 pool.query(sensorsQuery, (err, result, fields) => {
                     if (err) {
-                        callback(err)
+                        callback1(err)
                         throw new Error(err)
                     }
                     sensors = result
@@ -28,13 +31,53 @@ router.get('/', (req, res)=>{
                         sensor.active = sensor.active ? true : false
                         return sensor
                     })       
+                    
                     room.sensors = sensors
-                    callback(err, result, fields)
+                    callback1(err, result, fields)
                 })
             },  
             function () {
-                rooms.alarms = []
-                res.send(rooms)
+                sensors = []
+                for (let room of rooms) {
+                    for (let sensor of room.sensors) {
+                        sensors.push(sensor)
+                    }
+                }
+                async.each(
+                    sensors, 
+                    function (sensor, callback2) {
+                        var measureQuery = `SELECT * FROM measure WHERE measure.sensor = ${sensor.id} ORDER BY measure.datetime DESC LIMIT 1`
+                        pool.query(measureQuery, (err, result, fields) => {
+                            if (err) {
+                                callback2(err)
+                                throw new Error(err)
+                            }
+                            measure = result
+                            sensor.measure = measure[0]
+                            callback2(err,result,fields)
+                        })
+                    }, function() {
+                        async.each(
+                            rooms, 
+                            function (room, callback3) {
+                                var alarmsQuery = `SELECT *, CURRENT_TIMESTAMP - a.datetime as ASD FROM alarm a WHERE TIMESTAMPDIFF(MINUTE ,a.datetime, CURRENT_TIMESTAMP) < 60 AND a.room_alert = '${room.id}' ORDER BY a.datetime DESC`
+    
+                                pool.query(alarmsQuery, (err, result, fields) => {
+                                    if (err) {
+                                        callback3(err)
+                                        throw new Error(err)
+                                    }
+                                    alarms = result
+                                    room.alarms = alarms
+                                    
+                                    callback3(err,result,fields)
+                                })
+                            }, function() {
+                                res.send(rooms)
+                            }
+                        );
+                    }
+                );
             }
         )
     })
@@ -73,7 +116,7 @@ router.get('/:roomId', (req, res)=>{
 router.put('/', (req, res)=>{
     var room = req.body;
 
-    var roomQuery = "INSERT INTO room (`name`, `ipv4`) " + `VALUES ('${room.name}','${room.ipv4}')`
+    var roomQuery = "INSERT INTO room (`name`, `mac`) " + `VALUES ('${room.name}','${room.mac}')`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
@@ -103,7 +146,7 @@ router.put('/', (req, res)=>{
 
 router.post('/', (req, res)=>{
     var room = req.body;
-    var roomQuery = `UPDATE room SET name = '${room.name}', ipv4 = '${room.ipv4}' WHERE room.id = ${room.id}`
+    var roomQuery = `UPDATE room SET name = '${room.name}', mac = '${room.mac}' WHERE room.id = ${room.id}`
     pool.query(roomQuery, (err, result, fields) => {
         if (err) {
             throw new Error(err)
@@ -168,7 +211,7 @@ router.get('/:roomId/alarms/', (req, res)=>{
     })
 })
 
-router.post('/:roomIp/monitoring', (req, res)=>{
+router.post('/:roomId/monitoring', (req, res)=>{
     const monitoring = req.body.monitoring
     const url = `ws://${req.params.roomIp}:80`
     const connection = new WebSocket(url)
@@ -187,8 +230,19 @@ router.post('/:roomIp/monitoring', (req, res)=>{
     }
 })
 
-router.get('/:roomIp/connected', (req, res)=>{
-    res.send(true)
+router.get('/:roomId/connected', (req, res)=>{    
+    var connectedRoomQuery = `SELECT CASE 
+                                        WHEN TIMESTAMPDIFF(SECOND, room.lastHB, CURRENT_TIMESTAMP) < 20 THEN 1
+                                        ELSE 0
+                                     END as connected, room.monitoring
+                              FROM room WHERE room.id = ${req.params.roomId}`
+    
+    pool.query(connectedRoomQuery, (err, result, fields) => {
+        if (err) {
+            throw new Error(err)
+        }
+        res.send(result[0])
+    })
     /*const url = `ws://${req.params.roomIp}:80`
     const connection = new WebSocket(url)
     

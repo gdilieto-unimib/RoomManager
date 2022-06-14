@@ -18,12 +18,12 @@
     </mat-toolbar>
 
     <mat-card>
-        <mat-label>IPv4:</mat-label> {{room.ipv4}}  
+        <mat-label>MAC:</mat-label> {{room.mac}}
     </mat-card>
     <mat-card [ngClass]="getAlarmClass(alarm.code)" *ngFor="let alarm of room.alarms">
         <mat-label>ALARM: </mat-label>{{alarm.datetime | date:'shortTime'}} - {{alarm.message}}  
     </mat-card>
     <div>
-        <app-sensors [sensors]='room.sensors' [roomConnected]="room.connected?room.connected:false" [roomIp]="room.ipv4"></app-sensors>
+        <app-sensors [sensors]='room.sensors' [roomConnected]="room.connected?room.connected:false" [roomId]="room.id?room.id:-1"></app-sensors>
     </div> 
 </mat-card>

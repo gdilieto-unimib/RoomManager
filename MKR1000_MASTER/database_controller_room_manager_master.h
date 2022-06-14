@@ -19,7 +19,7 @@ boolean isMySqlConnected();
 
 boolean getDevices(int* devices);
 
-boolean getConfiguration(boolean* configuration);
+boolean getConfiguration(boolean* singleMode, boolean* ecoMode);
 
 boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monitoringActivated);
 
