@@ -34,7 +34,11 @@ void connectToMQTTBroker() {
 
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
-    Serial.println(F("\nSubscribed to heartbeat topic!"));
+    
+        mqttClient.subscribe(MQTT_WELCOME_TOPIC);
+            Serial.println(F("\nSubscribed to topics!"));
+
+
   }
 }
 
@@ -103,9 +107,7 @@ void mqttSendEcoMode(boolean control) {
 }
 
 void mqttSendSleepSchedule(int Time) {
-      mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
-
-
+  mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
 }
 
 void mqttSendSensorControl(int sensorId, String control) {
@@ -125,8 +127,7 @@ void mqttMessageReceived(String &topic, String &payload) {
   if (topic == MQTT_HEARTBEAT_TOPIC) {
     // update timestamp of tha last heartbeat
     updateLastHBTimestamp(roomId);
-  }
-  else if (topic == MQTT_WELCOME_TOPIC) {
+  } else if (topic == MQTT_WELCOME_TOPIC) {
     // If a new device sent me his mac
     
     int sensorsId[3] = {-1, -1, -1};
