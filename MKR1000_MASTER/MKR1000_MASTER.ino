@@ -40,6 +40,10 @@ WiFi_Credentials MyWiFi_Credentials;
 boolean singleMode;
 boolean ecoMode;
 int externalTemperature;
+String schedule;
+boolean thisHourSleepMode;
+int lastHour = -1;
+boolean sleepMode;
 
 boolean configureWifi = false;
 
@@ -51,7 +55,7 @@ void setup()
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
   
   setupLcd();
-  MQTTSetup(&externalTemperature, &ecoMode);
+  MQTTSetup(&externalTemperature, &ecoMode, &thisHourSleepMode);
   MyWiFi_Credentials = my_flash_store.read();
 
   if (!MyWiFi_Credentials.valid && configureWifi) {
@@ -85,13 +89,13 @@ void loop()
   // Update screen
   updateScreen();
 
-
-
+  updateSchedule();
+  
   //if connected send external temperature to slave
   trySendExternalTemperature();
 
+ 
 
-   printTime(); 
 
 
   delay(1000);
@@ -111,6 +115,7 @@ void tryWifiConnection() {
           Serial.println("Wifi Connected!");
           setupApiServer(&ecoMode);
           setupRtc();
+          
           
     
     
@@ -185,7 +190,7 @@ void updateConfiguration() {
   // Updated the configuration of the app
   
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
-    getConfiguration(&singleMode, &ecoMode);
+    getConfiguration(&singleMode, &ecoMode,&schedule,&sleepMode);
     Serial.println("CONFIGURATION");
     Serial.println(singleMode);
     Serial.println(ecoMode);
@@ -209,4 +214,15 @@ void trySendExternalTemperature() {
     timeExtenalTemperature = millis();
   }
 
+}
+
+void updateSchedule(){
+ 
+ if (lastHour != getTimeHour()){
+  char scheduleArray[24];
+  schedule.toCharArray(scheduleArray,24);
+  thisHourSleepMode = scheduleArray[getTimeHour()]=='1'?true:false;
+  lastHour = getTimeHour();
+ }
+ 
 }

@@ -1,16 +1,20 @@
 #include "mqtt_controller_room_manager_master.h"
+#include "time_controller_room_manager_master.h"
+
 
 boolean* ecoModeR;
 int* externalTemperatureR;
+boolean *thisHourSleepModeR;
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
-void MQTTSetup(int* externalTemperature, boolean* ecoMode){
+void MQTTSetup(int* externalTemperature, boolean* ecoMode ,boolean *  thisHourSleepMode){
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
    externalTemperatureR = externalTemperature;
    ecoModeR = ecoMode;
+   thisHourSleepModeR = thisHourSleepMode;
 }
 
 void loopMqttClient() {
@@ -71,8 +75,9 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
-  doc["externalTemp"] = 15;//*externalTemperatureR;
+  doc["externalTemp"] = *externalTemperatureR;
   doc["ecoMode"] = *ecoModeR;
+  doc["sleepDuration"] = *thisHourSleepModeR?60-getTimeMinute()*3600000:0;
 
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];

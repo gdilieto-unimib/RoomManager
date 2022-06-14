@@ -10,8 +10,10 @@
 #include <WiFi101.h>
 
 
-void print2digits(int number);
+ 
   
-void printTime();
-void setupRtc();
+int  getTimeHour();
+int  getTimeMinute();
+
+void  setupRtc();
 #endif

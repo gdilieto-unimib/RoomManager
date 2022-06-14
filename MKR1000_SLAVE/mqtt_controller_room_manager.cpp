@@ -93,6 +93,8 @@ void mqttMessageReceived(String &topic, String &payload) {
 
       *ecoModeRef = doc["ecoMode"].as<boolean>();
       *externalTemperatureRef = doc["externalTemp"].as<int>();
+      *scheduleRef = doc["sleepDuration"].as<int>();
+
 
   
       const char *mac = doc["mac"];

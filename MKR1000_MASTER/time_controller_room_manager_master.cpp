@@ -44,29 +44,15 @@ do {
 
 }
 
-void printTime()
+int getTimeHour()
 {
 
-  print2digits(rtc.getHours() +2 );
+  return (rtc.getHours() +2);
 
-  Serial.print(":");
-
-  print2digits(rtc.getMinutes());
-
-  Serial.print(":");
-
-  print2digits(rtc.getSeconds());
-
-  Serial.println();
 }
 
-void print2digits(int number) {
+int getTimeMinute()
+{
+  return rtc.getMinutes();
 
-  if (number < 10) {
-
-    Serial.print("0");
-
-  }
-
-  Serial.print(number);
 }

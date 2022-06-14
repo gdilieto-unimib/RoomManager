@@ -92,7 +92,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
   }
 }
 
-boolean getConfiguration(boolean* singleMode, boolean* ecoMode) {
+boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedule, boolean * sleepMode) {
   // retrieve number of configured devices
   if (!connectToMySql()) {
     return false;
@@ -123,6 +123,11 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode) {
           *singleMode = String(row->values[1]).equals("0")?false:true;
         } else if (String(row->values[0]).equals("ecoMode")) {
           *ecoMode = String(row->values[1]).equals("0")?false:true;
+        } else if (String(row->values[0]).equals("sleepSchedule")) {
+          *schedule = String(row->values[1]);
+        } else if (String(row->values[0]).equals("sleepmMode")) {
+           *sleepMode = String(row->values[1]).equals("0")?false:true;
+
         }
         
     }

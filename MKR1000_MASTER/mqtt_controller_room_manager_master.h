@@ -29,7 +29,7 @@ boolean isMQTTBrokerConnected();
 
 void mqttMessageReceived(String &topic, String &payload);
 
-void MQTTSetup(int* externalTemperature, boolean* ecoMode);
+void MQTTSetup(int* externalTemperature, boolean* ecoMode, boolean*  thisHourSleepMode);
 
 void mqttSendMonitoringControl(int roomId, String action);
 
