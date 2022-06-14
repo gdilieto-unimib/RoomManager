@@ -32,7 +32,7 @@
 
 
 
-long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature;
+long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
@@ -41,8 +41,6 @@ boolean singleMode;
 boolean ecoMode;
 int externalTemperature;
 String schedule;
-boolean thisHourSleepMode;
-int lastHour = -1;
 boolean sleepMode;
 
 boolean configureWifi = false;
@@ -51,11 +49,11 @@ int devices;
 
 void setup()
 {
-  timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = millis();
+  timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
   
   setupLcd();
-  MQTTSetup(&externalTemperature, &ecoMode, &thisHourSleepMode);
+  MQTTSetup(&externalTemperature, &ecoMode, &sleepMode);
   MyWiFi_Credentials = my_flash_store.read();
 
   if (!MyWiFi_Credentials.valid && configureWifi) {
@@ -89,7 +87,7 @@ void loop()
   // Update screen
   updateScreen();
 
-  updateSchedule();
+  trySendSleepSchedule();
   
   //if connected send external temperature to slave
   trySendExternalTemperature();
@@ -208,7 +206,7 @@ void updateScreen() {
 }
 
 void trySendExternalTemperature() {
-  if (isWifiConnected() && (millis() - timeExtenalTemperature) > EXTERNAL_TEMP_UPDATE_TIMER_MILLIS) {
+  if (isWifiConnected() && isMQTTBrokerConnected()  && (millis() - timeExtenalTemperature) > EXTERNAL_TEMP_UPDATE_TIMER_MILLIS) {
     externalTemperature = round(getExternalTemperature());
     mqttSendExternalTemperature(externalTemperature);
     timeExtenalTemperature = millis();
@@ -216,13 +214,13 @@ void trySendExternalTemperature() {
 
 }
 
-void updateSchedule(){
+void trySendSleepSchedule(){
  
- if (lastHour != getTimeHour()){
-  char scheduleArray[24];
-  schedule.toCharArray(scheduleArray,24);
-  thisHourSleepMode = scheduleArray[getTimeHour()]=='1'?true:false;
-  lastHour = getTimeHour();
- }
+ if (isWifiConnected() && isMQTTBrokerConnected() && (millis() - timeSendSleepSchedule) > SEND_SLEEP_SCHEDULE_TIMER_MILLIS) {
+    if(sleepMode && (&schedule[0])[getTimeHour()]=='1'){
+      mqttSendSleepSchedule((60-getTimeMinute())*3600000);
+    }
+    timeSendSleepSchedule = millis();
+  }
  
 }

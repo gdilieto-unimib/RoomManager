@@ -54,6 +54,9 @@ void connectToMQTTBroker() {
 
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_CONFIG_TOPIC);
+        mqttClient.subscribe(MQTT_ECO_MODE_TOPIC);
+    mqttClient.subscribe(MQTT_SLEEP_SCHEDULE_TOPIC);
+
     Serial.println(F("\nSubscribed to config topic!"));    
   }
   MQTTLoadingScreen(false);
@@ -174,11 +177,15 @@ void mqttMessageReceived(String &topic, String &payload) {
       
       *externalTemperatureRef = atoi(&payload[0]);
       
-    } else if (topic == String(MQTT_ROOM_TOPIC)+"/sleepSchedule"){
-      
-      *scheduleRef = atoi(&payload[0]);
+    }else if (topic == String(MQTT_ECO_MODE_TOPIC)){
+      if (payload == "OFF") *ecoModeRef = false;
+      if (payload == "ON") *ecoModeRef = true;
 
-    }else{
+        
+
+    } else if (topic == String(MQTT_SLEEP_SCHEDULE_TOPIC)){
+        *scheduleRef = atoi(&payload[0]);
+    } else {
       Serial.println(F("MQTT Topic not recognized, message skipped"));
     }
 }

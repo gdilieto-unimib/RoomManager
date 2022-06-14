@@ -1,5 +1,7 @@
 #include "database_controller_room_manager_master.h"
 #include "wifi_controller_room_manager_master.h"
+#include "mqtt_controller_room_manager_master.h"
+
 
 // MySQL server cfg
 char mysql_user[] = MYSQL_USER;       // MySQL user login username
@@ -122,7 +124,11 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedul
         if (String(row->values[0]).equals("singleMode")) {
           *singleMode = String(row->values[1]).equals("0")?false:true;
         } else if (String(row->values[0]).equals("ecoMode")) {
-          *ecoMode = String(row->values[1]).equals("0")?false:true;
+          boolean newValue =String(row->values[1]).equals("0")?false:true;
+          if(newValue != *ecoMode) {
+            mqttSendEcoMode(*ecoMode);
+          }
+          *ecoMode = newValue;
         } else if (String(row->values[0]).equals("sleepSchedule")) {
           *schedule = String(row->values[1]);
         } else if (String(row->values[0]).equals("sleepmMode")) {

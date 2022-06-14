@@ -92,6 +92,22 @@ void mqttSendMonitoringControl(int roomId, String control) {
   mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+ "/monitoring/control", control);
 }
 
+void mqttSendEcoMode(boolean control) {
+     if (control){ 
+      mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "ON");
+     }else{
+            mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "OFF");
+
+     }
+
+}
+
+void mqttSendSleepSchedule(int Time) {
+      mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
+
+
+}
+
 void mqttSendSensorControl(int sensorId, String control) {
   mqttClient.publish(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorId)+ "/control", control);
 }
