@@ -131,7 +131,7 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedul
           *ecoMode = newValue;
         } else if (String(row->values[0]).equals("sleepSchedule")) {
           *schedule = String(row->values[1]);
-        } else if (String(row->values[0]).equals("sleepmMode")) {
+        } else if (String(row->values[0]).equals("sleepMode")) {
            *sleepMode = String(row->values[1]).equals("0")?false:true;
 
         }

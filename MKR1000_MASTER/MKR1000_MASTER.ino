@@ -113,7 +113,7 @@ void tryWifiConnection() {
             connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
           }
           Serial.println("Wifi Connected!");
-          //setupRtc();
+          setupRtc();
           setupApiServer(&ecoMode);
           
           
@@ -128,7 +128,7 @@ void tryWifiConnection() {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
         Serial.println("Wifi Connected!");
-        //setupRtc();
+        setupRtc();
         setupApiServer(&ecoMode);
       } else {
         while(!isWifiConnected()) {
@@ -230,7 +230,7 @@ void trySendSleepSchedule(){
     Serial.println((&schedule[0])[getTimeHour()]);
 
 
-    if(sleepMode && (&schedule[0])[15]=='1'){
+    if(sleepMode && (&schedule[0])[getTimeHour()]=='1'){
     Serial.println("try toi send sleepmode");
       
       mqttSendSleepSchedule((60-getTimeMinute())*3600000);

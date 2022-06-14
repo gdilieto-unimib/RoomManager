@@ -8,10 +8,7 @@
 #define SECRET_PASS "labiot11"   
 // ONLY if static configuration is needed
 
-#define IP {149, 132, 182, 33}                    // IP address
-#define SUBNET {255, 255, 255, 0}                // Subnet mask
-#define DNS {149, 132, 2, 3}                    // DNS
-#define GATEWAY {149, 132, 182, 1}             // Gateway
+
 
 
 // MySQL access
@@ -22,8 +19,8 @@
 // MQTT access
 #define MQTT_BROKERIP "149.132.178.180"           // IP address of the machine running the MQTT broker
 #define MQTT_CLIENTID "room_manager_master"                 // client identifier
-#define MQTT_USERNAME "tfalsiroli"            // mqtt user's name
-#define MQTT_PASSWORD "iot874971"            // mqtt user's password
+#define MQTT_USERNAME "gdilieto"            // mqtt user's name
+#define MQTT_PASSWORD "iot874143"            // mqtt user's password
 
 
 #define WEATHER_API_KEY "20bf48d2e0b208a53dcf3c35bfb81edf"           // api key form https://home.openweathermap.org/api_keys
