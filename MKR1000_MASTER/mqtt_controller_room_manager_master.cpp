@@ -4,17 +4,17 @@
 
 boolean* ecoModeR;
 int* externalTemperatureR;
-boolean *thisHourSleepModeR;
+boolean *sleepModeR;
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
-void MQTTSetup(int* externalTemperature, boolean* ecoMode ,boolean *  thisHourSleepMode){
+void MQTTSetup(int* externalTemperature, boolean* ecoMode ,boolean* sleepMode){
    mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
    mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
    externalTemperatureR = externalTemperature;
    ecoModeR = ecoMode;
-   thisHourSleepModeR = thisHourSleepMode;
+   sleepModeR = sleepMode;
 }
 
 void loopMqttClient() {
@@ -77,7 +77,7 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
   doc["room"] = roomId;
   doc["externalTemp"] = *externalTemperatureR;
   doc["ecoMode"] = *ecoModeR;
-  doc["sleepDuration"] = *thisHourSleepModeR?60-getTimeMinute()*3600000:0;
+  doc["sleepDuration"] = *sleepModeR?60-getTimeMinute()*3600000:0;
 
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
@@ -123,6 +123,10 @@ void mqttMessageReceived(String &topic, String &payload) {
   int sensorId = -1;
   
   if (topic == MQTT_HEARTBEAT_TOPIC) {
+    // update timestamp of tha last heartbeat
+    updateLastHBTimestamp(roomId);
+  }
+  else if (topic == MQTT_WELCOME_TOPIC) {
     // If a new device sent me his mac
     
     int sensorsId[3] = {-1, -1, -1};

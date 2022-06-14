@@ -33,6 +33,7 @@ import { DeleteRoomDialog } from "./home-component/rooms-component/room-componen
 import { CreateRoomDialog } from "./home-component/rooms-component/room-component/dialogs/create-room-dialog/create-room.dialog";
 import { SensorIconPipe } from "./home-component/rooms-component/room-component/sensors-component/sensor-component/pipes/sensor-icon.pipe";
 import { HttpClientModule } from "@angular/common/http";
+import { EditScheduleDialog } from "./home-component/sidenav-component/services/edit-schedule-dialog/edit-schedule.dialog";
 
 @NgModule({
     declarations: [
@@ -46,6 +47,7 @@ import { HttpClientModule } from "@angular/common/http";
       CreateRoomDialog,
       EditRoomDialog,
       DeleteRoomDialog,
+      EditScheduleDialog,
       SensorIconPipe,
     ],
     imports: [

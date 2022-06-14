@@ -1,0 +1,26 @@
+<h1 mat-dialog-title>Edit sleep schedule</h1>
+<div mat-dialog-content>
+  <div style="height: 100px;">
+    <div class="scheduleContainer">
+      <div *ngFor="let i of hours" class="coupleContainer">
+        <div class="timeContainer">
+          <span class="hour">{{i}}</span>
+          <div class="lineContainer">
+            <div class="line"></div>
+          </div>
+        </div>
+        <span class="button"><mat-button-toggle ngDefaultControl [checked]="sleepSchedule[i]=='1'" (change)="toggleHour(i)"></mat-button-toggle></span>
+      </div>
+      <div class="timeContainer">
+        <span class="hour">0</span>
+        <div class="lineContainer">
+          <div class="line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button color="primary" (click)="onConfirmClick()">Confirm</button>
+  <button mat-raised-button color="accent" (click)="onCancelClick()">Cancel</button>
+</div>

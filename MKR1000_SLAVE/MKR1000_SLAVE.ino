@@ -209,10 +209,9 @@ void tryWifiConnection() {
       connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
     } else {
-      Serial.print("CALLING CONNECT TO WIFI AP");
+      Serial.println("Waiting for WiFi credentials");
       if(!configureWifi) {
         connectWifi(SECRET_SSID, SECRET_PASS);
-        Serial.print("CIAO");
       } else {
         password = connectToWifiAP(); 
         if (isWifiConnected()) {
@@ -267,7 +266,7 @@ void trySendRoomHearthbeat() {
   // try to get device's room configuration (with loading screen)
 
   if (((millis() - timeSendHearthbeat) > 10000) && isWifiConnected() && isMQTTBrokerConnected()) {
-    // try to send an hearthbeat to master (with loading screen)
+    // try to send an hearthbeat to master
     mqttSendMac();
 
     timeSendHearthbeat = millis();

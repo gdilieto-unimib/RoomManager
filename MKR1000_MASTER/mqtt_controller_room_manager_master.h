@@ -10,6 +10,7 @@
 // MQTT data
 #define MQTT_BUFFER_SIZE 256                              // the maximum size for packets being published and received
 
+#define MQTT_WELCOME_TOPIC "LabIOT/gdltf/welcome"            // topic for slave welcome
 #define MQTT_HEARTBEAT_TOPIC "LabIOT/gdltf/heartbeat"       // topic for heartbeats
 #define MQTT_CONFIG_TOPIC "LabIOT/gdltf/config"            // topic for room's configuration
 #define MQTT_ROOM_TOPIC "LabIOT/gdltf/rooms"              // topic for room's control

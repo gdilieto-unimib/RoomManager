@@ -46,7 +46,7 @@ void connectToMQTTBroker() {
 
   if (!mqttClient.connected()) {   // not connected
     Serial.print(F("\nConnecting to MQTT broker..."));
-    while (!mqttClient.connect(MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD)) {
+    while (!mqttClient.connect(&(MQTT_CLIENTID+getMac())[0], MQTT_USERNAME, MQTT_PASSWORD)) {
       Serial.print(F("."));
       delay(1000);
     }
@@ -231,7 +231,7 @@ void mqttSendAlarm(char* message, int code) {
 }
 
 void mqttSendMac() {
-  mqttClient.publish(MQTT_HEARTBEAT_TOPIC, getMac());
-  Serial.print("INVIATO MAC:");
+  mqttClient.publish(MQTT_roomId==-1?MQTT_WELCOME_TOPIC:MQTT_HEARTBEAT_TOPIC, getMac());
+  MQTT_roomId==-1?Serial.print("SENT MAC TO WELCOME QUEUE:"):Serial.print("SENT MAC TO HEARTBEAT QUEUE:");
   Serial.println(getMac());
 }

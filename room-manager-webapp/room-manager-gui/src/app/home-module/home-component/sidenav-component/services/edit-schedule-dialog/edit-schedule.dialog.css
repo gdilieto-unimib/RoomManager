@@ -1,0 +1,48 @@
+.scheduleContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    width: 1100px;
+}
+
+.coupleContainer {
+    display: flex;
+    flex: 0 1 auto;
+    height: 100px;
+    flex-direction: row;
+}
+
+.timeContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.lineContainer {
+    display: flex;
+    justify-content: center;  
+}
+
+.line {
+    min-width: 0.8px;
+    max-width: 0.8px;
+    border-style: solid;
+    border-color: white;
+    height: 75px;
+    background-color: black;
+}
+
+.hour {
+    width: 17px;
+    text-align: center;
+    flex: 0 1 auto;
+    align-self: flex-start;
+}
+
+.button {
+    flex: 0 1 auto;
+    align-self: flex-end;
+}
+
+.mat-button-toggle{
+    height:80px !important;
+}

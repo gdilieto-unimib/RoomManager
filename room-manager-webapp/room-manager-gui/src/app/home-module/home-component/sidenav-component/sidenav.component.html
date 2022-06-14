@@ -3,8 +3,8 @@
         <h1>Options</h1>
     </mat-toolbar>
     <div class="container">
-        <mat-slide-toggle (change)="onSingleModeToggle($event.checked)">Single Mode</mat-slide-toggle>
-        <mat-slide-toggle (change)="onEcoModeToggle($event.checked)">Eco Mode</mat-slide-toggle>
-        <div><mat-slide-toggle (change)="onSleepModeToggle($event.checked)">Sleep Mode</mat-slide-toggle><mat-icon style="margin-left: 0.5em; cursor:pointer;">access_time</mat-icon></div>
+        <mat-slide-toggle ngDefaultControl [checked]="configurationService.configuration.singleMode" (change)="onSingleModeToggle($event.checked)">Single Mode</mat-slide-toggle>
+        <mat-slide-toggle ngDefaultControl [checked]="configurationService.configuration.ecoMode" (change)="onEcoModeToggle($event.checked)">Eco Mode</mat-slide-toggle>
+        <div><mat-slide-toggle ngDefaultControl [checked]="configurationService.configuration.sleepMode" (change)="onSleepModeToggle($event.checked)">Sleep Mode</mat-slide-toggle><mat-icon (click)="editSchedule()" style="margin-left: 0.5em; cursor:pointer;">access_time</mat-icon></div>
     </div>
 </div>
