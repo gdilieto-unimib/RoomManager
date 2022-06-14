@@ -106,7 +106,7 @@ void setup() {
 }
 
 void loop() {
-  if (low_Power_Mode) {
+  if (low_Power_Mode  &&  (getTemp() > tooHotTempThreshold==false) ) {
     lowPowerModeMillis = millis();
     mode_just_changed = true;
     lowPowerModeLCD();
@@ -155,7 +155,7 @@ void loop() {
     }
 
     if (scheduleDuration>0){
-      low_Power_Mode = true;
+      if(getTemp() > tooHotTempThreshold==false) low_Power_Mode = true;
     }
 
     // Connect to wifi

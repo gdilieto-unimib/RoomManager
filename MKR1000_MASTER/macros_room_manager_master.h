@@ -8,7 +8,7 @@
 #define DEVICES_UPDATE_TIMER_MILLIS 10000
 #define CONFIGURATION_UPDATE_TIMER_MILLIS 10000
 #define EXTERNAL_TEMP_UPDATE_TIMER_MILLIS 1800000
-#define SEND_SLEEP_SCHEDULE_TIMER_MILLIS 60000
+#define SEND_SLEEP_SCHEDULE_TIMER_MILLIS 10000
 
 #define LIGHT_SENSOR 0 // id of the index of the light sensor among sensors list
 #define TEMP_SENSOR 1 // id of the index of the temperature sensor among sensors list
