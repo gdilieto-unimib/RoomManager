@@ -40,8 +40,8 @@ WiFi_Credentials MyWiFi_Credentials;
 boolean singleMode;
 boolean ecoMode;
 int externalTemperature;
-String schedule;
-boolean sleepMode;
+String schedule="00000000000000100000000";
+boolean sleepMode=true;
 
 boolean configureWifi = false;
 
@@ -62,10 +62,12 @@ void setup()
   
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
+
 }
 
 void loop()
 {
+
   // Connect to wifi
   tryWifiConnection();
   
@@ -111,8 +113,9 @@ void tryWifiConnection() {
             connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
           }
           Serial.println("Wifi Connected!");
+          //setupRtc();
           setupApiServer(&ecoMode);
-          setupRtc();
+          
           
           
     
@@ -124,8 +127,8 @@ void tryWifiConnection() {
         while(!isWifiConnected()) {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
-
-        setupRtc();
+        Serial.println("Wifi Connected!");
+        //setupRtc();
         setupApiServer(&ecoMode);
       } else {
         while(!isWifiConnected()) {
@@ -217,7 +220,19 @@ void trySendExternalTemperature() {
 void trySendSleepSchedule(){
  
  if (isWifiConnected() && isMQTTBrokerConnected() && (millis() - timeSendSleepSchedule) > SEND_SLEEP_SCHEDULE_TIMER_MILLIS) {
-    if(sleepMode && (&schedule[0])[getTimeHour()]=='1'){
+    Serial.print("Sleeep mode: ");
+    Serial.println(sleepMode);
+    Serial.print("Schedule: ");
+    Serial.println(schedule);
+    Serial.print("getTIME: ");  
+    Serial.println(getTimeHour());
+    Serial.print("schedule[gettime]: ");
+    Serial.println((&schedule[0])[getTimeHour()]);
+
+
+    if(sleepMode && (&schedule[0])[15]=='1'){
+    Serial.println("try toi send sleepmode");
+      
       mqttSendSleepSchedule((60-getTimeMinute())*3600000);
     }
     timeSendSleepSchedule = millis();

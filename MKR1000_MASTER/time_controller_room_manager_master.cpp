@@ -2,34 +2,18 @@
 
    RTCZero rtc;
   unsigned long epoch;
-  int numberOfTries = 0, maxTries = 10;
-
-  
-  
-
 
 void setupRtc(){
 rtc.begin();
 
 do {
-  delay(500);
     epoch = WiFi.getTime();
-
-    numberOfTries++;
-
+    Serial.println("Try Epoch");
+    delay(500);
   }
-
-  while ((epoch == 0) && (numberOfTries < maxTries));
   
-
-  if (numberOfTries == maxTries) {
-    Serial.print("NTP unreachable!!");
-
-    
-
-  }
-
-  else {
+  while ((epoch == 0));
+ 
 
     Serial.print("Epoch received: ");
 
@@ -39,7 +23,6 @@ do {
 
     Serial.println();
 
-  }
 
 
 }
