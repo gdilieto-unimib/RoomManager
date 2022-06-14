@@ -22,7 +22,7 @@ void connectToMQTTBroker();
 
 void mqttMessageReceived(String &topic, String &payload);
 
-void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature, boolean * ecoMode);
+void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature, boolean * ecoMode, long * schedule);
 
 MQTTClient getMqttClient();
 

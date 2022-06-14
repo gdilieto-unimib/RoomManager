@@ -26,6 +26,17 @@ byte databaseIcon[] = {
   B00000
 };
 
+byte ecoIcon[] = {
+  B00100,
+  B01010,
+  B10001,
+  B10101,
+  B10101,
+  B10101,
+  B01110,
+  B00100
+};
+
 byte grade[] = {
   B01110,
   B01010,
@@ -45,6 +56,7 @@ void setupLcd() {
   lcd.createChar(0, wifiIcon);
   lcd.createChar(1, databaseIcon);
   lcd.createChar(2, grade);
+  lcd.createChar(3, ecoIcon);
 
 }
 
@@ -142,13 +154,15 @@ void loggingLoadingScreen(boolean i){
   lcd.setRGB(100, 100, 0);
 }
 
-void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected) {
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected, boolean ecomode) {
   // update rows for the info screen
   
   lcd.clear();  // clear text
   lcd.print("T: "); // show temp
   lcd.print(temp);
   lcd.write(2);
+  if(ecomode) {lcd.write(3);}
+
   lcd.setCursor(0, 1);
   lcd.print("L: "); // show light
   lcd.print(light);

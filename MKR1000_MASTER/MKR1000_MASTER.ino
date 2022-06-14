@@ -27,6 +27,10 @@
 #include "flashmem_controller_room_manager_master.h"
 #include "api_controller_room_manager_master.h"
 #include "weather_controller_room_manager_master.h"
+#include "time_controller_room_manager_master.h"
+
+
+
 
 long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature;
 
@@ -80,8 +84,14 @@ void loop()
   // Update screen
   updateScreen();
 
+
+
   //if connected send external temperature to slave
   trySendExternalTemperature();
+
+
+   printTime(); 
+
 
   delay(1000);
 }
@@ -99,6 +109,8 @@ void tryWifiConnection() {
           }
           Serial.println("Wifi Connected!");
           setupApiServer(&ecoMode);
+          setupRtc();
+          
     
     
     } else {
@@ -110,6 +122,7 @@ void tryWifiConnection() {
 
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
+        setupRtc();
       } else {
         while(!isWifiConnected()) {
           // activate the access point until wifi is connected

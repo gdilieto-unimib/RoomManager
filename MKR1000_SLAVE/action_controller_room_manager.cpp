@@ -8,8 +8,6 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
         // on the first row we can change the thermostat's configuration
         if (*displayRow == 0){
           *tempConfig = (NUMBER_OF_TEMP_CONFIGS + *tempConfig - 1) % NUMBER_OF_TEMP_CONFIGS;
-        // send new temp configuration to master
-          mqttSendTempConfig(*tempConfig);
         } else{
         // on the second row we can decrease the temperature's activation threshold
           if (*tempActivationThreshold>0){
@@ -23,8 +21,6 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
         // on the first row we can change the thermostat's configuration
         if (*displayRow == 0) {
           *tempConfig = (*tempConfig + 1) % NUMBER_OF_TEMP_CONFIGS;
-        // send new temp configuration to master
-          mqttSendTempConfig(*tempConfig);
         } else {
         // on the second row we can increment the temperature's activation threshold
           if (*tempActivationThreshold<50){
@@ -41,6 +37,9 @@ void actionTempScreen(int pressedButton, int* displayRow, int* tempActivationThr
         // return to navigation mode if pressed on the last row
         if (*displayRow == 0){
           *navigationMode = true;
+        } else {
+          // send new temp configuration to master
+          mqttSendTempConfig(*tempConfig);
         }
         break;
       }
@@ -54,8 +53,6 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
         // on the first row we can change the light's configuration
         if (*displayRow == 0){
           *lightConfig = (NUMBER_OF_LIGHT_CONFIGS + *lightConfig - 1) % NUMBER_OF_LIGHT_CONFIGS;
-        // send new light configuration to master
-          mqttSendLightConfig(*lightConfig);
         } else{
         // on the second row we can decrease the light's activation threshold
           if (*lightActivationThreshold>0){
@@ -68,8 +65,7 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
         // on the first row we can change the light's configuration
         if (*displayRow == 0){
           *lightConfig = (*lightConfig + 1) % NUMBER_OF_LIGHT_CONFIGS;
-        // send new light configuration to master
-          mqttSendLightConfig(*lightConfig);
+
         } else{
         // on the first row we can increment the light's activation threshold
           if (*lightActivationThreshold<1000){
@@ -83,8 +79,12 @@ void actionLightScreen(int pressedButton, int* displayRow, int* lightActivationT
         *displayRow = (*displayRow + 1) % 2;
 
         // return to navigation mode if pressed on the last row
-        if (*displayRow == 0)
+        if (*displayRow == 0){
           *navigationMode = true;
+        }else{
+          // send new light configuration to master
+          mqttSendLightConfig(*lightConfig);
+        }
         
         break;
       }

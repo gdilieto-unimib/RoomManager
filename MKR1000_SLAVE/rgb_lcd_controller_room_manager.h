@@ -12,7 +12,7 @@ void setTooHotAlarm(boolean active);
 
 void setTooColdAlarm(boolean active);
 
-void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected);
+void updateInfoScreenRows(int temp, int light, boolean wifi, boolean isMySqlConnected, boolean ecomode);
 
 void updateTempScreenRows(int temp, int tempConfig, int tempActivationThreshold,int tempStatus);
 

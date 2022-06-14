@@ -67,10 +67,10 @@ int externalTemperature = 0;
 
 int sleepCycleDuration = 0;
 int lowPowerModeMillis = 0;
-int scheduleDuration = 200000;
+
+long scheduleDuration = 0;
 
 boolean tooHotAlarmMonitored = false;
-boolean schedulePresent=true;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
 boolean low_Power_Mode = false;
@@ -92,7 +92,7 @@ void setup() {
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
   setupLcd();
   setupIO();
-  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode);
+  MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode , &scheduleDuration);
   updateSensors();
 
   MyWiFi_Credentials = my_flash_store.read();
@@ -133,7 +133,7 @@ void loop() {
     Serial.println(getTemp());
 
 
-    if(schedulePresent==true) {
+    if(scheduleDuration > 0) {
       Serial.print("Time reamaining until wakeup: ");
       Serial.println(scheduleDuration - sleepCycleDuration);
       if (sleepCycleDuration > scheduleDuration )low_Power_Mode = false;
@@ -146,10 +146,16 @@ void loop() {
     if (mode_just_changed) {
       delay(1000);
       mode_just_changed = false;
-      schedulePresent = false;
+      Serial.print("Resetto durata lowPowerModeCycle");
+      sleepCycleDuration = 0;
+      scheduleDuration = 0;
 
       //screen = INFO_SCREEN;
       notLowPowerModeLCD();
+    }
+
+    if (scheduleDuration>0){
+      low_Power_Mode = true;
     }
 
     // Connect to wifi
@@ -375,7 +381,7 @@ void updateScreen() {
     // screen update if you are on info screen
   case INFO_SCREEN: {
 
-    updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), monitoringActivated);
+    updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), monitoringActivated,ecoMode);
     updateScreenCursor(!navigationMode, displayRow);
 
     break;
