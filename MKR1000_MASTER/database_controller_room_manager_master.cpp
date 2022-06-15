@@ -288,7 +288,9 @@ boolean updateLastHBTimestamp(String mac) {
   char query[256];
   char UPDATE_HB_ROOM[] = "UPDATE `gdilieto`.`room` SET `lastHB` = CURRENT_TIMESTAMP WHERE mac='%s'";
 
-  sprintf(query, UPDATE_HB_ROOM, mac);
+  sprintf(query, UPDATE_HB_ROOM, &mac[0]);
+
+  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
