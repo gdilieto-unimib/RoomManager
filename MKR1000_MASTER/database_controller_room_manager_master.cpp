@@ -280,6 +280,24 @@ boolean updateLastHBTimestamp(int roomId) {
   return true;
 }
 
+boolean updateLastHBTimestamp(String mac) {
+  if (!connectToMySql()) {
+    return false;
+  }
+  
+  char query[256];
+  char UPDATE_HB_ROOM[] = "UPDATE `gdilieto`.`room` SET `lastHB` = CURRENT_TIMESTAMP WHERE mac='%s'";
+
+  sprintf(query, UPDATE_HB_ROOM, mac);
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+  cur_mem->execute(query);
+  
+  delete cur_mem;
+  
+  return true;
+}
+
 boolean updateRoomMonitoring(int roomId, boolean monitoring) {
   if (!connectToMySql()) {
     return false;

@@ -232,6 +232,5 @@ void mqttSendAlarm(char* message, int code) {
 
 void mqttSendMac() {
   mqttClient.publish(MQTT_roomId==-1?MQTT_WELCOME_TOPIC:MQTT_HEARTBEAT_TOPIC, getMac());
-  MQTT_roomId==-1?Serial.print("SENT MAC TO WELCOME QUEUE:"):Serial.print("SENT MAC TO HEARTBEAT QUEUE:");
-  Serial.println(getMac());
+  Serial.println("SENT MAC TO " + String(MQTT_roomId==-1?MQTT_WELCOME_TOPIC:MQTT_HEARTBEAT_TOPIC) + " " + getMac());
 }

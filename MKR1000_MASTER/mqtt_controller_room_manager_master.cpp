@@ -50,29 +50,6 @@ boolean isMQTTBrokerConnected() {
   return mqttClient.connected();
 }
 
-int isValidMacAddress(const char* mac) {
-    int i = 0;
-    int s = 0;
-
-    while (*mac) {
-       if (isxdigit(*mac)) {
-          i++;
-       }
-       else if (*mac == ':' || *mac == '-') {
-
-          if (i == 0 || i / 2 - 1 != s)
-            break;
-
-          ++s;
-       }
-       else {
-           s = -1;
-       }
-       ++mac;
-    }
-    return (i == 12 && (s == 5 || s == 0));
-}
-
 void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
   
@@ -126,7 +103,7 @@ void mqttMessageReceived(String &topic, String &payload) {
   
   if (topic == MQTT_HEARTBEAT_TOPIC) {
     // update timestamp of tha last heartbeat
-    updateLastHBTimestamp(roomId);
+    updateLastHBTimestamp(payload);
   } else if (topic == MQTT_WELCOME_TOPIC) {
     // If a new device sent me his mac
     

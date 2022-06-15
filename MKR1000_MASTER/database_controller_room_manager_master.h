@@ -29,6 +29,8 @@ boolean createSensorsConfig(String mac);
 
 boolean updateLastHBTimestamp(int roomId);
 
+boolean updateLastHBTimestamp(String mac);
+
 boolean updateRoomMonitoring(int roomId, boolean monitoring);
 
 boolean updateSensorConfig(int sensorId, String configuration);
