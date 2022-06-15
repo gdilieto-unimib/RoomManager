@@ -40,8 +40,8 @@ WiFi_Credentials MyWiFi_Credentials;
 boolean singleMode;
 boolean ecoMode;
 int externalTemperature;
-String schedule="00000000000000100000000";
-boolean sleepMode=true;
+String schedule="";
+boolean sleepMode;
 
 boolean configureWifi = false;
 
