@@ -15,38 +15,38 @@ byte packetBuffer[NTP_PACKET_SIZE];            // buffer to hold I/O NTP packets
 IPAddress timeServerIP;                        // dynamically resolved IP of the NTP server
 WiFiUDP udp;                                   // UDP instance to send and receive packets
 unsigned int localPort = 2390;
-String mac=""; 
+String mac = "";
 
-void connectWifi(char* ssid, char* pass){
+void connectWifi(char* ssid, char* pass) {
   // connect to wifi if not already connected
-  
+
   if (WiFi.status() != WL_CONNECTED) {
-    #ifdef IP
+#ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
-    #endif
+#endif
     WiFi.begin(ssid, pass);
   }
 }
 
 boolean isWifiConnected() {
   // check if wifi is connected
-  
+
   return (WiFi.status() == WL_CONNECTED);
 }
 
-WiFiClient* getClient(){
+WiFiClient* getClient() {
   // get pointer to the wifi client
-  
-  return &client;  
+
+  return &client;
 }
 
 String getMac() {
-  if (mac=="") {
+  if (mac == "") {
     byte macBytes[6];
     WiFi.macAddress(macBytes);
-    char macChars[19]={0};
+    char macChars[19] = {0};
     sprintf(macChars, "%02X:%02X:%02X:%02X:%02X:%02X", macBytes[0], macBytes[1], macBytes[2], macBytes[3], macBytes[4], macBytes[5]);
-    macChars[18]=0;
+    macChars[18] = 0;
     Serial.println(macChars);
     Serial.println(macBytes[3]);
     Serial.println(String(macChars));

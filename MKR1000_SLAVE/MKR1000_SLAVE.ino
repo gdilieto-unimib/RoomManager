@@ -20,7 +20,7 @@
     1x GROVE LED
     1x GROVE Buzzer
 
-  Notes: 
+  Notes:
     - MKR pin mapping -> https://docs.arduino.cc/static/a5b251782d7fa7d0212e7a8b34c45a9e/ABX00004-pinout.png
 
 */
@@ -106,7 +106,7 @@ void setup() {
 }
 
 void loop() {
-  if (low_Power_Mode  &&  (getTemp() > tooHotTempThreshold==false) ) {
+  if (low_Power_Mode  &&  (getTemp() > tooHotTempThreshold == false) ) {
     lowPowerModeMillis = millis();
     mode_just_changed = true;
     lowPowerModeLCD();
@@ -120,28 +120,28 @@ void loop() {
     sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
-    
+
     LowPower.sleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
-    
-    lowPowerModeMillis = millis();    
+
+    lowPowerModeMillis = millis();
     Serial.println("STOP SLEEPING");
     Serial.print("Total low power time: ");
-    Serial.print(sleepCycleDuration);   
+    Serial.print(sleepCycleDuration);
     Serial.println(" MILLISECONDS");
- 
+
     Serial.print("Temperature: ");
     Serial.println(getTemp());
 
 
-    if(scheduleDuration > 0) {
+    if (scheduleDuration > 0) {
       Serial.print("Time reamaining until wakeup: ");
       Serial.println(scheduleDuration - sleepCycleDuration);
       if (sleepCycleDuration > scheduleDuration )low_Power_Mode = false;
     }
-    
+
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
-    
+
   } else {
     if (mode_just_changed) {
       delay(1000);
@@ -154,8 +154,8 @@ void loop() {
       notLowPowerModeLCD();
     }
 
-    if (scheduleDuration>0){
-      if(getTemp() > tooHotTempThreshold==false) low_Power_Mode = true;
+    if (scheduleDuration > 0) {
+      if (getTemp() > tooHotTempThreshold == false) low_Power_Mode = true;
     }
 
     // Connect to wifi
@@ -210,21 +210,21 @@ void tryWifiConnection() {
 
     } else {
       Serial.println("Waiting for WiFi credentials");
-      if(!configureWifi) {
+      if (!configureWifi) {
         connectWifi(SECRET_SSID, SECRET_PASS);
       } else {
-        password = connectToWifiAP(); 
+        password = connectToWifiAP();
         if (isWifiConnected()) {
           MyWiFi_Credentials.valid = true;
           String ssidfl = WiFi.SSID();
-  
+
           ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
           password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
-  
+
           Serial.println("Writing WiFi credentials");
           my_flash_store.write(MyWiFi_Credentials);
           delay(1000);
-        }  
+        }
       }
 
       // if wifi was disconnected, monitoring is resetted
@@ -307,21 +307,21 @@ int getPressedButton() {
 
 void navigate(int pressedButton) {
   switch (pressedButton) {
-  case MENO: {
-    // navigate to the previous screen (or go to the last screen if you are on the first screen)
-    screen = (NUMBER_OF_SCREENS + screen - 1) % NUMBER_OF_SCREENS;
-    break;
-  }
-  case PIU: {
-    // navigate to the following screen (or go to the first screen if you are on the last screen)
-    screen = (screen + 1) % NUMBER_OF_SCREENS;
-    break;
-  }
-  case OK: {
-    // deactivate the navigation mode (ready to pursue actions on the screen)
-    navigationMode = false;
-    break;
-  }
+    case MENO: {
+        // navigate to the previous screen (or go to the last screen if you are on the first screen)
+        screen = (NUMBER_OF_SCREENS + screen - 1) % NUMBER_OF_SCREENS;
+        break;
+      }
+    case PIU: {
+        // navigate to the following screen (or go to the first screen if you are on the last screen)
+        screen = (screen + 1) % NUMBER_OF_SCREENS;
+        break;
+      }
+    case OK: {
+        // deactivate the navigation mode (ready to pursue actions on the screen)
+        navigationMode = false;
+        break;
+      }
   }
 }
 
@@ -329,28 +329,28 @@ void action(int pressedButton) {
   switch (screen) {
 
     // do specific actions for the info screen
-  case INFO_SCREEN: {
-    actionInfoScreen(pressedButton, & displayRow, & navigationMode, & monitoringActivated);
-    break;
-  }
+    case INFO_SCREEN: {
+        actionInfoScreen(pressedButton, & displayRow, & navigationMode, & monitoringActivated);
+        break;
+      }
 
-  // do specific actions for the temperature's control screen
-  case TEMP_SCREEN: {
-    actionTempScreen(pressedButton, & displayRow, & tempActivationThreshold, & tempConfig, & navigationMode);
-    break;
-  }
+    // do specific actions for the temperature's control screen
+    case TEMP_SCREEN: {
+        actionTempScreen(pressedButton, & displayRow, & tempActivationThreshold, & tempConfig, & navigationMode);
+        break;
+      }
 
-  // do specific actions for the light's control screen
-  case LIGHT_SCREEN: {
-    actionLightScreen(pressedButton, & displayRow, & lightActivationThreshold, & lightConfig, & navigationMode);
-    break;
-  }
+    // do specific actions for the light's control screen
+    case LIGHT_SCREEN: {
+        actionLightScreen(pressedButton, & displayRow, & lightActivationThreshold, & lightConfig, & navigationMode);
+        break;
+      }
 
-  // do specific actions for the alarm control screen
-  case ALARM_SCREEN: {
-    actionAlarmScreen(pressedButton, & navigationMode, & fireAlarm);
-    break;
-  }
+    // do specific actions for the alarm control screen
+    case ALARM_SCREEN: {
+        actionAlarmScreen(pressedButton, & navigationMode, & fireAlarm);
+        break;
+      }
   }
 }
 
@@ -378,40 +378,40 @@ void updateScreen() {
   setNavigationMode(navigationMode);
   switch (screen) {
     // screen update if you are on info screen
-  case INFO_SCREEN: {
+    case INFO_SCREEN: {
 
-    updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), monitoringActivated,ecoMode);
-    updateScreenCursor(!navigationMode, displayRow);
+        updateInfoScreenRows(lastTemp, lastLight, isWifiConnected(), monitoringActivated, ecoMode);
+        updateScreenCursor(!navigationMode, displayRow);
 
-    break;
-  }
+        break;
+      }
 
-  // screen update if you are on temperature's control screen
-  case TEMP_SCREEN: {
+    // screen update if you are on temperature's control screen
+    case TEMP_SCREEN: {
 
-    updateTempScreenRows(lastTemp, tempConfig, tempActivationThreshold,tempStatus);
-    updateScreenCursor(!navigationMode, displayRow);
+        updateTempScreenRows(lastTemp, tempConfig, tempActivationThreshold, tempStatus);
+        updateScreenCursor(!navigationMode, displayRow);
 
-    break;
-  }
+        break;
+      }
 
-  // screen update if you are on light's control screen
-  case LIGHT_SCREEN: {
+    // screen update if you are on light's control screen
+    case LIGHT_SCREEN: {
 
-    updateLightScreenRows(lightStatus, lightConfig, lightActivationThreshold);
-    updateScreenCursor(!navigationMode, displayRow);
+        updateLightScreenRows(lightStatus, lightConfig, lightActivationThreshold);
+        updateScreenCursor(!navigationMode, displayRow);
 
-    break;
-  }
+        break;
+      }
 
-  // screen update if you are on alarm's control screen
-  case ALARM_SCREEN: {
+    // screen update if you are on alarm's control screen
+    case ALARM_SCREEN: {
 
-    updateAlarmScreenRows(fireAlarm);
-    updateScreenCursor(!navigationMode, displayRow);
+        updateAlarmScreenRows(fireAlarm);
+        updateScreenCursor(!navigationMode, displayRow);
 
-    break;
-  }
+        break;
+      }
   }
 }
 

@@ -20,16 +20,16 @@ int* externalTemperatureRef;
 long* scheduleRef;
 
 
-void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature, boolean * ecoMode, long * schedule){
-   monitoringActivatedRef = monitoringActivated;
-   tempConfigRef = tempConfig;
-   lightConfigRef = lightConfig;
-   externalTemperatureRef = externalTemperature;
-   ecoModeRef=ecoMode;
-   scheduleRef=schedule;
-   
-   mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
-   mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
+void MQTTSetup(boolean* monitoringActivated, int* tempConfig, int* lightConfig, int* externalTemperature, boolean * ecoMode, long * schedule) {
+  monitoringActivatedRef = monitoringActivated;
+  tempConfigRef = tempConfig;
+  lightConfigRef = lightConfig;
+  externalTemperatureRef = externalTemperature;
+  ecoModeRef = ecoMode;
+  scheduleRef = schedule;
+
+  mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
+  mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
 
 }
 
@@ -42,11 +42,11 @@ void loopMqttClient() {
 }
 
 void connectToMQTTBroker() {
-   MQTTLoadingScreen(true);
+  MQTTLoadingScreen(true);
 
   if (!mqttClient.connected()) {   // not connected
     Serial.print(F("\nConnecting to MQTT broker..."));
-    while (!mqttClient.connect(&(MQTT_CLIENTID+getMac())[0], MQTT_USERNAME, MQTT_PASSWORD)) {
+    while (!mqttClient.connect(&(MQTT_CLIENTID + getMac())[0], MQTT_USERNAME, MQTT_PASSWORD)) {
       Serial.print(F("."));
       delay(1000);
     }
@@ -54,183 +54,160 @@ void connectToMQTTBroker() {
 
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_CONFIG_TOPIC);
-        mqttClient.subscribe(MQTT_ECO_MODE_TOPIC);
+    mqttClient.subscribe(MQTT_ECO_MODE_TOPIC);
     mqttClient.subscribe(MQTT_SLEEP_SCHEDULE_TOPIC);
 
-    Serial.println(F("\nSubscribed to config topic!"));    
+    Serial.println(F("\nSubscribed to config topic!"));
   }
   MQTTLoadingScreen(false);
 
 }
 
-int isValidMacAddress(const char* mac) {
-    int i = 0;
-    int s = 0;
-
-    while (*mac) {
-       if (isxdigit(*mac)) {
-          i++;
-       }
-       else if (*mac == ':' || *mac == '-') {
-
-          if (i == 0 || i / 2 - 1 != s)
-            break;
-
-          ++s;
-       }
-       else {
-           s = -1;
-       }
-       ++mac;
-    }
-    return (i == 12 && (s == 5 || s == 0));
-}
-
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
   Serial.println("Incoming MQTT message: " + topic + " - " + payload);
-    if (topic == MQTT_CONFIG_TOPIC) {
-      // deserialize the JSON object
-      DynamicJsonDocument doc(2048);
-      deserializeJson(doc, payload);
+  if (topic == MQTT_CONFIG_TOPIC) {
+    // deserialize the JSON object
+    DynamicJsonDocument doc(2048);
+    deserializeJson(doc, payload);
 
-      *ecoModeRef = doc["ecoMode"].as<boolean>();
-      *externalTemperatureRef = doc["externalTemp"].as<int>();
-      *scheduleRef = doc["sleepDuration"].as<int>();
+    *ecoModeRef = doc["ecoMode"].as<boolean>();
+    *externalTemperatureRef = doc["externalTemp"].as<int>();
+    *scheduleRef = doc["sleepDuration"].as<int>();
 
 
-  
-      const char *mac = doc["mac"];
-      if(String(mac)==getMac()) {
-        Serial.println("CONFIG FOR ME");
-        MQTT_roomId = (int)doc["room"];
-        for (int i = 0 ; i < 3 ; i++)
-          MQTT_sensorsId[i] = doc["sensors"][i];
-          
-        //subscribe to room's monitoring queue
-        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control");
 
-        //subscribe to schedule queue
-        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/sleepSchedule");
-        
-        //subscribe to sensor's actuators control queue
-        for (int i=0; i<3; i++) {
-          mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[i])+ "/control");
-        }
+    const char *mac = doc["mac"];
+    if (String(mac) == getMac()) {
+      Serial.println("CONFIG FOR ME");
+      MQTT_roomId = (int)doc["room"];
+      for (int i = 0 ; i < 3 ; i++)
+        MQTT_sensorsId[i] = doc["sensors"][i];
 
-        //subscribe to singleMode queue for light
-        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/singleMode/light/control");
+      //subscribe to room's monitoring queue
+      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/monitoring/control");
 
-        //subscribe to externalTemperature queue to get external temperature (used in eco mode)
-        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/externalTemperature");
+      //subscribe to schedule queue
+      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/sleepSchedule");
 
-        *monitoringActivatedRef = doc["monitoring"];
+      //subscribe to sensor's actuators control queue
+      for (int i = 0; i < 3; i++) {
+        mqttClient.subscribe(String(MQTT_SENSOR_TOPIC) + "/" + String(MQTT_sensorsId[i]) + "/control");
       }
-       
-    } else if (topic == String(MQTT_ROOM_TOPIC)+"/singleMode/light/control") {
-      
-      // deserialize the JSON object
-      DynamicJsonDocument doc(2048);
-      deserializeJson(doc, payload);
-      const int roomId = doc["room"].as<int>();
-      if(roomId==MQTT_roomId) {
-        const char *lightConfig = doc["config"];
-        
-        if (String(lightConfig)=="ON") {
-          *lightConfigRef = CONFIG_ON;
-        } else if (String(lightConfig)=="AUTO"){
-          *lightConfigRef = CONFIG_AUTO;
-        } else {
-          *lightConfigRef = CONFIG_OFF;
-        }
-      } else {
-          *lightConfigRef = CONFIG_OFF;        
-      }
-      
-    } else if (topic == String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control"){
-      
-      if (payload=="START") {
-        *monitoringActivatedRef = true;
-      } else {
-        *monitoringActivatedRef = false;
-      }
-      
-    } else if (topic == String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[LIGHT_SENSOR])+"/control") {
-      
-      if (payload=="ON") {
+
+      //subscribe to singleMode queue for light
+      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/singleMode/light/control");
+
+      //subscribe to externalTemperature queue to get external temperature (used in eco mode)
+      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/externalTemperature");
+
+      *monitoringActivatedRef = doc["monitoring"];
+    }
+
+  } else if (topic == String(MQTT_ROOM_TOPIC) + "/singleMode/light/control") {
+
+    // deserialize the JSON object
+    DynamicJsonDocument doc(2048);
+    deserializeJson(doc, payload);
+    const int roomId = doc["room"].as<int>();
+    if (roomId == MQTT_roomId) {
+      const char *lightConfig = doc["config"];
+
+      if (String(lightConfig) == "ON") {
         *lightConfigRef = CONFIG_ON;
-      } else if (payload=="AUTO"){
+      } else if (String(lightConfig) == "AUTO") {
         *lightConfigRef = CONFIG_AUTO;
       } else {
         *lightConfigRef = CONFIG_OFF;
       }
-      
-    } else if (topic == String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[TEMP_SENSOR])+"/control") {
-      
-      if (payload=="ON") {
-        *tempConfigRef = CONFIG_ON;
-      } else {
-        *tempConfigRef = CONFIG_OFF;
-      }
-      
-    } else if (topic == String(MQTT_ROOM_TOPIC)+"/externalTemperature") {
-      
-      *externalTemperatureRef = atoi(&payload[0]);
-      
-    }else if (topic == String(MQTT_ECO_MODE_TOPIC)){
-      if (payload == "OFF") *ecoModeRef = false;
-      if (payload == "ON") *ecoModeRef = true;
-
-        
-
-    } else if (topic == String(MQTT_SLEEP_SCHEDULE_TOPIC)){
-        *scheduleRef = atoi(&payload[0]);
     } else {
-      Serial.println(F("MQTT Topic not recognized, message skipped"));
+      *lightConfigRef = CONFIG_OFF;
     }
+
+  } else if (topic == String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/monitoring/control") {
+
+    if (payload == "START") {
+      *monitoringActivatedRef = true;
+    } else {
+      *monitoringActivatedRef = false;
+    }
+
+  } else if (topic == String(MQTT_SENSOR_TOPIC) + "/" + String(MQTT_sensorsId[LIGHT_SENSOR]) + "/control") {
+
+    if (payload == "ON") {
+      *lightConfigRef = CONFIG_ON;
+    } else if (payload == "AUTO") {
+      *lightConfigRef = CONFIG_AUTO;
+    } else {
+      *lightConfigRef = CONFIG_OFF;
+    }
+
+  } else if (topic == String(MQTT_SENSOR_TOPIC) + "/" + String(MQTT_sensorsId[TEMP_SENSOR]) + "/control") {
+
+    if (payload == "ON") {
+      *tempConfigRef = CONFIG_ON;
+    } else {
+      *tempConfigRef = CONFIG_OFF;
+    }
+
+  } else if (topic == String(MQTT_ROOM_TOPIC) + "/externalTemperature") {
+
+    *externalTemperatureRef = atoi(&payload[0]);
+
+  } else if (topic == String(MQTT_ECO_MODE_TOPIC)) {
+    if (payload == "OFF") *ecoModeRef = false;
+    if (payload == "ON") *ecoModeRef = true;
+
+
+
+  } else if (topic == String(MQTT_SLEEP_SCHEDULE_TOPIC)) {
+    *scheduleRef = atoi(&payload[0]);
+  } else {
+    Serial.println(F("MQTT Topic not recognized, message skipped"));
+  }
 }
 
-boolean isRoomConfigured(){
-  return MQTT_roomId!= -1;
+boolean isRoomConfigured() {
+  return MQTT_roomId != -1;
 }
 
 void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
-  
-  doc[String(MQTT_sensorsId[0])] = String(lastLight)+" lux";
-  doc[String(MQTT_sensorsId[1])] = String(lastTemp)+" C";
-  doc[String(MQTT_sensorsId[2])] = String(lastWifiRssi)+" dB";
-  
+
+  doc[String(MQTT_sensorsId[0])] = String(lastLight) + " lux";
+  doc[String(MQTT_sensorsId[1])] = String(lastTemp) + " C";
+  doc[String(MQTT_sensorsId[2])] = String(lastWifiRssi) + " dB";
+
   char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
-  mqttClient.publish(&(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/logging")[0], buffer, n);
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/logging")[0], buffer, n);
 }
 
 void mqttSendLightConfig(int lightConfig) {
-  mqttClient.publish(&(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[LIGHT_SENSOR])+"/control")[0], lightConfig==CONFIG_AUTO?"AUTO":lightConfig==CONFIG_ON?"ON":"OFF");
+  mqttClient.publish(&(String(MQTT_SENSOR_TOPIC) + "/" + String(MQTT_sensorsId[LIGHT_SENSOR]) + "/control")[0], lightConfig == CONFIG_AUTO ? "AUTO" : lightConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendTempConfig(int tempConfig) {
-  mqttClient.publish(&(String(MQTT_SENSOR_TOPIC)+"/"+String(MQTT_sensorsId[TEMP_SENSOR])+"/control")[0], tempConfig==CONFIG_ON?"ON":"OFF");
+  mqttClient.publish(&(String(MQTT_SENSOR_TOPIC) + "/" + String(MQTT_sensorsId[TEMP_SENSOR]) + "/control")[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendMonitoringConfig(boolean monitoringConfig) {
-  mqttClient.publish(&(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/monitoring/control")[0], monitoringConfig?"START":"STOP");
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/monitoring/control")[0], monitoringConfig ? "START" : "STOP");
 }
 
 void mqttSendAlarm(char* message, int code) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
   doc["message"] = message;
   doc["code"] = code;
-  
+
   char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
-  mqttClient.publish(&(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/alarm")[0], buffer, n);
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/alarm")[0], buffer, n);
 }
 
 void mqttSendMac() {
-  mqttClient.publish(MQTT_roomId==-1?MQTT_WELCOME_TOPIC:MQTT_HEARTBEAT_TOPIC, getMac());
-  Serial.println("SENT MAC TO " + String(MQTT_roomId==-1?MQTT_WELCOME_TOPIC:MQTT_HEARTBEAT_TOPIC) + " " + getMac());
+  mqttClient.publish(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC, getMac());
+  Serial.println("SENT MAC TO " + String(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC) + " " + getMac());
 }

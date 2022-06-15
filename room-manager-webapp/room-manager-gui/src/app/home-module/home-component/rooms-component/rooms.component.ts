@@ -19,6 +19,7 @@ export class RoomsComponent implements OnInit{
 
     ngOnInit() {
         this.roomsPolling();
+        //this.measuresPolling();
     }
 
     roomsPolling() {
@@ -34,6 +35,23 @@ export class RoomsComponent implements OnInit{
                 () => {
                     this.roomsPolling();
                 }, 10000
+            )
+        }
+    }
+
+    measuresPolling() {
+        if (this.roomsService.updatingControl) {
+            setTimeout(
+                () => {
+                    this.measuresPolling();
+                }, 1000
+            )
+        } else {
+            this.getRoomsMeasures();
+            setTimeout(
+                () => {
+                    this.measuresPolling();
+                }, 2000
             )
         }
     }
@@ -94,6 +112,24 @@ export class RoomsComponent implements OnInit{
                             return room
                         }
                     )
+                }
+            }
+        );
+    }
+    
+    getRoomsMeasures() {
+        this.roomsService.getRooms().subscribe(
+            (rooms) => {
+                if(!this.roomsService.updatingControl) {
+                    for(let room of rooms) {
+                        for(let sensor of room.sensors) {
+                            let matchedSensor = this.rooms.find(room2 => room2.id==room.id)?.sensors.find(sensor2 => sensor2.id == sensor.id)
+                            if (matchedSensor) {
+                                matchedSensor.measure = sensor.measure
+                                console.log(matchedSensor.measure)
+                            } 
+                        }
+                    }
                 }
             }
         );
