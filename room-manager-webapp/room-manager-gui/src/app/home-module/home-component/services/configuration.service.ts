@@ -33,8 +33,8 @@ export class ConfigurationService {
 
   setEcoMode(ecoMode : boolean): Observable<any> {
     return this.http.post<any>(this.configurationUrl+"/ecoMode", {ecoMode: ecoMode}).pipe(
-      tap(singleMode => {
-        this.configuration.singleMode = singleMode
+      tap(ecoMode => {
+        this.configuration.ecoMode = ecoMode
       })
     );
   }
