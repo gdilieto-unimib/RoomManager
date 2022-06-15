@@ -6,12 +6,12 @@
 const char weather_server[] = "api.openweathermap.org";
 const char weather_query[] = "GET /data/2.5/weather?q=%s,%s&units=metric&APPID=%s";
 
-WiFiClient* client2 = getClient(); 
+WiFiClient* client2 = getClient();
 boolean firstAccess = true;
 
 float getExternalTemperature() {
   // Current weather api documentation at: https://openweathermap.org/current
-  
+
   // call API for current weather
   if (client2->connect(weather_server, 80)) {
     char request[100];
@@ -25,13 +25,15 @@ float getExternalTemperature() {
     Serial.println(F("Connection to api.openweathermap.org failed!\n"));
   }
 
-  while (client2->connected() && !client2->available()) {delay(1);}   // wait for data
+  while (client2->connected() && !client2->available()) {
+    delay(1); // wait for data
+  }
   String result;
   while (client2->connected() || client2->available()) {   // read data
     char c = client2->read();
     result = result + c;
   }
-  
+
   client2->stop();   // end communication
 
   if (firstAccess) {
@@ -39,8 +41,8 @@ float getExternalTemperature() {
   } else {
     disconnectWifi();
   }
-  
-  
+
+
   // Serial.println(result);  // print JSON
 
   char jsonArray[result.length() + 1];

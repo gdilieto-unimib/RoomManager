@@ -40,13 +40,13 @@ void setupAP() {
     // don't continue
     while (true);
   }
-  
+
   // wait 10 seconds for connection:
-  delay(10000);  
-  
+  delay(10000);
+
   // start the web server on port 80
   serverAP.begin();
-  
+
   // you're connected now, so print out the status
   printWiFiStatus();
 }
@@ -202,7 +202,7 @@ void getCredentials() {
             client.println("</head>");
             client.println("<body>");
             client.print("<div class=\"center\">");
-            client.print("<div style=\"border-style: solid; border-color: green;\">");           
+            client.print("<div style=\"border-style: solid; border-color: green;\">");
             client.print("<div class=\"loader\"></div>");
             client.println("<h2>ROOM MANAGER WIFI SETUP</h2>");
             client.print("NETWORK NAME: ");
@@ -220,11 +220,11 @@ void getCredentials() {
             client.print("<br>");
             client.print("</div>");
             client.print("<button type=\"button\" onclick=\"SendText()\">Enter</button>");
-            client.print("<div style=\"margin: auto; text-align:center;border-style: solid; border-color: coral;width:70%;\">");           
-            client.println("<h3>LIST OF AVAILABLE NETWORKS: </h3>");           
+            client.print("<div style=\"margin: auto; text-align:center;border-style: solid; border-color: coral;width:70%;\">");
+            client.println("<h3>LIST OF AVAILABLE NETWORKS: </h3>");
             client.println(wifiList);
             client.print("</div>");
-            client.print("<br>");            
+            client.print("<br>");
             client.print("</div>");
             client.println("</div>");
             client.println("</body>");
@@ -245,7 +245,7 @@ void getCredentials() {
             client.println("pubkey.value=''");
             client.println("subkey.value=''");
             client.println("channel.value=''");
-            client.println("document.body.innerHTML = '<h1>WIFI CONFIGURED</h1>'"); 
+            client.println("document.body.innerHTML = '<h1>WIFI CONFIGURED</h1>'");
             client.println("alert(\"WIFI CONFIGURED\");}");
             client.println("</script>");
             client.println("</html>");
@@ -269,7 +269,7 @@ void getCredentials() {
 }
 void getWiFi() {
   if (network == ""
-    or password == "") {
+      or password == "") {
     Serial.println("Invalid WiFi credentials");
     while (true);
   }
@@ -301,18 +301,18 @@ void printAPStatus() {
 
 
 void listNetworks() {    // scan for nearby networks:
-    Serial.println("** Scan Networks **");
-    int numSsid = WiFi.scanNetworks();
-    if (numSsid == -1)
-    {
-      Serial.println("Couldn't get a wifi connection");
-      while (true);
-    }
-  
-    // print the network number and name for each network found:
-    for (int thisNet = 0; thisNet < numSsid; thisNet++) {
-      wifiList = wifiList + WiFi.SSID(thisNet);
-      wifiList = wifiList + "<br>";
-      Serial.flush();
-    }
+  Serial.println("** Scan Networks **");
+  int numSsid = WiFi.scanNetworks();
+  if (numSsid == -1)
+  {
+    Serial.println("Couldn't get a wifi connection");
+    while (true);
   }
+
+  // print the network number and name for each network found:
+  for (int thisNet = 0; thisNet < numSsid; thisNet++) {
+    wifiList = wifiList + WiFi.SSID(thisNet);
+    wifiList = wifiList + "<br>";
+    Serial.flush();
+  }
+}

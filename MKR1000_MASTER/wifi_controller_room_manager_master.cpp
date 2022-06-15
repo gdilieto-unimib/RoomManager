@@ -9,20 +9,20 @@ IPAddress gateway(GATEWAY);
 #endif
 WiFiClient client;
 
-void connectWifi(char* ssid, char* pass){
+void connectWifi(char* ssid, char* pass) {
   // connect to wifi if not already connected
-  
+
   if (WiFi.status() != WL_CONNECTED) {
-    #ifdef IP
+#ifdef IP
     WiFi.config(ip, dns, gateway, subnet);   // by default network is configured using DHCP
-    #endif
+#endif
     WiFi.begin(ssid, pass);
   }
 }
 
-void disconnectWifi(){
+void disconnectWifi() {
   // connect to wifi if not already connected
-  
+
   if (WiFi.status() == WL_CONNECTED) {
     WiFi.disconnect();
   }
@@ -30,12 +30,12 @@ void disconnectWifi(){
 
 boolean isWifiConnected() {
   // check if wifi is connected
-  
+
   return (WiFi.status() == WL_CONNECTED);
 }
 
-WiFiClient* getClient(){
+WiFiClient* getClient() {
   // get pointer to the wifi client
-  
-  return &client;  
+
+  return &client;
 }

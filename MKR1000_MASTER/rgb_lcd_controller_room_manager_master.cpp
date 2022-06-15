@@ -48,102 +48,102 @@ void setupLcd() {
 
 }
 
-void wifiLoadingScreen(boolean i){
+void wifiLoadingScreen(boolean i) {
   // set wifi loading screen (or disable it)
-  
-  if (i==false){
+
+  if (i == false) {
     lcd.noBlink();
-    lcd.setRGB(50,50,50);
+    lcd.setRGB(50, 50, 50);
     return;
   }
   lcd.clear();
   lcd.setRGB(100, 0, 100);
   lcd.print("Connecting to");
-        lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);
 
-  lcd.print("wifi");  
+  lcd.print("wifi");
   lcd.blink();
 }
 
-void dbLoadingScreen(boolean i){
+void dbLoadingScreen(boolean i) {
   // set database connection loading screen (or disable it)
-  
-  if (i==false){
+
+  if (i == false) {
     lcd.noBlink();
-    lcd.setRGB(50,50,50);
+    lcd.setRGB(50, 50, 50);
     return;
   }
   lcd.clear();
   lcd.setRGB(100, 0, 100);
   lcd.print("Connecting to");
-        lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);
 
-  lcd.print("database");  
+  lcd.print("database");
   lcd.blink();
 }
 
-void loggingLoadingScreen(boolean i){
+void loggingLoadingScreen(boolean i) {
   // set logging loading screen (or disable it)
-  
-  if (i==false){
+
+  if (i == false) {
     lcd.noBlink();
-    lcd.setRGB(50,50,50);
+    lcd.setRGB(50, 50, 50);
     return;
   }
-  
+
   // set screen's color green
   lcd.setRGB(100, 100, 0);
 }
 
 void MQTTLoadingScreen(boolean i) {
   // set mqtt connection loading screen (or disable it)
-  
-  if (i==false){
+
+  if (i == false) {
     lcd.noBlink();
-    lcd.setRGB(50,50,50);
+    lcd.setRGB(50, 50, 50);
     return;
   }
   lcd.clear();
   lcd.setRGB(100, 0, 100);
   lcd.print("Connecting to");
-        lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);
 
-  lcd.print("mqtt broker");  
+  lcd.print("mqtt broker");
   lcd.blink();
 }
 
 void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, boolean ecoMode) {
   // update rows for the info screen
-  
+
   lcd.clear();  // clear text
-  
+
   lcd.setCursor(0, 0);
   lcd.write((unsigned char)0);  // show wifi connection
-  
-  if(wifi){
+
+  if (wifi) {
     lcd.print(": ON");
-  }else{
+  } else {
     lcd.print(": OFF");
   }
-  
+
   lcd.setCursor(9, 0);
   lcd.write(1); // show database connection
 
-  if(isMySqlConnected){
+  if (isMySqlConnected) {
     lcd.print(": ON");
-  }else{
+  } else {
     lcd.print(": OFF");
   }
-  
+
   lcd.setCursor(0, 1);
   lcd.write(2); // show database connection
 
-  if(ecoMode){
+  if (ecoMode) {
     lcd.print(": ON");
-  }else{
+  } else {
     lcd.print(": OFF");
   }
-  
+
   lcd.setCursor(9, 1);
   lcd.print("Devices: "); // show devices number
   lcd.print(devices);
@@ -152,27 +152,27 @@ void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, b
 
 void updateScreenCursor(int active, int displayRow) {
   // update the screen cursor if in navigation mode
-  
-  if (active) { 
+
+  if (active) {
     // if in screen action mode blink on the actual display row
-    
+
     lcd.setCursor(15, displayRow);
     lcd.blink();
   } else {
     // if navigation mode don't blink
-    
+
     lcd.noBlink();
   }
 }
 
 void updateScreenRowsText(char screenRows[2][16]) {
   // update the screen rows
-  
+
   lcd.clear();  // clear text
-  
-  lcd.setCursor(0,0);
+
+  lcd.setCursor(0, 0);
   lcd.print(screenRows[0]); // show first row
-  
-  lcd.setCursor(0,1);
+
+  lcd.setCursor(0, 1);
   lcd.print(screenRows[1]); // show second row
 }
