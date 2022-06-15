@@ -77,7 +77,7 @@ void loop() {
   tryWifiConnection();
 
   //if connected send external temperature to slave
-  //trySendExternalTemperature();
+
 
   // Connect to db
   tryDbConnection();
@@ -97,8 +97,11 @@ void loop() {
   // Update screen
   updateScreen();
 
+  //if connected send external temperature to slave
+
   trySendSleepSchedule();
 
+  //trySendExternalTemperature();
   delay(1000);
 }
 
@@ -189,6 +192,11 @@ void updateConfiguration() {
 
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
     getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode);
+    Serial.print("Single mode: "+ String(singleMode) +" ");
+    Serial.print("Eco mode: " + String(ecoMode) +" ");
+    Serial.print("Schedule: " + String(schedule)+" ");
+    Serial.println("Sleep mode: " + String(sleepMode));
+    
     timeConfiguration = millis();
   }
 }

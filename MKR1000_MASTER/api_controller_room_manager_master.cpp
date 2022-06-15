@@ -13,6 +13,7 @@ void setupApiServer(boolean * ecoMode) {
 void printHeaders(WiFiClient client) {
   client.println("HTTP/1.1 200 OK");
   client.println("Content-type:application/json");
+  client.println("Access-Control-Max-Age:600");
   client.println("Access-Control-Allow-Origin: *");
   client.println("Access-Control-Allow-Credentials: true");
   client.println("Access-Control-Allow-Methods: OPTIONS, GET, POST");
@@ -25,9 +26,10 @@ String getPostContent(WiFiClient client) {
   String postContent = "";
   int count = 0;
   while (client.connected()) {
+    String currentLine = ""; // make a String to hold incoming data from the client
     if (client.available()) { // if there's bytes to read from the client,
       char c = client.read(); // read a byte, then
-      Serial.write(c);
+      //Serial.write(c);
       if (c == '{') {
         count++;
         startConcat = true;
@@ -39,8 +41,8 @@ String getPostContent(WiFiClient client) {
         count--;
       }
       if (count == 0 && startConcat) {
-        Serial.println();
-        Serial.println("Json found" + postContent);
+        startConcat = false;
+
         return postContent;
       }
     }
@@ -59,7 +61,7 @@ void listenForClients() {
     while (client.connected()) { // loop while the client's connected
       if (client.available()) { // if there's bytes to read from the client,
         char c = client.read(); // read a byte, then
-        Serial.write(c); // print it out the serial monitor
+        //Serial.write(c); // print it out the serial monitor
         if (c == '\n' && currentLine.length() == 0) { // if the byte is a newline character
           break;
         } else if (c == '\r') { // if you got a newline, then clear currentLine:
@@ -111,13 +113,24 @@ void listenForClients() {
           }
 
           printHeaders(client);
+          client.println("{}");
+          client.println();
+          break;
         } else if (currentLine.startsWith("POST") && currentLine.endsWith("monitoring")) {
-          sscanf( & currentLine[0], "GET /rooms/%d/monitoring", & roomId);
+          sscanf( & currentLine[0], "POST /rooms/%d/monitoring", & roomId);
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
           Serial.println("DESERIALIZATION: " + String(doc["config"].as < int > ()));
           switch (doc["config"].as < int > ()) {
+            case 0: {
+                printHeaders(client); // Print response headers
+                mqttSendMonitoringControl(roomId, "STOP"); // GET /rooms/:id/monitoring/stop stops the room's monitoring
+                updateRoomMonitoring(roomId, 0);
+                client.print("{\"monitoringActivated\": false}");
+                client.println();
+                break;
+              }
             case 1: {
                 printHeaders(client); // Print response headers
                 mqttSendMonitoringControl(roomId, "START"); // GET /rooms/:id/monitoring/start starts the room's monitoring
@@ -126,16 +139,8 @@ void listenForClients() {
                 client.println();
                 break;
               }
-            case 0: {
-                printHeaders(client); // Print response headers
-                mqttSendMonitoringControl(roomId, "STOP"); // GET /rooms/:id/monitoring/stop stops the room's monitoring
-                updateRoomMonitoring(roomId, 0);
-                client.print("{\"monitoringActivated\": false}");
-                client.println();
-              }
           }
-
-          printHeaders(client);
+          break;
         }
 
       } else {

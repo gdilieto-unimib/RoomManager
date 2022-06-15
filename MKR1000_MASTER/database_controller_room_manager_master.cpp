@@ -126,7 +126,7 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedul
       } else if (String(row->values[0]).equals("ecoMode")) {
         boolean newValue = String(row->values[1]).equals("0") ? false : true;
         if (newValue != *ecoMode) {
-          mqttSendEcoMode(*ecoMode);
+          mqttSendEcoMode(newValue);
         }
         *ecoMode = newValue;
       } else if (String(row->values[0]).equals("sleepSchedule")) {
@@ -290,7 +290,6 @@ boolean updateLastHBTimestamp(String mac) {
 
   sprintf(query, UPDATE_HB_ROOM, &mac[0]);
 
-  Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
