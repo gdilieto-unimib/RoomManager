@@ -1,27 +1,24 @@
 #include "time_controller_room_manager_master.h"
 
-   RTCZero rtc;
-  unsigned long epoch;
+RTCZero rtc;
+unsigned long epoch;
 
-void setupRtc(){
-rtc.begin();
+void setupRtc() {
+  rtc.begin();
 
-do {
+  do {
     epoch = WiFi.getTime();
-    Serial.println("Try Epoch");
+
     delay(500);
   }
-  
+
   while ((epoch == 0));
- 
 
-    Serial.print("Epoch received: ");
 
-    Serial.println(epoch);
 
-    rtc.setEpoch(epoch);
 
-    Serial.println();
+  rtc.setEpoch(epoch);
+
 
 
 
@@ -30,7 +27,7 @@ do {
 int getTimeHour()
 {
 
-  return (rtc.getHours() +2);
+  return (rtc.getHours() + 2);
 
 }
 

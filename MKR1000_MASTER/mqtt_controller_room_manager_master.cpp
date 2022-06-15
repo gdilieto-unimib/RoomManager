@@ -9,17 +9,17 @@ boolean *sleepModeR;
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
 
-void MQTTSetup(int* externalTemperature, boolean* ecoMode ,boolean* sleepMode){
-   mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
-   mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
-   externalTemperatureR = externalTemperature;
-   ecoModeR = ecoMode;
-   sleepModeR = sleepMode;
+void MQTTSetup(int* externalTemperature, boolean* ecoMode , boolean* sleepMode) {
+  mqttClient.begin(MQTT_BROKERIP, 1883, networkClient);   // setup communication with MQTT broker
+  mqttClient.onMessage(mqttMessageReceived);              // callback on message received from MQTT broker
+  externalTemperatureR = externalTemperature;
+  ecoModeR = ecoMode;
+  sleepModeR = sleepMode;
 }
 
 void loopMqttClient() {
-  if(isMQTTBrokerConnected()) {
-    mqttClient.loop();  
+  if (isMQTTBrokerConnected()) {
+    mqttClient.loop();
   }
 }
 
@@ -34,9 +34,9 @@ void connectToMQTTBroker() {
 
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
-    
-        mqttClient.subscribe(MQTT_WELCOME_TOPIC);
-            Serial.println(F("\nSubscribed to topics!"));
+
+    mqttClient.subscribe(MQTT_WELCOME_TOPIC);
+    Serial.println(F("\nSubscribed to topics!"));
 
 
   }
@@ -52,34 +52,34 @@ boolean isMQTTBrokerConnected() {
 
 void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
-  
+
   doc["mac"] = mac;
   doc["monitoring"] = monitoringActivated;
   doc["room"] = roomId;
   doc["externalTemp"] = *externalTemperatureR;
   doc["ecoMode"] = *ecoModeR;
-  doc["sleepDuration"] = *sleepModeR?60-getTimeMinute()*3600000:0;
+  doc["sleepDuration"] = *sleepModeR ? 60 - getTimeMinute() * 3600000 : 0;
 
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
   }
-    
+
   char buffer[MQTT_BUFFER_SIZE] = {0};
   size_t n = serializeJson(doc, buffer);
   mqttClient.publish(MQTT_CONFIG_TOPIC, buffer, n);
 }
 
 void mqttSendMonitoringControl(int roomId, String control) {
-  mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+ "/monitoring/control", control);
+  mqttClient.publish(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/monitoring/control", control);
 }
 
 void mqttSendEcoMode(boolean control) {
-     if (control){ 
-      mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "ON");
-     }else{
-            mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "OFF");
+  if (control) {
+    mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "ON");
+  } else {
+    mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "OFF");
 
-     }
+  }
 
 }
 
@@ -88,11 +88,11 @@ void mqttSendSleepSchedule(int Time) {
 }
 
 void mqttSendSensorControl(int sensorId, String control) {
-  mqttClient.publish(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorId)+ "/control", control);
+  mqttClient.publish(String(MQTT_SENSOR_TOPIC) + "/" + String(sensorId) + "/control", control);
 }
 
 void mqttSendExternalTemperature(int temperature) {
-  mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/externalTemperature", String(temperature));
+  mqttClient.publish(String(MQTT_ROOM_TOPIC) + "/externalTemperature", String(temperature));
 }
 
 void mqttMessageReceived(String &topic, String &payload) {
@@ -100,14 +100,14 @@ void mqttMessageReceived(String &topic, String &payload) {
   //Serial.println("Incoming MQTT message: " + topic + " - " + payload);
   int roomId = -1;
   int sensorId = -1;
-  
+
   if (topic == MQTT_HEARTBEAT_TOPIC) {
     // update timestamp of tha last heartbeat
     updateLastHBTimestamp(payload);
   } else if (topic == MQTT_WELCOME_TOPIC) {
     // If a new device sent me his mac
-    
-    int sensorsId[3] = {-1, -1, -1};
+
+    int sensorsId[3] = { -1, -1, -1};
     boolean monitoringActivated;
 
     // if device hasn't already a config, create a new config
@@ -118,70 +118,67 @@ void mqttMessageReceived(String &topic, String &payload) {
     }
 
     //subscribe to room's logging queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/logging");
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/logging");
 
     //subscribe to room's monitoring queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/alarm");
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
 
     //subscribe to room's monitoring queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/monitoring/control");
-    
+    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/monitoring/control");
+
     //subscribe to sensor's monitoring queue
-    for (int i=0; i<3; i++) {
-      mqttClient.subscribe(String(MQTT_SENSOR_TOPIC)+"/"+String(sensorsId[i])+ "/control");
+    for (int i = 0; i < 3; i++) {
+      mqttClient.subscribe(String(MQTT_SENSOR_TOPIC) + "/" + String(sensorsId[i]) + "/control");
     }
 
     // update timestamp of tha last heartbeat
     updateLastHBTimestamp(roomId);
-    
+
     // send room config to the slave
     mqttSendConfig(payload, roomId, sensorsId, monitoringActivated);
-  
+
   } else {
-    
+
     if (topic.endsWith("/alarm")) {
       // if topic is room's logging
-    
-      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/alarm"))[0]), &roomId);
-      
+
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC + String("/%d/alarm"))[0]), &roomId);
+
       DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
       deserializeJson(doc, payload);
 
       logAlarm(&(doc["message"].as<String>())[0], doc["code"].as<int>(), roomId);
-    
+
     }
     if (topic.endsWith("/logging")) {
       // if topic is room's logging
-    
-      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/logging"))[0]), &roomId);
-      
+
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC + String("/%d/logging"))[0]), &roomId);
+
       DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
       deserializeJson(doc, payload);
 
       for (JsonPair keyValue : doc.as<JsonObject>()) {
-        Serial.println("SENSOR");
-        Serial.println(keyValue.key().c_str());
-        Serial.println(keyValue.value().as<String>());
         logSensorMeasure(atoi(keyValue.key().c_str()), &(keyValue.value().as<String>())[0]);
       }
-    
+
     } else if (topic.endsWith("/monitoring/control")) {
       // if topic is room's monitoring control
-      
-      sscanf(&topic[0], &((MQTT_ROOM_TOPIC+String("/%d/monitoring/control"))[0]), &roomId);
-      updateRoomMonitoring(roomId, payload=="START"?true:false);
- 
-    } else if (topic.endsWith("/control")) { 
+
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC + String("/%d/monitoring/control"))[0]), &roomId);
+      updateRoomMonitoring(roomId, payload == "START" ? true : false);
+
+    } else if (topic.endsWith("/control")) {
       // if topic is room's sensor's control
 
-      sscanf(&topic[0], &((MQTT_SENSOR_TOPIC+String("/%d/control"))[0]), &sensorId);
+      sscanf(&topic[0], &((MQTT_SENSOR_TOPIC + String("/%d/control"))[0]), &sensorId);
       updateSensorConfig(sensorId, payload);
-      
+
     } else {
       // no topic matched
-      
+
       Serial.println(F("MQTT Topic not recognized, message skipped"));
     }
-    
+
   }
 }
