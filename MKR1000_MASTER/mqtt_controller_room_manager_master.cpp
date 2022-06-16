@@ -25,19 +25,13 @@ void loopMqttClient() {
 
 void connectToMQTTBroker() {
   if (!mqttClient.connected()) {   // not connected
-    Serial.print(F("\nConnecting to MQTT broker..."));
     while (!mqttClient.connect(MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD)) {
-      Serial.print(F("."));
       delay(1000);
     }
-    Serial.println(F("\nConnected!"));
-
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
 
     mqttClient.subscribe(MQTT_WELCOME_TOPIC);
-    Serial.println(F("\nSubscribed to topics!"));
-
 
   }
 }
@@ -97,7 +91,6 @@ void mqttSendExternalTemperature(int temperature) {
 
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
-  //Serial.println("Incoming MQTT message: " + topic + " - " + payload);
   int roomId = -1;
   int sensorId = -1;
 
@@ -177,7 +170,6 @@ void mqttMessageReceived(String &topic, String &payload) {
     } else {
       // no topic matched
 
-      Serial.println(F("MQTT Topic not recognized, message skipped"));
     }
 
   }

@@ -39,7 +39,7 @@
 #include "time_controller_room_manager_master.h"
 
 
-long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule;
+long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule,workingTime;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
@@ -55,7 +55,7 @@ boolean configureWifi = false;
 int devices;
 
 void setup() {
-  timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
+  timeDb = timeLogging = timeScreen = workingTime = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
 
   setupLcd();
@@ -67,17 +67,15 @@ void setup() {
   }
 
   Serial.begin(115200);
-  Serial.println(F("\n\nSetup completed.\n\n"));
 
 }
 
 void loop() {
 
+  printWorkingStatus();
+  
   // Connect to wifi
   tryWifiConnection();
-
-  //if connected send external temperature to slave
-
 
   // Connect to db
   tryDbConnection();
@@ -97,12 +95,12 @@ void loop() {
   // Update screen
   updateScreen();
 
-  //if connected send external temperature to slave
-
+  //update sleep schedule for slave
   trySendSleepSchedule();
+  
+  //if connected send external temperature to slave
+  trySendExternalTemperature();
 
-  //trySendExternalTemperature();
-  delay(1000);
 }
 
 void tryWifiConnection() {
@@ -112,22 +110,19 @@ void tryWifiConnection() {
 
     wifiLoadingScreen(true);
     if (MyWiFi_Credentials.valid == true) {
-      Serial.println("Loading existing WiFi credentials");
       while (!isWifiConnected()) {
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
       }
-      Serial.println("Wifi Connected!");
       setupRtc();
       setupApiServer( & ecoMode);
 
     } else {
-      Serial.println("Waiting for WiFi credentials");
+
 
       if (!configureWifi) {
         while (!isWifiConnected()) {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
-        Serial.println("Wifi Connected!");
         setupRtc();
         setupApiServer( & ecoMode);
       } else {
@@ -142,7 +137,7 @@ void tryWifiConnection() {
         ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
         password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
 
-        Serial.println("Writing WiFi credentials");
+
         my_flash_store.write(MyWiFi_Credentials);
 
         // try to connect to wifi
@@ -192,11 +187,6 @@ void updateConfiguration() {
 
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
     getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode);
-    Serial.print("Single mode: "+ String(singleMode) +" ");
-    Serial.print("Eco mode: " + String(ecoMode) +" ");
-    Serial.print("Schedule: " + String(schedule)+" ");
-    Serial.println("Sleep mode: " + String(sleepMode));
-    
     timeConfiguration = millis();
   }
 }
@@ -228,4 +218,8 @@ void trySendSleepSchedule() {
     timeSendSleepSchedule = millis();
   }
 
+}
+
+void printWorkingStatus(){
+    if(millis() - workingTime > 10000) {Serial.println("Master is Working..."); workingTime = millis();} 
 }

@@ -145,7 +145,7 @@ void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, b
   }
 
   lcd.setCursor(9, 1);
-  lcd.print("Devices: "); // show devices number
+  lcd.print("Dev: "); // show devices number
   lcd.print(devices);
 
 }
