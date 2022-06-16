@@ -25,51 +25,35 @@
 
 */
 #include <ArduinoJson.h>
-
 #include <ArduinoLowPower.h>
-
 #include "macros_room_manager.h"
-
 #include "rgb_lcd_controller_room_manager.h"
-
 #include "action_controller_room_manager.h"
-
 #include "wifi_controller_room_manager.h"
-
 #include "io_controller_room_manager.h"
-
 #include "mqtt_controller_room_manager.h"
-
 #include "accesspoint_controller_room_manager.h"
-
 #include "flashmem_controller_room_manager.h"
 
 
 int screen = INFO_SCREEN;
 boolean navigationMode = true;
-
 int lightStatus = LIGHT_STATUS_OFF;
 int lightConfig = CONFIG_OFF;
 int lightActivationThreshold = 500;
-
 int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
-
 int tooHotTempThreshold = 30;
 int tooColdTempThreshold = 10;
-
 int displayRow = 0;
 int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
 int externalTemperature = 0;
-
 int sleepCycleDuration = 0;
 int lowPowerModeMillis = 0;
-
 long scheduleDuration = 0;
-
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
@@ -77,7 +61,6 @@ boolean low_Power_Mode = false;
 boolean lowPowerButtonPressed = false;
 boolean mode_just_changed = false;
 boolean ecoMode = false;
-
 boolean monitoringActivated = false;
 boolean startServer = true;
 boolean configureWifi = false;
@@ -85,11 +68,11 @@ boolean configureWifi = false;
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
 
-long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat;
+long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat,workingTime;
 
 void setup() {
 
-  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
+  timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = workingTime = timeSendHearthbeat = millis();
   setupLcd();
   setupIO();
   MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode , &scheduleDuration);
@@ -101,7 +84,6 @@ void setup() {
     setupAP();
 
   Serial.begin(115200);
-  Serial.println(F("\n\nSetup completed.\n\n"));
   LowPower.attachInterruptWakeup(BUTTON_OK, wakeUp, CHANGE);
 }
 
@@ -112,11 +94,9 @@ void loop() {
     lowPowerModeLCD();
 
     if (getTemp() > tooHotTempThreshold) {
-      Serial.print("ALLARME TROPPO CALDO DA LOW POWER MODE");
       low_Power_Mode = false;
     }
 
-    Serial.println("\n\nBEGIN SLEEPING");
     sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
@@ -124,18 +104,7 @@ void loop() {
     LowPower.sleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
 
     lowPowerModeMillis = millis();
-    Serial.println("STOP SLEEPING");
-    Serial.print("Total low power time: ");
-    Serial.print(sleepCycleDuration);
-    Serial.println(" MILLISECONDS");
-
-    Serial.print("Temperature: ");
-    Serial.println(getTemp());
-
-
     if (scheduleDuration > 0) {
-      Serial.print("Time reamaining until wakeup: ");
-      Serial.println(scheduleDuration - sleepCycleDuration);
       if (sleepCycleDuration > scheduleDuration )low_Power_Mode = false;
     }
 
@@ -146,7 +115,6 @@ void loop() {
     if (mode_just_changed) {
       delay(1000);
       mode_just_changed = false;
-      Serial.print("Resetto durata lowPowerModeCycle");
       sleepCycleDuration = 0;
       scheduleDuration = 0;
 
@@ -206,12 +174,10 @@ void tryWifiConnection() {
     wifiLoadingScreen(true);
     int attempts = 0;
     if (MyWiFi_Credentials.valid == true) {
-      Serial.println("Loading existing WiFi credentials");
       while(attempts++<3)
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
     } else {
-      Serial.println("Waiting for WiFi credentials");
       if (!configureWifi) {
         while(attempts++<3)
           connectWifi(SECRET_SSID, SECRET_PASS);
@@ -220,11 +186,8 @@ void tryWifiConnection() {
         if (isWifiConnected()) {
           MyWiFi_Credentials.valid = true;
           String ssidfl = WiFi.SSID();
-
           ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
           password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
-
-          Serial.println("Writing WiFi credentials");
           my_flash_store.write(MyWiFi_Credentials);
           delay(1000);
         }
@@ -286,9 +249,6 @@ int getPressedButton() {
     delay(2000);
     if (val_MENO == HIGH && val_PIU == HIGH) {
       low_Power_Mode = !low_Power_Mode;
-      Serial.print("Changing power mode to: ");
-      Serial.println(low_Power_Mode);
-
       delay(3000);
     }
   }
@@ -474,4 +434,8 @@ void setHotColdAlarm(int temp) {
 void wakeUp() {
   low_Power_Mode = false;
   sleepCycleDuration = 0;
+}
+
+void printWorkingStatus(){
+    if(millis() - workingTime > 10000) {Serial.println("Slave is Working..."); workingTime = millis();} 
 }
