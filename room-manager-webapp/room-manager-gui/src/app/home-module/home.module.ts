@@ -18,6 +18,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatListModule } from '@angular/material/list';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { HomeRoutingModule } from "./home-routing.module";
 
@@ -71,6 +72,7 @@ import { EditScheduleDialog } from "./home-component/sidenav-component/services/
       MatProgressBarModule,
       MatStepperModule,
       MatListModule,
+      MatSnackBarModule,
     ],
     providers: []
   })

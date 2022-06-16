@@ -51,7 +51,7 @@
 #define HOT_ALARM_CODE 0 // code logged for the hot alarm
 #define COLD_ALARM_CODE 1 // code logged for the cold alarm
 
-#define CONTROL_FREQUENCE_isLowPowerMode 10000
+#define CONTROL_FREQUENCE_LOW_POWER_MODE 10000
 
 
 

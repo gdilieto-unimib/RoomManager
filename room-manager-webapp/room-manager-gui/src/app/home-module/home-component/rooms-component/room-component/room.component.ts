@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
+import { ErrorService } from "../../services/error.service";
 import { RoomsService } from "../services/rooms.service";
 import { DeleteRoomDialog } from "./dialogs/delete-room-dialog/delete-room.dialog";
 import { EditRoomDialog } from "./dialogs/edit-room-dialog/edit-room.dialog";
@@ -19,7 +20,8 @@ export class RoomComponent {
 
     constructor(
         public dialog: MatDialog,
-        public roomsService: RoomsService
+        public roomsService: RoomsService,
+        public errorService: ErrorService
     ) {}
 
     toggleMonitoring(): void {
@@ -35,6 +37,7 @@ export class RoomComponent {
                 err => {
                     this.roomsService.updatingControl = false
                     this.isConnecting = false
+                    this.errorService.showErrors(err.error)
                 }
             )
         } else {
@@ -47,6 +50,7 @@ export class RoomComponent {
                 err => {
                     this.roomsService.updatingControl = false
                     this.isConnecting = false
+                    this.errorService.showErrors(err.error)
                 }
             )
         }
