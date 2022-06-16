@@ -204,14 +204,17 @@ void tryWifiConnection() {
 
   if (((millis() - timeWifi) > 10000) && !isWifiConnected()) {
     wifiLoadingScreen(true);
+    int attempts = 0;
     if (MyWiFi_Credentials.valid == true) {
       Serial.println("Loading existing WiFi credentials");
-      connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
+      while(attempts++<3)
+        connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
     } else {
       Serial.println("Waiting for WiFi credentials");
       if (!configureWifi) {
-        connectWifi(SECRET_SSID, SECRET_PASS);
+        while(attempts++<3)
+          connectWifi(SECRET_SSID, SECRET_PASS);
       } else {
         password = connectToWifiAP();
         if (isWifiConnected()) {
