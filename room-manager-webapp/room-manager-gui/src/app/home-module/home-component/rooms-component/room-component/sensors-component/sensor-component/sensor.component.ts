@@ -1,4 +1,5 @@
 import { Component, Input } from "@angular/core";
+import { ErrorService } from "src/app/home-module/home-component/services/error.service";
 import { RoomsService } from "../../../services/rooms.service";
 import { defaultSensor, Sensor, SensorType } from "./models/sensor.model";
 
@@ -13,7 +14,8 @@ export class SensorComponent{
     @Input() roomId: number = -1;
 
     constructor(
-        public roomsService: RoomsService
+        public roomsService: RoomsService,
+        public errorService: ErrorService
     ) {
 
     }
@@ -37,6 +39,7 @@ export class SensorComponent{
                 },
                 (err) => {
                     this.roomsService.updatingControl = false
+                    this.errorService.showErrors(err.error)
                 }
             )
         } else {
@@ -53,6 +56,8 @@ export class SensorComponent{
                 },
                 (err) => {
                     this.roomsService.updatingControl = false
+                    console.log(err.error)
+                    this.errorService.showErrors(err.error)
                 }
             )
         } else {
@@ -62,6 +67,7 @@ export class SensorComponent{
                 },
                 (err) => {
                     this.roomsService.updatingControl = false
+                    this.errorService.showErrors(err.error)
                 }
             )
         }
