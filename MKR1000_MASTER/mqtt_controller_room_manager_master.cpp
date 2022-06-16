@@ -1,5 +1,6 @@
 #include "mqtt_controller_room_manager_master.h"
 #include "time_controller_room_manager_master.h"
+#include "rgb_lcd_controller_room_manager_master.h"
 
 boolean* ecoModeR;
 boolean *sleepModeR;
@@ -7,7 +8,7 @@ int* externalTemperatureR;
 
 boolean initialConfiguration = false;
 int configuredRoomsId[MAX_ROOMS_NUMBER] = {};
-int configuredSensorsId[MAX_ROOMS_NUMBER*3] = {};
+int configuredSensorsId[MAX_ROOMS_NUMBER * 3] = {};
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
@@ -27,65 +28,76 @@ void loopMqttClient() {
 }
 
 int subscribeToRoomQueues(int roomId) {
- 
-    //subscribe to room's logging queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/logging");
 
-    //subscribe to room's monitoring queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
+  //subscribe to room's logging queue
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/logging");
 
-    //subscribe to room's monitoring queue
-    mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/monitoring/control");
- 
+  //subscribe to room's monitoring queue
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
+
+  //subscribe to room's monitoring queue
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/monitoring/control");
+
 }
 
 int subscribeToSensorQueues(int sensorId) {
- 
+
   //subscribe to sensor's control queue
   mqttClient.subscribe(String(MQTT_SENSOR_TOPIC) + "/" + String(sensorId) + "/control");
-  
+
 }
 
 int subscribeToConfiguredRoomsAndSensors() {
-  
+
   Serial.println("INITIAL CONFIG");
   //subscribe to configured rooms queues
-  for (int i=0; i<MAX_ROOMS_NUMBER && configuredRoomsId[i]!=0; i++) {
+  for (int i = 0; i < MAX_ROOMS_NUMBER && configuredRoomsId[i] != 0; i++) {
     Serial.println(configuredRoomsId[i]);
     subscribeToRoomQueues(configuredRoomsId[i]);
   }
 
   //subscribe to configured sensors queues
-  for (int i=0; i<MAX_ROOMS_NUMBER*3 && configuredSensorsId[i]!=0; i++) {
+  for (int i = 0; i < MAX_ROOMS_NUMBER * 3 && configuredSensorsId[i] != 0; i++) {
     Serial.println(configuredSensorsId[i]);
     subscribeToSensorQueues(configuredSensorsId[i]);
-  }    
+  }
 }
 
 void connectToMQTTBroker() {
   if (!mqttClient.connected()) {   // not connected
+    Serial.println("Trying mqtt connection...");
+    MQTTLoadingScreen(true);
     while (!mqttClient.connect(MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD)) {
       delay(1000);
     }
+    Serial.println("Connected to mqtt broker");
     // connected to broker, subscribe topics
     mqttClient.subscribe(MQTT_HEARTBEAT_TOPIC);
     mqttClient.subscribe(MQTT_WELCOME_TOPIC);
-    
-    if(!initialConfiguration) {
+
+    if (!initialConfiguration) {
+      Serial.println("Getting subscribing config for rooms and sensors");
+      dbLoadingScreen(true);
       initialConfiguration = getRoomsAndSensorsId(configuredRoomsId, configuredSensorsId);
+      dbLoadingScreen(false);
     }
-    if(initialConfiguration) {
+    if (initialConfiguration) {
       subscribeToConfiguredRoomsAndSensors();
     }
-    
+
   } else if (!initialConfiguration) {
+    Serial.println("Getting subscribing config for rooms and sensors");
+    dbLoadingScreen(true);
     initialConfiguration = getRoomsAndSensorsId(configuredRoomsId, configuredSensorsId);
-      
-    if(initialConfiguration) {
+    dbLoadingScreen(false);
+
+    if (initialConfiguration) {
       subscribeToConfiguredRoomsAndSensors();
     }
   }
-  
+
+  MQTTLoadingScreen(false);
+
 }
 
 void disconnectMQTTBroker() {
@@ -161,7 +173,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     }
 
     subscribeToRoomQueues(roomId);
-    
+
     //subscribe to sensor's monitoring queue
     for (int i = 0; i < 3; i++) {
       subscribeToRoomQueues(sensorsId[i]);

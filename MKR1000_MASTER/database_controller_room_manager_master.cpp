@@ -362,7 +362,6 @@ boolean updateRoomMonitoring(int roomId, boolean monitoring) {
 }
 
 boolean updateSensorConfig(int sensorId, String configuration) {
-
   if (!connectToMySql()) {
     return false;
   }

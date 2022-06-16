@@ -39,7 +39,7 @@
 #include "time_controller_room_manager_master.h"
 
 
-long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule,workingTime;
+long timeMqtt, timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule, workingTime;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
@@ -55,7 +55,7 @@ boolean configureWifi = false;
 int devices;
 
 void setup() {
-  timeDb = timeLogging = timeScreen = workingTime = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
+  timeMqtt = timeDb = timeLogging = timeScreen = workingTime = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
 
   setupLcd();
@@ -166,11 +166,10 @@ void tryDbConnection() {
 void tryMQTTBrokerConnection() {
   // Connect to MQTTBroker if not already connected and if wifi is connected
 
-  if (isWifiConnected()) {
-    MQTTLoadingScreen(true);
+  if (isWifiConnected() && (millis() - timeMqtt) > MQTT_CONNECTION_TIMER_MILLIS) {
     connectToMQTTBroker(); // connect to MQTT broker (if not already connected)
-    MQTTLoadingScreen(false);
     updateScreen();
+    timeMqtt = millis();
   }
 }
 

@@ -426,7 +426,6 @@ void setHotColdAlarm(int temp) {
       // disable eventual activated too cold alarm
       tooColdAlarmMonitored = false;
     }
-
   }
 }
 
