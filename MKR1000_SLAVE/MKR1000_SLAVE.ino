@@ -38,29 +38,22 @@
 
 int screen = INFO_SCREEN;
 boolean navigationMode = true;
-
 int lightStatus = LIGHT_STATUS_OFF;
 int lightConfig = CONFIG_OFF;
 int lightActivationThreshold = 500;
-
 int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
-
 int tooHotTempThreshold = 30;
 int tooColdTempThreshold = 10;
-
 int displayRow = 0;
 int lastLight = 0;
 int lastTemp = 0;
 int lastWifiRssi = 0;
 int externalTemperature = 0;
-
 int sleepCycleDuration = 0;
 int lowPowerModeMillis = 0;
-
 long scheduleDuration = 0;
-
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
@@ -68,7 +61,6 @@ boolean low_Power_Mode = false;
 boolean lowPowerButtonPressed = false;
 boolean mode_just_changed = false;
 boolean ecoMode = false;
-
 boolean monitoringActivated = false;
 boolean startServer = true;
 boolean configureWifi = false;
