@@ -57,9 +57,9 @@ long scheduleDuration = 0;
 boolean tooHotAlarmMonitored = false;
 boolean tooColdAlarmMonitored = false;
 boolean fireAlarm = true;
-boolean low_Power_Mode = false;
+boolean isLowPowerMode = false;
 boolean lowPowerButtonPressed = false;
-boolean mode_just_changed = false;
+boolean powerModeChanged = false;
 boolean ecoMode = false;
 boolean monitoringActivated = false;
 boolean startServer = true;
@@ -68,7 +68,7 @@ boolean configureWifi = false;
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
 
-long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat,workingTime;
+long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendHearthbeat, workingTime;
 
 void setup() {
 
@@ -88,33 +88,32 @@ void setup() {
 }
 
 void loop() {
-  if (low_Power_Mode  &&  (getTemp() > tooHotTempThreshold == false) ) {
+  if (isLowPowerMode  &&  (getTemp() > tooHotTempThreshold == false) ) {
     lowPowerModeMillis = millis();
-    mode_just_changed = true;
+    powerModeChanged = true;
     lowPowerModeLCD();
-
-    if (getTemp() > tooHotTempThreshold) {
-      low_Power_Mode = false;
-    }
-
-    sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
+    sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_isLowPowerMode;
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
 
-    LowPower.sleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
+    LowPower.deepSleep(CONTROL_FREQUENCE_isLowPowerMode);
+
+    if (getTemp() > tooHotTempThreshold) {
+      isLowPowerMode = false;
+    }
 
     lowPowerModeMillis = millis();
     if (scheduleDuration > 0) {
-      if (sleepCycleDuration > scheduleDuration )low_Power_Mode = false;
+      if (sleepCycleDuration > scheduleDuration )isLowPowerMode = false;
     }
 
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
 
   } else {
-    if (mode_just_changed) {
+    if (powerModeChanged) {
       delay(1000);
-      mode_just_changed = false;
+      powerModeChanged = false;
       sleepCycleDuration = 0;
       scheduleDuration = 0;
 
@@ -123,7 +122,7 @@ void loop() {
     }
 
     if (scheduleDuration > 0) {
-      if (getTemp() > tooHotTempThreshold == false) low_Power_Mode = true;
+      if (getTemp() > tooHotTempThreshold == false) isLowPowerMode = true;
     }
 
     // Connect to wifi
@@ -174,12 +173,12 @@ void tryWifiConnection() {
     wifiLoadingScreen(true);
     int attempts = 0;
     if (MyWiFi_Credentials.valid == true) {
-      while(attempts++<3)
+      while (attempts++ < 3)
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
 
     } else {
       if (!configureWifi) {
-        while(attempts++<3)
+        while (attempts++ < 3)
           connectWifi(SECRET_SSID, SECRET_PASS);
       } else {
         password = connectToWifiAP();
@@ -248,7 +247,7 @@ int getPressedButton() {
   if (val_MENO == HIGH && val_PIU == HIGH) {
     delay(2000);
     if (val_MENO == HIGH && val_PIU == HIGH) {
-      low_Power_Mode = !low_Power_Mode;
+      isLowPowerMode = !isLowPowerMode;
       delay(3000);
     }
   }
@@ -432,10 +431,13 @@ void setHotColdAlarm(int temp) {
 }
 
 void wakeUp() {
-  low_Power_Mode = false;
+  isLowPowerMode = false;
   sleepCycleDuration = 0;
 }
 
-void printWorkingStatus(){
-    if(millis() - workingTime > 10000) {Serial.println("Slave is Working..."); workingTime = millis();} 
+void printWorkingStatus() {
+  if (millis() - workingTime > 10000) {
+    Serial.println("Slave is Working...");
+    workingTime = millis();
+  }
 }

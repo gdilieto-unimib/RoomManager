@@ -3,7 +3,7 @@
 #define MACROS_ROOM_MANAGER
 #include <Arduino.h>
 
-#define BUTTON_LOW_POWER_MODE 3  // D3, digital pin used to read the button state
+#define BUTTON_isLowPowerMode 3  // D3, digital pin used to read the button state
 
 #define BUTTON_PIU 3  // D3, digital pin used to read the button state
 #define BUTTON_MENO 2 // D2, digital pin used to read the button state
@@ -51,7 +51,7 @@
 #define HOT_ALARM_CODE 0 // code logged for the hot alarm
 #define COLD_ALARM_CODE 1 // code logged for the cold alarm
 
-#define CONTROL_FREQUENCE_LOW_POWER_MODE 10000
+#define CONTROL_FREQUENCE_isLowPowerMode 10000
 
 
 
