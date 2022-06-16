@@ -39,7 +39,7 @@
 #include "time_controller_room_manager_master.h"
 
 
-long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule;
+long timeDb, timeLogging, timeScreen, timeDevices, timeConfiguration, timeExtenalTemperature, timeSendSleepSchedule,workingTime;
 
 FlashStorage(my_flash_store, WiFi_Credentials);
 WiFi_Credentials MyWiFi_Credentials;
@@ -55,7 +55,7 @@ boolean configureWifi = false;
 int devices;
 
 void setup() {
-  timeDb = timeLogging = timeScreen = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
+  timeDb = timeLogging = timeScreen = workingTime = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
 
   setupLcd();
@@ -72,11 +72,10 @@ void setup() {
 
 void loop() {
 
+  printWorkingStatus();
+  
   // Connect to wifi
   tryWifiConnection();
-
-  //if connected send external temperature to slave
-
 
   // Connect to db
   tryDbConnection();
@@ -96,12 +95,12 @@ void loop() {
   // Update screen
   updateScreen();
 
-  //if connected send external temperature to slave
-
+  //update sleep schedule for slave
   trySendSleepSchedule();
+  
+  //if connected send external temperature to slave
+  trySendExternalTemperature();
 
-  //trySendExternalTemperature();
-  delay(1000);
 }
 
 void tryWifiConnection() {
@@ -187,7 +186,7 @@ void updateConfiguration() {
   // Updated the configuration of the app
 
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
-    getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode)
+    getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode);
     timeConfiguration = millis();
   }
 }
@@ -219,4 +218,8 @@ void trySendSleepSchedule() {
     timeSendSleepSchedule = millis();
   }
 
+}
+
+void printWorkingStatus(){
+    if(millis() - workingTime > 10000) {Serial.println("Master is Working..."); workingTime = millis();} 
 }
