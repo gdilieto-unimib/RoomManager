@@ -26,17 +26,10 @@ boolean needWiFi = false;
 boolean connectPubNub = false;
 
 void setupAP() {
-  Serial.println("Access Point Web Server\n");
   listNetworks();
-
-  // print the network name (SSID);
-  Serial.print("Creating access point named: ");
-  Serial.println(ssidAP);
-
   // Create open network. Change this line if you want to create an WEP network:
   status = WiFi.beginAP(ssidAP);
   if (status != WL_AP_LISTENING) {
-    Serial.println("Creating access point failed");
     // don't continue
     while (true);
   }
@@ -47,8 +40,7 @@ void setupAP() {
   // start the web server on port 80
   serverAP.begin();
 
-  // you're connected now, so print out the status
-  printWiFiStatus();
+
 }
 
 String connectToWifiAP() {
@@ -59,17 +51,14 @@ String connectToWifiAP() {
 
     if (status == WL_AP_CONNECTED) {
       // a device has connected to the AP
-      Serial.println("Device connected to AP");
     } else {
       // a device has disconnected from the AP, and we are back in listening mode
-      Serial.println("Device disconnected from AP");
     }
   }
 
   WiFiClient client = serverAP.available(); // listen for incoming clients
 
   if (client) { // if you get a client,
-    Serial.println("new client 1"); // print a message out the serial port
     String currentLine = ""; // make a String to hold incoming data from the client
     while (client.connected()) { // loop while the client's connected
       if (client.available()) { // if there's bytes to read from the client,
@@ -87,25 +76,11 @@ String connectToWifiAP() {
     }
     // close the connection:
     client.stop();
-    Serial.println("client disconnected");
   }
   return password;
 }
 
-void printWiFiStatus() {
-  // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
 
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-
-  Serial.print("To see this page in action, open a browser to http://");
-  Serial.println(ip);
-
-}
 
 String getWifiList() {
   String reti = "";
@@ -127,12 +102,10 @@ void getCredentials() {
   WiFiClient client = serverAP.available();
   if (client) {
     boolean firstExclamative = true;
-    Serial.println("new client 2");
     String currentLine = "";
     while (client.connected()) {
       if (client.available()) {
         char c = client.read();
-        Serial.print(c);
         if (c == '?') readingNetwork = true;
         if (readingNetwork) {
           if (c == '!') {
@@ -173,11 +146,6 @@ void getCredentials() {
         }
         if (readingChannel) {
           if (c == ',') {
-            Serial.println();
-            Serial.print("Network Name: ");
-            Serial.println(network);
-            Serial.print("Password: ");
-            Serial.println(password);
             client.stop();
             WiFi.disconnect();
             WiFi.end();
@@ -263,49 +231,28 @@ void getCredentials() {
     }
 
     client.stop();
-    Serial.println("client disconnected");
-    Serial.println();
   }
 }
 void getWiFi() {
   if (network == ""
       or password == "") {
-    Serial.println("Invalid WiFi credentials");
     while (true);
   }
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(network);
     WiFi.begin(network, password);
     delay(5000);
 
   }
-  Serial.println("WiFi connection successful");
-  printWiFiStatus();
   needWiFi = false;
   delay(1000);
 }
 
-void printAPStatus() {
-  Serial.print("SSID: ");
-  Serial.println(WiFi.SSID());
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
-  Serial.print("signal strength (RSSI):");
-  Serial.print(WiFi.RSSI());
-  Serial.println(" dBm");
-  Serial.print("To connect, open a browser to http://");
-  Serial.println(ip);
-}
 
 
 void listNetworks() {    // scan for nearby networks:
-  Serial.println("** Scan Networks **");
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1)
   {
-    Serial.println("Couldn't get a wifi connection");
     while (true);
   }
 

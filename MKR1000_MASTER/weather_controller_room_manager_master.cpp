@@ -22,7 +22,6 @@ float getExternalTemperature() {
     client2->println(F("Connection: close"));
     client2->println();
   } else {
-    Serial.println(F("Connection to api.openweathermap.org failed!\n"));
   }
 
   while (client2->connected() && !client2->available()) {
@@ -43,7 +42,6 @@ float getExternalTemperature() {
   }
 
 
-  // Serial.println(result);  // print JSON
 
   char jsonArray[result.length() + 1];
   result.toCharArray(jsonArray, sizeof(jsonArray));
@@ -52,12 +50,8 @@ float getExternalTemperature() {
   DeserializationError error = deserializeJson(doc, jsonArray);
 
   if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.c_str());
     return -1;
   }
-  Serial.print(F("Temperature (°C): "));
-  Serial.println((float)doc["main"]["temp"]);
   return ((float)doc["main"]["temp"]);
 
 }

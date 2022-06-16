@@ -56,7 +56,6 @@ void listenForClients() {
 
   if (client) { // if you get a client,
     boolean optionsSent = false;
-    Serial.println("new client"); // print a message out the serial port
     String currentLine = ""; // make a String to hold incoming data from the client
     while (client.connected()) { // loop while the client's connected
       if (client.available()) { // if there's bytes to read from the client,
@@ -92,8 +91,6 @@ void listenForClients() {
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
-          Serial.println("DESERIALIZATION: " + String(doc["config"].as < int > ()));
-
           switch (doc["config"].as < int > ()) {
             case 0: {
                 mqttSendSensorControl(sensorId, "OFF"); // GET /sensors/:id/on turns on the sensor's actuator activation
@@ -121,7 +118,6 @@ void listenForClients() {
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
-          Serial.println("DESERIALIZATION: " + String(doc["config"].as < int > ()));
           switch (doc["config"].as < int > ()) {
             case 0: {
                 printHeaders(client); // Print response headers
@@ -149,6 +145,5 @@ void listenForClients() {
     }
     // close the connection:
     client.stop();
-    Serial.println("client disonnected");
   }
 }

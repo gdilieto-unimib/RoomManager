@@ -67,7 +67,6 @@ void setup() {
   }
 
   Serial.begin(115200);
-  Serial.println(F("\n\nSetup completed.\n\n"));
 
 }
 
@@ -112,22 +111,19 @@ void tryWifiConnection() {
 
     wifiLoadingScreen(true);
     if (MyWiFi_Credentials.valid == true) {
-      Serial.println("Loading existing WiFi credentials");
       while (!isWifiConnected()) {
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
       }
-      Serial.println("Wifi Connected!");
       setupRtc();
       setupApiServer( & ecoMode);
 
     } else {
-      Serial.println("Waiting for WiFi credentials");
+
 
       if (!configureWifi) {
         while (!isWifiConnected()) {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
-        Serial.println("Wifi Connected!");
         setupRtc();
         setupApiServer( & ecoMode);
       } else {
@@ -142,7 +138,7 @@ void tryWifiConnection() {
         ssidfl.toCharArray(MyWiFi_Credentials.ssid_RM, 100);
         password.toCharArray(MyWiFi_Credentials.pssw_RM, 100);
 
-        Serial.println("Writing WiFi credentials");
+
         my_flash_store.write(MyWiFi_Credentials);
 
         // try to connect to wifi
@@ -191,12 +187,7 @@ void updateConfiguration() {
   // Updated the configuration of the app
 
   if (isWifiConnected() && isMySqlConnected() && (millis() - timeConfiguration) > CONFIGURATION_UPDATE_TIMER_MILLIS) {
-    getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode);
-    Serial.print("Single mode: "+ String(singleMode) +" ");
-    Serial.print("Eco mode: " + String(ecoMode) +" ");
-    Serial.print("Schedule: " + String(schedule)+" ");
-    Serial.println("Sleep mode: " + String(sleepMode));
-    
+    getConfiguration( & singleMode, & ecoMode, & schedule, & sleepMode)
     timeConfiguration = millis();
   }
 }

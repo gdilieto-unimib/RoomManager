@@ -15,11 +15,8 @@ boolean connectToMySql() {
 
   if (!conn.connected()) {
     conn.close();
-    Serial.println(F("Connecting to MySQL..."));
     if (conn.connect(server_addr, 3306, mysql_user, mysql_password)) {
-      Serial.println(F("MySQL connection established."));
     } else {
-      Serial.println(F("MySQL connection failed."));
       return false;
     }
   }
