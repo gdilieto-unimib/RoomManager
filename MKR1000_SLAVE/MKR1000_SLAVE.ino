@@ -25,23 +25,14 @@
 
 */
 #include <ArduinoJson.h>
-
 #include <ArduinoLowPower.h>
-
 #include "macros_room_manager.h"
-
 #include "rgb_lcd_controller_room_manager.h"
-
 #include "action_controller_room_manager.h"
-
 #include "wifi_controller_room_manager.h"
-
 #include "io_controller_room_manager.h"
-
 #include "mqtt_controller_room_manager.h"
-
 #include "accesspoint_controller_room_manager.h"
-
 #include "flashmem_controller_room_manager.h"
 
 
