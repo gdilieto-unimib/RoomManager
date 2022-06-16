@@ -72,6 +72,7 @@ void setup() {
 
 void loop() {
 
+  // Prints is the master is correctly working
   printWorkingStatus();
   
   // Connect to wifi
@@ -165,7 +166,7 @@ void tryDbConnection() {
 void tryMQTTBrokerConnection() {
   // Connect to MQTTBroker if not already connected and if wifi is connected
 
-  if (isWifiConnected() && !isMQTTBrokerConnected()) {
+  if (isWifiConnected()) {
     MQTTLoadingScreen(true);
     connectToMQTTBroker(); // connect to MQTT broker (if not already connected)
     MQTTLoadingScreen(false);

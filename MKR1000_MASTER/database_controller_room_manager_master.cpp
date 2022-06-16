@@ -238,6 +238,53 @@ boolean createRoomConfig(String mac) {
   return true;
 }
 
+boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_ROOMS_NUMBER*3]) {
+  // Gets id of all rooms and relative sensors
+  
+  if (!connectToMySql()) {
+    return false;
+  }
+
+  char query[256];
+  char GET_ROOMS_SENSORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`sensor` s ON s.room = r.id ORDER BY r.id";
+
+  sprintf(query, GET_ROOMS_SENSORS);
+  Serial.println(query);
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+  cur_mem->execute(query);
+  
+  row_values *row = NULL;
+  column_names *columns = cur_mem->get_columns();
+
+  for (int f = 0; f < columns->num_fields; f++) {
+    if (f < columns->num_fields - 1) {
+    } else {
+    }
+  }
+
+  int roomIndex = 0 , sensorIndex = 0;
+
+  do {
+    row = cur_mem->get_next_row();
+    if (row != NULL) {
+
+      if(roomIndex==0 || atoi(row->values[0]) != roomsId[roomIndex-1]) {
+        roomsId[roomIndex] = atoi(row->values[0]);
+        roomIndex++;  
+      }
+      sensorsId[sensorIndex] = atoi(row->values[1]);
+      sensorIndex++;
+
+    }
+  } while (row != NULL);
+
+  
+  delete cur_mem;
+
+  return true;
+}
+
 boolean createSensorsConfig(String mac) {
   if (!connectToMySql()) {
     return false;

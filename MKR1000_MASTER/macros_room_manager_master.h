@@ -15,4 +15,6 @@
 #define TEMP_SENSOR 1 // id of the index of the temperature sensor among sensors list
 #define WIFI_SENSOR 2 // id of the index of the wifi sensor among sensors list
 
+#define MAX_ROOMS_NUMBER 100  // max number of rooms
+
 #endif
