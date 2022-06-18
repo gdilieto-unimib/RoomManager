@@ -40,7 +40,7 @@ int subscribeToRoomQueues(int roomId) {
 
 }
 
-int subscribeToSensorQueues(int sensorId) {
+int subscribeToActuatorQueues(int sensorId) {
 
   //subscribe to sensor's control queue
   mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control");
@@ -58,8 +58,8 @@ int subscribeToConfiguredRoomsAndActuators() {
 
   //subscribe to configured actuators queues
   for (int i = 0; i < MAX_ROOMS_NUMBER * 2 && configuredActuatorsId[i] != 0; i++) {
-    Serial.println(configuredSensorsId[i]);
-    subscribeToSensorQueues(configuredSensorsId[i]);
+    Serial.println(configuredActuatorsId[i]);
+    subscribeToActuatorQueues(configuredActuatorsId[i]);
   }
 }
 
@@ -88,11 +88,11 @@ void connectToMQTTBroker() {
   } else if (!initialConfiguration) {
     Serial.println("Getting subscribing config for rooms and sensors");
     dbLoadingScreen(true);
-    initialConfiguration = getRoomsAndSensorsId(configuredRoomsId, configuredSensorsId);
+    initialConfiguration = getRoomsAndActuatorsId(configuredRoomsId, configuredActuatorsId);
     dbLoadingScreen(false);
 
     if (initialConfiguration) {
-      subscribeToConfiguredRoomsAndSensors();
+      subscribeToConfiguredRoomsAndActuators();
     }
   }
 
@@ -143,7 +143,7 @@ void mqttSendSleepSchedule(int Time) {
   mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
 }
 
-void mqttSendSensorControl(int sensorId, String control) {
+void mqttSendActuatorControl(int sensorId, String control) {
   mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control", control);
 }
 

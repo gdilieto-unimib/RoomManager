@@ -126,7 +126,7 @@ void listenForClients() {
         }
 
         if (currentLine.startsWith("PUT") && currentLine.endsWith("control")) {
-          sscanf( & currentLine[0], "PUT /sensors/%d/control  ", & sensorId);
+          sscanf( & currentLine[0], "PUT /actuators/%d/control  ", & sensorId);
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
@@ -134,17 +134,17 @@ void listenForClients() {
 
           switch (doc["config"].as < int > ()) {
             case 0: {
-                mqttSendSensorControl(sensorId, "OFF"); // GET /sensors/:id/on turns on the sensor's actuator activation
+                mqttSendActuatorControl(sensorId, "OFF"); // GET /sensors/:id/on turns on the sensor's actuator activation
                 sqlError = ! updateSensorConfig(sensorId, "OFF");
                 break;
               }
             case 1: {
-                mqttSendSensorControl(sensorId, "ON"); // GET /sensors/:id/on turns on the sensor's actuator activation
+                mqttSendActuatorControl(sensorId, "ON"); // GET /sensors/:id/on turns on the sensor's actuator activation
                 sqlError = ! updateSensorConfig(sensorId, "ON");
                 break;
               }
             case 2: {
-                mqttSendSensorControl(sensorId, "AUTO"); // GET /sensors/:id/on turns on the sensor's actuator activation
+                mqttSendActuatorControl(sensorId, "AUTO"); // GET /sensors/:id/on turns on the sensor's actuator activation
                 sqlError = ! updateSensorConfig(sensorId, "AUTO");
                 break;
               }

@@ -238,7 +238,7 @@ boolean createRoomConfig(String mac) {
   return true;
 }
 
-boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_ROOMS_NUMBER*3]) {
+boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MAX_ROOMS_NUMBER*2]) {
   // Gets id of all rooms and relative sensors
   
   if (!connectToMySql()) {
@@ -246,9 +246,9 @@ boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_RO
   }
 
   char query[256];
-  char GET_ROOMS_SENSORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`sensor` s ON s.room = r.id ORDER BY r.id";
+  char GET_ROOMS_ACTUATORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`actuator` s ON s.room = r.id ORDER BY r.id";
 
-  sprintf(query, GET_ROOMS_SENSORS);
+  sprintf(query, GET_ROOMS_ACTUATORS);
   Serial.println(query);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
@@ -263,7 +263,7 @@ boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_RO
     }
   }
 
-  int roomIndex = 0 , sensorIndex = 0;
+  int roomIndex = 0 , actuatorIndex = 0;
 
   do {
     row = cur_mem->get_next_row();
@@ -273,8 +273,8 @@ boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_RO
         roomsId[roomIndex] = atoi(row->values[0]);
         roomIndex++;  
       }
-      sensorsId[sensorIndex] = atoi(row->values[1]);
-      sensorIndex++;
+      actuatorsId[actuatorIndex] = atoi(row->values[1]);
+      actuatorIndex++;
 
     }
   } while (row != NULL);
