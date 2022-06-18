@@ -23,7 +23,7 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedul
 
 boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monitoringActivated);
 
-boolean getRoomsAndSensorsId(int roomsId[MAX_ROOMS_NUMBER], int sensorsId[MAX_ROOMS_NUMBER*3]);
+boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MAX_ROOMS_NUMBER*2]);
 
 boolean createRoomConfig(String mac);
 

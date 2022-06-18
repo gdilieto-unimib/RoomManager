@@ -12,6 +12,9 @@ int MQTT_roomId = -1;
 //Positions of sensor ids ordered alphabetically for types: 1° - Light, 2° - Temperature, 3° - Wifi
 int MQTT_sensorsId[3] = { -1, -1, -1};
 
+//Positions of actuators ids ordered alphabetically for types: 1° - Light, 2° - Temperature
+int MQTT_actuatorsId[2] = { -1, -1};
+
 boolean* monitoringActivatedRef;
 boolean * ecoModeRef;
 int* tempConfigRef;
@@ -83,6 +86,9 @@ void mqttMessageReceived(String &topic, String &payload) {
       MQTT_roomId = (int)doc["room"];
       for (int i = 0 ; i < 3 ; i++)
         MQTT_sensorsId[i] = doc["sensors"][i];
+        
+      for (int i = 0 ; i < 2 ; i++)
+        MQTT_actuatorsId[i] = doc["actuators"][i];
 
       //subscribe to room's monitoring queue
       mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/monitoring/control");
@@ -91,8 +97,8 @@ void mqttMessageReceived(String &topic, String &payload) {
       mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/sleepSchedule");
 
       //subscribe to sensor's actuators control queue
-      for (int i = 0; i < 3; i++) {
-        mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_sensorsId[i]) + "/control");
+      for (int i = 0; i < 2; i++) {
+        mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
       }
 
       //subscribe to singleMode queue for light
@@ -132,7 +138,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       *monitoringActivatedRef = false;
     }
 
-  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_sensorsId[LIGHT_SENSOR]) + "/control") {
+  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control") {
 
     if (payload == "ON") {
       *lightConfigRef = CONFIG_ON;
@@ -142,7 +148,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       *lightConfigRef = CONFIG_OFF;
     }
 
-  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_sensorsId[TEMP_SENSOR]) + "/control") {
+  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control") {
 
     if (payload == "ON") {
       *tempConfigRef = CONFIG_ON;
@@ -181,15 +187,15 @@ void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
   char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
-  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/measures")[0], buffer, n);
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/sensors/measures")[0], buffer, n);
 }
 
 void mqttSendLightConfig(int lightConfig) {
-  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_sensorsId[LIGHT_SENSOR]) + "/control")[0], lightConfig == CONFIG_AUTO ? "AUTO" : lightConfig == CONFIG_ON ? "ON" : "OFF");
+  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control")[0], lightConfig == CONFIG_AUTO ? "AUTO" : lightConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendTempConfig(int tempConfig) {
-  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_sensorsId[TEMP_SENSOR]) + "/control")[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
+  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control")[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendMonitoringConfig(boolean monitoringConfig) {

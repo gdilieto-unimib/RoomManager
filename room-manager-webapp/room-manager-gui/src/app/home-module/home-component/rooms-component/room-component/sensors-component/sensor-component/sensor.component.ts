@@ -33,7 +33,7 @@ export class SensorComponent{
     setAuto(auto: boolean) {
         this.roomsService.updatingControl = true
         if (auto) {
-            this.roomsService.setSensorAuto(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorAuto(this.sensor.id?this.sensor.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },
@@ -50,7 +50,7 @@ export class SensorComponent{
     setOnOff(active: boolean) {
         this.roomsService.updatingControl = true
         if (active) {
-            this.roomsService.setSensorOn(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorOn(this.sensor.id?this.sensor.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },
@@ -61,7 +61,7 @@ export class SensorComponent{
                 }
             )
         } else {
-            this.roomsService.setSensorOff(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorOff(this.sensor.id?this.sensor.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },

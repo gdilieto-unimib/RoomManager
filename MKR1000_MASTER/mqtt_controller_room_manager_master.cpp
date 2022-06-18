@@ -8,7 +8,7 @@ int* externalTemperatureR;
 
 boolean initialConfiguration = false;
 int configuredRoomsId[MAX_ROOMS_NUMBER] = {};
-int configuredSensorsId[MAX_ROOMS_NUMBER * 3] = {};
+int configuredActuatorsId[MAX_ROOMS_NUMBER * 2] = {};
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
@@ -30,7 +30,7 @@ void loopMqttClient() {
 int subscribeToRoomQueues(int roomId) {
 
   //subscribe to room's logging queue
-  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/measures");
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/sensors/measures");
 
   //subscribe to room's monitoring queue
   mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
@@ -47,7 +47,7 @@ int subscribeToSensorQueues(int sensorId) {
 
 }
 
-int subscribeToConfiguredRoomsAndSensors() {
+int subscribeToConfiguredRoomsAndActuators() {
 
   Serial.println("INITIAL CONFIG");
   //subscribe to configured rooms queues
@@ -56,8 +56,8 @@ int subscribeToConfiguredRoomsAndSensors() {
     subscribeToRoomQueues(configuredRoomsId[i]);
   }
 
-  //subscribe to configured sensors queues
-  for (int i = 0; i < MAX_ROOMS_NUMBER * 3 && configuredSensorsId[i] != 0; i++) {
+  //subscribe to configured actuators queues
+  for (int i = 0; i < MAX_ROOMS_NUMBER * 2 && configuredActuatorsId[i] != 0; i++) {
     Serial.println(configuredSensorsId[i]);
     subscribeToSensorQueues(configuredSensorsId[i]);
   }
@@ -78,11 +78,11 @@ void connectToMQTTBroker() {
     if (!initialConfiguration) {
       Serial.println("Getting subscribing config for rooms and sensors");
       dbLoadingScreen(true);
-      initialConfiguration = getRoomsAndSensorsId(configuredRoomsId, configuredSensorsId);
+      initialConfiguration = getRoomsAndActuatorsId(configuredRoomsId, configuredActuatorsId);
       dbLoadingScreen(false);
     }
     if (initialConfiguration) {
-      subscribeToConfiguredRoomsAndSensors();
+      subscribeToConfiguredRoomsAndActuators();
     }
 
   } else if (!initialConfiguration) {
