@@ -90,6 +90,7 @@ long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendH
 void setup() {
 
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
+ 
   setupLcd();
   setupIO();
   MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode , &scheduleDuration);
@@ -113,22 +114,21 @@ void loop() {
     sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
     lowPowerModeMillis = millis() - lowPowerModeMillis;
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
-
+    Serial.println("MILLIS: " + String(lowPowerModeMillis));
     LowPower.deepSleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
 
+    lowPowerModeMillis = millis();
+
+    
     if (getTemp() > tooHotTempThreshold) {
       isLowPowerMode = false;
       screen = INFO_SCREEN;
     }
     
-    lowPowerModeMillis = millis();
-    Serial.println("STOP SLEEPING");
-    Serial.print("Total low power time: ");
-    Serial.print(sleepCycleDuration);
-    Serial.println(" MILLISECONDS");
 
-    Serial.print("Temperature: ");
-    Serial.println(getTemp());
+
+
+
 
 
     if (scheduleDuration > 0) {
@@ -138,6 +138,8 @@ void loop() {
     }
 
     lowPowerModeMillis = millis() - lowPowerModeMillis;
+    Serial.println("MILLIS2: " + String(lowPowerModeMillis));
+        Serial.println("WIFI" + String(isWifiConnected()));
     sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
 
   } else {

@@ -16,7 +16,7 @@ void printHeaders(WiFiClient client) {
   client.println("Access-Control-Max-Age:600");
   client.println("Access-Control-Allow-Origin: *");
   client.println("Access-Control-Allow-Credentials: true");
-  client.println("Access-Control-Allow-Methods: OPTIONS, GET, POST");
+  client.println("Access-Control-Allow-Methods: OPTIONS, GET, PUT");
   client.println("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
   client.println();
 }
@@ -54,7 +54,7 @@ boolean printErrorHeaders(WiFiClient client) {
   client.println("Content-type:application/json");
   client.println("Access-Control-Allow-Origin: *");
   client.println("Access-Control-Allow-Credentials: true");
-  client.println("Access-Control-Allow-Methods: OPTIONS, GET, POST");
+  client.println("Access-Control-Allow-Methods: OPTIONS, GET, PUT");
   client.println("Access-Control-Allow-Headers: Content-Type, Depth, User-Agent, X-File-Size, X-Requested-With, If-Modified-Since, X-File-Name, Cache-Control");
   client.println();
 }
@@ -125,8 +125,8 @@ void listenForClients() {
           printHeaders(client);
         }
 
-        if (currentLine.startsWith("POST") && currentLine.endsWith("control")) {
-          sscanf( & currentLine[0], "POST /sensors/%d/control  ", & sensorId);
+        if (currentLine.startsWith("PUT") && currentLine.endsWith("control")) {
+          sscanf( & currentLine[0], "PUT /sensors/%d/control  ", & sensorId);
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
@@ -155,8 +155,8 @@ void listenForClients() {
             client.println();
           }
           break;
-        } else if (currentLine.startsWith("POST") && currentLine.endsWith("monitoring")) {
-          sscanf( & currentLine[0], "POST /rooms/%d/monitoring", & roomId);
+        } else if (currentLine.startsWith("PUT") && currentLine.endsWith("monitoring")) {
+          sscanf( & currentLine[0], "PUT /rooms/%d/monitoring", & roomId);
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
