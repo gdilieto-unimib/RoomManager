@@ -143,7 +143,7 @@ void mqttSendSleepSchedule(int Time) {
   mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
 }
 
-void mqttSendSensorControl(int sensorId, String control) {
+void mqttSendActuatorControl(int sensorId, String control) {
   mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control", control);
 }
 
