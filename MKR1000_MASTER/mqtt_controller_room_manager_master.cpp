@@ -30,7 +30,7 @@ void loopMqttClient() {
 int subscribeToRoomQueues(int roomId) {
 
   //subscribe to room's logging queue
-  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/logging");
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/measures");
 
   //subscribe to room's monitoring queue
   mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
@@ -43,7 +43,7 @@ int subscribeToRoomQueues(int roomId) {
 int subscribeToSensorQueues(int sensorId) {
 
   //subscribe to sensor's control queue
-  mqttClient.subscribe(String(MQTT_SENSOR_TOPIC) + "/" + String(sensorId) + "/control");
+  mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control");
 
 }
 
@@ -144,7 +144,7 @@ void mqttSendSleepSchedule(int Time) {
 }
 
 void mqttSendSensorControl(int sensorId, String control) {
-  mqttClient.publish(String(MQTT_SENSOR_TOPIC) + "/" + String(sensorId) + "/control", control);
+  mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control", control);
 }
 
 void mqttSendExternalTemperature(int temperature) {
@@ -198,10 +198,10 @@ void mqttMessageReceived(String &topic, String &payload) {
       logAlarm(&(doc["message"].as<String>())[0], doc["code"].as<int>(), roomId);
 
     }
-    if (topic.endsWith("/logging")) {
+    if (topic.endsWith("/measures")) {
       // if topic is room's logging
 
-      sscanf(&topic[0], &((MQTT_ROOM_TOPIC + String("/%d/logging"))[0]), &roomId);
+      sscanf(&topic[0], &((MQTT_ROOM_TOPIC + String("/%d/measures"))[0]), &roomId);
 
       DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
       deserializeJson(doc, payload);
@@ -219,7 +219,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     } else if (topic.endsWith("/control")) {
       // if topic is room's sensor's control
 
-      sscanf(&topic[0], &((MQTT_SENSOR_TOPIC + String("/%d/control"))[0]), &sensorId);
+      sscanf(&topic[0], &((MQTT_ACTUATORS_TOPIC + String("/%d/control"))[0]), &sensorId);
       updateSensorConfig(sensorId, payload);
 
     } else {
