@@ -38,7 +38,7 @@ void MQTTSetup(int* externalTemperature, boolean* ecoMode, boolean*  thisHourSle
 
 void mqttSendMonitoringControl(int roomId, String action);
 
-void mqttSendActuatorControl(int sensorId, String action);
+void mqttSendActuatorControl(int actuatorId, String action);
 
 void mqttSendExternalTemperature(int temperature);
 

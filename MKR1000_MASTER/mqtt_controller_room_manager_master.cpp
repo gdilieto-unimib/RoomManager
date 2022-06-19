@@ -143,8 +143,8 @@ void mqttSendSleepSchedule(int Time) {
   mqttClient.publish(MQTT_SLEEP_SCHEDULE_TOPIC, String(Time));
 }
 
-void mqttSendActuatorControl(int sensorId, String control) {
-  mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control", control);
+void mqttSendActuatorControl(int actuatorId, String control) {
+  mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control", control);
 }
 
 void mqttSendExternalTemperature(int temperature) {
@@ -158,7 +158,7 @@ void mqttMessageReceived(String &topic, String &payload) {
 
   if (topic == MQTT_HEARTBEAT_TOPIC) {
     // update timestamp of tha last heartbeat
-    updateLastHBTimestamp(payload);
+    updateLastHBTimestamp(atoi(&payload[0]));
   } else if (topic == MQTT_WELCOME_TOPIC) {
     // If a new device sent me his mac
 

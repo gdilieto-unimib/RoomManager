@@ -120,7 +120,7 @@ void listenForClients() {
         }
 
         if (currentLine.startsWith("PUT") && currentLine.endsWith("config")) {
-          sscanf( & currentLine[0], "PUT /rooms/%d/actuators/%d/config", &roomId, &actuatorId);
+          sscanf( & currentLine[0], "PUT /rooms/%d/actuators/%d/config", &roomId, &actuatorId); // PUT rooms/:roomId/actuator/:actuatorId changes the actuator config to ON/OFF/AUTO
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
@@ -128,17 +128,17 @@ void listenForClients() {
 
           switch (doc["config"].as < int > ()) {
             case 0: {
-                mqttSendActuatorControl(actuatorId, "OFF"); // PUT rooms/:roomId/actuator/:actuatorId/on turns off the actuator activation
+                mqttSendActuatorControl(actuatorId, "OFF"); 
                 sqlError = ! updateActuatorConfig(actuatorId, "OFF");
                 break;
               }
             case 1: {
-                mqttSendActuatorControl(actuatorId, "ON"); // PUT rooms/:roomId/actuator/:actuatorId/on turns on the actuator activation
+                mqttSendActuatorControl(actuatorId, "ON");
                 sqlError = ! updateActuatorConfig(actuatorId, "ON");
                 break;
               }
             case 2: {
-                mqttSendActuatorControl(actuatorId, "AUTO"); // PUT rooms/:roomId/actuator/:actuatorId/auto turns to auto the actuator activation
+                mqttSendActuatorControl(actuatorId, "AUTO");
                 sqlError = ! updateActuatorConfig(actuatorId, "AUTO");
                 break;
               }
@@ -154,13 +154,13 @@ void listenForClients() {
           String postContent = getPostContent(client);
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
-          switch (doc["config"].as < int > ()) {
+          switch (doc["monitoring"].as < int > ()) {
             case 0: {
                 mqttSendMonitoringControl(roomId, "STOP"); // GET /rooms/:id/monitoring/stop stops the room's monitoring
                 sqlError = ! updateRoomMonitoring(roomId, 0);
                 if (!sendError(sqlError, mqttError, client)) {
                   printHeaders(client); // Print response headers
-                  client.print("{\"monitoringActivated\": false}");
+                  client.print("{\"monitoring\": false}");
                   client.println();
                 }
                 break;
@@ -170,7 +170,7 @@ void listenForClients() {
                 sqlError = ! updateRoomMonitoring(roomId, 1);
                 if (!sendError(sqlError, mqttError, client)) {
                   printHeaders(client); // Print response headers
-                  client.print("{\"monitoringActivated\": true}");
+                  client.print("{\"monitoring\": true}");
                   client.println();
                 }
                 break;

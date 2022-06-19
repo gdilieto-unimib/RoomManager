@@ -79,6 +79,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], int actuatorsId
         sensorsId[WIFI_SENSOR] = atoi(row->values[3]);
       }
 
+      // Cicles over columns (not to get the related warning on the serial)
       for (int f = 0; f < columns->num_fields; f++) {
       }
     }
@@ -109,7 +110,8 @@ boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedul
 
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
-
+  
+  // Cicles over columns (not to get the related warning on the serial)
   for (int f = 0; f < columns->num_fields; f++) {
     if (f < columns->num_fields - 1) {
     } else {
@@ -159,6 +161,7 @@ boolean getDevices(int* devices) {
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
 
+  // Cicles over columns (not to get the related warning on the serial)
   for (int f = 0; f < columns->num_fields; f++) {
     if (f < columns->num_fields - 1) {
     } else {
