@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { ErrorService } from "src/app/home-module/home-component/services/error.service";
 import { RoomsService } from "../../../services/rooms.service";
+import { Actuator, defaultActuator } from "./models/actuator.model";
 import { defaultSensor, Sensor, SensorType } from "./models/sensor.model";
 
 @Component({
@@ -10,6 +11,7 @@ import { defaultSensor, Sensor, SensorType } from "./models/sensor.model";
 })
 export class SensorComponent{
     @Input() sensor: Sensor = defaultSensor
+    @Input() actuator: Actuator = defaultActuator
     @Input() roomConnected: boolean = false;
     @Input() roomId: number = -1;
 
@@ -21,19 +23,19 @@ export class SensorComponent{
     }
 
     toggleAuto() {
-        this.sensor.auto = !this.sensor.auto
-        this.setAuto(this.sensor.auto)
+        this.actuator.auto = !this.actuator.auto
+        this.setAuto(this.actuator.auto)
     }
 
     toggleActive() {
-        this.sensor.active = !this.sensor.active
-        this.setOnOff(this.sensor.active)
+        this.actuator.active = !this.actuator.active
+        this.setOnOff(this.actuator.active)
     }
 
     setAuto(auto: boolean) {
         this.roomsService.updatingControl = true
         if (auto) {
-            this.roomsService.setActuatorAuto(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorAuto(this.roomId, this.actuator.id?this.actuator.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },
@@ -43,25 +45,25 @@ export class SensorComponent{
                 }
             )
         } else {
-            this.setOnOff(this.sensor.active);        
+            this.actuator.active=false
+            this.setOnOff(false)        
         }            
     }
 
     setOnOff(active: boolean) {
         this.roomsService.updatingControl = true
         if (active) {
-            this.roomsService.setActuatorOn(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorOn(this.roomId, this.actuator.id?this.actuator.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },
                 (err) => {
                     this.roomsService.updatingControl = false
-                    console.log(err.error)
                     this.errorService.showErrors(err.error)
                 }
             )
         } else {
-            this.roomsService.setActuatorOff(this.sensor.id?this.sensor.id:-1).subscribe(
+            this.roomsService.setActuatorOff(this.roomId, this.actuator.id?this.actuator.id:-1).subscribe(
                 (response) => {
                     this.roomsService.updatingControl = false
                 },

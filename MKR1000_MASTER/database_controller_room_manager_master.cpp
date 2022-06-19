@@ -35,15 +35,15 @@ boolean isMySqlConnected() {
   return conn.connected();
 }
 
-boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monitoringActivated) {
+boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], int actuatorsId[2], boolean* monitoringActivated) {
   // retrieve room and sensor's configuration
 
   if (!connectToMySql()) {
     return false;
   }
 
-  char query[128] = {0};
-  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room WHERE r.mac='%s'";
+  char query[256] = {0};
+  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id, a.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room LEFT OUTER JOIN gdilieto.actuator a ON a.type = s.type WHERE r.mac='%s'";
 
   sprintf(query, SELECT_ROOM, &mac[0]);
 
@@ -71,8 +71,10 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monito
 
       if (sensorType.equals("Light")) {
         sensorsId[LIGHT_SENSOR] = atoi(row->values[3]);
+        actuatorsId[LIGHT_SENSOR] = atoi(row->values[4]);
       } else if (sensorType.equals("Temperature")) {
         sensorsId[TEMP_SENSOR] = atoi(row->values[3]);
+        actuatorsId[TEMP_SENSOR] = atoi(row->values[4]);
       } else if (sensorType.equals("Wifi")) {
         sensorsId[WIFI_SENSOR] = atoi(row->values[3]);
       }
@@ -201,7 +203,6 @@ boolean getRoomId(String mac, int* roomId) {
     }
   }
 
-
   do {
     row = cur_mem->get_next_row();
     if (row != NULL) {
@@ -246,7 +247,7 @@ boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MA
   }
 
   char query[256];
-  char GET_ROOMS_ACTUATORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`actuator` s ON s.room = r.id ORDER BY r.id";
+  char GET_ROOMS_ACTUATORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`actuator` a ON a.a_room = r.id ORDER BY r.id";
 
   sprintf(query, GET_ROOMS_ACTUATORS);
   Serial.println(query);
@@ -297,6 +298,27 @@ boolean createSensorsConfig(String mac) {
   getRoomId(mac, &roomId);
 
   sprintf(query, INSERT_ROOM, roomId, roomId, roomId);
+
+  MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+  cur_mem->execute(query);
+
+  delete cur_mem;
+
+  return true;
+}
+
+boolean createActuatorsConfig(String mac) {
+  if (!connectToMySql()) {
+    return false;
+  }
+
+  char query[256];
+  char INSERT_ROOM[] = "INSERT INTO `gdilieto`.`actuator` (`a_room`, `type`, `name`) VALUES ('%d', 'Light', 'Light'), ('%d', 'Temperature', 'Temperature')";
+
+  int roomId = -1;
+  getRoomId(mac, &roomId);
+
+  sprintf(query, INSERT_ROOM, roomId, roomId);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);
@@ -361,15 +383,15 @@ boolean updateRoomMonitoring(int roomId, boolean monitoring) {
   return true;
 }
 
-boolean updateSensorConfig(int sensorId, String configuration) {
+boolean updateActuatorConfig(int actuatorId, String configuration) {
   if (!connectToMySql()) {
     return false;
   }
 
   char query[256];
-  char UPDATE_SENSOR_CONFIG[] = "UPDATE `gdilieto`.`sensor` SET `auto` = '%d', `active` = '%d' WHERE id = '%d'" ;
+  char UPDATE_SENSOR_CONFIG[] = "UPDATE `gdilieto`.`actuator` SET `config` = '%d' WHERE id = '%d'" ;
 
-  sprintf(query, UPDATE_SENSOR_CONFIG, configuration == "AUTO", configuration == "ON", sensorId);
+  sprintf(query, UPDATE_SENSOR_CONFIG, configuration == "AUTO"?2:configuration == "ON"?1:0, actuatorId);
 
   MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   cur_mem->execute(query);

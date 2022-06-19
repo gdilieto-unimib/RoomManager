@@ -56,11 +56,20 @@ void connectToMQTTBroker() {
     Serial.println(F("\nConnected!"));
 
     // connected to broker, subscribe topics
-    mqttClient.subscribe(MQTT_CONFIG_TOPIC);
-    mqttClient.subscribe(MQTT_ECO_MODE_TOPIC);
-    mqttClient.subscribe(MQTT_SLEEP_SCHEDULE_TOPIC);
 
-    Serial.println(F("\nSubscribed to config topic!"));
+    // subscribe to config topic to get the configuration (roomId, sensorsId, actuatorsId)
+    mqttClient.subscribe(MQTT_CONFIG_TOPIC);
+    
+    // subscribe to eco mode topic to set/unset the eco mode
+    mqttClient.subscribe(MQTT_ECO_MODE_TOPIC);
+    
+    // subscribe to sleepSchedule queue to get sleeping timeouts
+    mqttClient.subscribe(MQTT_SLEEP_SCHEDULE_TOPIC);
+    
+    // subscribe to externalTemperature queue to get external temperature (used in eco mode)
+    mqttClient.subscribe(MQTT_EXTERNAL_TEMPERATURE_TOPIC);
+
+    Serial.println(F("\nSubscribed to general slave topics!"));
   }
   MQTTLoadingScreen(false);
 
@@ -78,15 +87,17 @@ void mqttMessageReceived(String &topic, String &payload) {
     *externalTemperatureRef = doc["externalTemp"].as<int>();
     *scheduleRef = doc["sleepDuration"].as<int>();
 
-
-
     const char *mac = doc["mac"];
     if (String(mac) == getMac()) {
-      Serial.println("CONFIG FOR ME");
+
+      // Get room id from the payload
       MQTT_roomId = (int)doc["room"];
+
+      // Get sensors id from the payload
       for (int i = 0 ; i < 3 ; i++)
         MQTT_sensorsId[i] = doc["sensors"][i];
         
+      // Get actuators id from the payload
       for (int i = 0 ; i < 2 ; i++)
         MQTT_actuatorsId[i] = doc["actuators"][i];
 
@@ -96,7 +107,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       //subscribe to schedule queue
       mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/sleepSchedule");
 
-      //subscribe to sensor's actuators control queue
+      //subscribe to actuators control queue
       for (int i = 0; i < 2; i++) {
         mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
       }
@@ -104,8 +115,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       //subscribe to singleMode queue for light
       mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/singleMode/light/control");
 
-      //subscribe to externalTemperature queue to get external temperature (used in eco mode)
-      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/externalTemperature");
+      Serial.println(F("\nSubscribed to specific slave topics!"));
 
       *monitoringActivatedRef = doc["monitoring"];
     }
@@ -213,7 +223,12 @@ void mqttSendAlarm(char* message, int code) {
   mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/alarm")[0], buffer, n);
 }
 
-void mqttSendMac() {
-  mqttClient.publish(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC, getMac());
-  Serial.println("SENT MAC TO " + String(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC) + " " + getMac());
+void mqttSendMacOrId() {
+  mqttClient.publish(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC, MQTT_roomId == -1 ? getMac() : MQTT_roomId);
+  
+  if (MQTT_roomId == -1) {
+    Serial.println("SENT MAC TO " + String(MQTT_WELCOME_TOPIC) + " " + getMac()); 
+  } else {
+    Serial.println("SENT ROOM ID TO " + String(MQTT_HEARTBEAT_TOPIC) + " " + MQTT_roomId);
+  }
 }

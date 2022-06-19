@@ -1,3 +1,3 @@
 <div *ngFor="let sensor of sensors;">
-    <app-sensor [sensor]="sensor" [roomConnected]="roomConnected" [roomId]="roomId"></app-sensor>
+    <app-sensor [sensor]="sensor" [actuator]="getActuator(sensor)" [roomConnected]="roomConnected" [roomId]="roomId"></app-sensor>
 </div>

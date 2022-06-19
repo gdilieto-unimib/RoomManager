@@ -5,8 +5,8 @@
             <!--<span>{{sensor.name}}:</span>-->
             <span class="spaced">{{sensor.measure?.value}}</span>
             <span class="spacer"></span>
-            <mat-button-toggle *ngIf="sensor.type == 'Light'" class="auto-button-toggle" name="auto" ngDefaultControl [checked]="sensor.auto" (click)="toggleAuto()" [disabled]="!roomConnected">Auto</mat-button-toggle>
-            <mat-button-toggle *ngIf="sensor.type != 'Wifi'" class="active-button-toggle" name="active" ngDefaultControl [checked]="sensor.active" (click)="toggleActive()" [disabled]="sensor.auto || !roomConnected">ON</mat-button-toggle>
+            <mat-button-toggle *ngIf="sensor.type == 'Light'" class="auto-button-toggle" name="auto" ngDefaultControl [checked]="actuator.auto" (click)="toggleAuto()" [disabled]="!roomConnected">Auto</mat-button-toggle>
+            <mat-button-toggle *ngIf="sensor.type != 'Wifi'" class="active-button-toggle" name="active" ngDefaultControl [checked]="actuator.active" (click)="toggleActive()" [disabled]="actuator.auto || !roomConnected">ON</mat-button-toggle>
         </div>
     </mat-card>
 </div>

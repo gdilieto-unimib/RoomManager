@@ -50,19 +50,19 @@ export class RoomsService {
     return this.http.get<any>(this.roomUrl+'/'+roomId+'/connected');
   }
 
-  setActuatorOn(actuatorId: number): Observable<any> {
-    //return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/on`);
-    return this.http.put<any>(`http://${this.masterIp}:80/actuators/${actuatorId}/config`, { config: 1 });
+  setActuatorOff(roomId: number, actuatorId: number): Observable<any> {
+    //return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/off`);
+    return this.http.put<any>(`http://${this.masterIp}:80/rooms/${roomId}/actuators/${actuatorId}/config`, { config: 0 });
   }
 
-  setActuatorOff(actuatorId: number): Observable<any> {
-    //return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/off`);
-    return this.http.put<any>(`http://${this.masterIp}:80/actuators/${actuatorId}/config`, { config: 0 });
+  setActuatorOn(roomId: number, actuatorId: number): Observable<any> {
+    //return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/on`);
+    return this.http.put<any>(`http://${this.masterIp}:80/rooms/${roomId}/actuators/${actuatorId}/config`, { config: 1 });
   }
   
-  setActuatorAuto(actuatorId: number): Observable<any> {
+  setActuatorAuto(roomId: number, actuatorId: number): Observable<any> {
     //return this.http.get<any>(`http://${this.masterIp}:80/sensors/${sensorId}/control/auto`);
-    return this.http.put<any>(`http://${this.masterIp}:80/actuators/${actuatorId}/config`, { config: 2 });
+    return this.http.put<any>(`http://${this.masterIp}:80/rooms/${roomId}/actuators/${actuatorId}/config`, { config: 2 });
   }
 
   setMonitoringStart(roomId: number): Observable<any> {

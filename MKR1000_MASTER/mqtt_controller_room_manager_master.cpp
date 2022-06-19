@@ -133,14 +133,14 @@ void mqttSendMonitoringControl(int roomId, String control) {
 
 void mqttSendEcoMode(boolean control) {
   if (control) {
-    mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "ON");
+    mqttClient.publish(MQTT_ECO_MODE_TOPIC, "ON");
   } else {
-    mqttClient.publish(String(MQTT_ECO_MODE_TOPIC), "OFF");
+    mqttClient.publish(MQTT_ECO_MODE_TOPIC, "OFF");
   }
 }
 
 void mqttSendSleepSchedule(int Time) {
-  mqttClient.publish(String(MQTT_SLEEP_SCHEDULE_TOPIC), String(Time));
+  mqttClient.publish(MQTT_SLEEP_SCHEDULE_TOPIC, String(Time));
 }
 
 void mqttSendActuatorControl(int sensorId, String control) {
@@ -148,13 +148,13 @@ void mqttSendActuatorControl(int sensorId, String control) {
 }
 
 void mqttSendExternalTemperature(int temperature) {
-  mqttClient.publish(String(MQTT_ROOM_TOPIC) + "/externalTemperature", String(temperature));
+  mqttClient.publish(MQTT_EXTERNAL_TEMPERATURE_TOPIC, String(temperature));
 }
 
 void mqttMessageReceived(String &topic, String &payload) {
   // this function handles a message from the MQTT broker
   int roomId = -1;
-  int sensorId = -1;
+  int actuatorId = -1;
 
   if (topic == MQTT_HEARTBEAT_TOPIC) {
     // update timestamp of tha last heartbeat
@@ -163,13 +163,15 @@ void mqttMessageReceived(String &topic, String &payload) {
     // If a new device sent me his mac
 
     int sensorsId[3] = { -1, -1, -1};
+    int actuatorsId[2] = { -1, -1};
     boolean monitoringActivated;
 
     // if device hasn't already a config, create a new config
-    if (!getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated)) {
+    if (!getRoomConfig(payload, &roomId, sensorsId, actuatorsId, &monitoringActivated)) {
       createRoomConfig(payload);
       createSensorsConfig(payload);
-      getRoomConfig(payload, &roomId, sensorsId, &monitoringActivated);
+      createActuatorsConfig(payload);
+      getRoomConfig(payload, &roomId, sensorsId, actuatorsId, &monitoringActivated);
     }
 
     subscribeToRoomQueues(roomId);
@@ -219,8 +221,8 @@ void mqttMessageReceived(String &topic, String &payload) {
     } else if (topic.endsWith("/control")) {
       // if topic is room's sensor's control
 
-      sscanf(&topic[0], &((MQTT_ACTUATORS_TOPIC + String("/%d/control"))[0]), &sensorId);
-      updateSensorConfig(sensorId, payload);
+      sscanf(&topic[0], &((MQTT_ACTUATORS_TOPIC + String("/%d/control"))[0]), &actuatorId);
+      updateActuatorConfig(actuatorId, payload);
 
     } else {
       // no topic matched

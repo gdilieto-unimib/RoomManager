@@ -107,6 +107,10 @@ export class RoomsComponent implements OnInit{
                 if(!this.roomsService.updatingControl) {
                     this.rooms = rooms.map(
                         room => {
+                            for(let actuator of room.actuators) {
+                                actuator.active = actuator.config == 1
+                                actuator.auto = actuator.config == 2
+                            }
                             room.connected = !!room.connected
                             room.monitoring = !!room.monitoring
                             return room

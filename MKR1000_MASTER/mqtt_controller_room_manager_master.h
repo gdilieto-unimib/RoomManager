@@ -16,8 +16,9 @@
 #define MQTT_ROOM_TOPIC "LabIOT/gdltf/rooms"              // topic for room's control
 #define MQTT_SENSOR_TOPIC "LabIOT/gdltf/sensors"         // topic for sensor's control
 #define MQTT_ACTUATORS_TOPIC "LabIOT/gdltf/actuators"   // topic for actuator's control
-#define MQTT_ECO_MODE_TOPIC "LabIOT/gdltf/ecoMode"      // topic for eco mode's control
-#define MQTT_SLEEP_SCHEDULE_TOPIC "LabIOT/gdltf/scheduleTopic"      // topic for sleep schedule's control
+#define MQTT_ECO_MODE_TOPIC "LabIOT/gdltf/rooms/ecoMode"      // topic for eco mode's control
+#define MQTT_SLEEP_SCHEDULE_TOPIC "LabIOT/gdltf/rooms/scheduleTopic"      // topic for sleep schedule's control
+#define MQTT_EXTERNAL_TEMPERATURE_TOPIC "LabIOT/gdltf/rooms/externalTemperature"      // topic for sleep external temperature notification
 
 #include "macros_room_manager_master.h"
 #include "database_controller_room_manager_master.h"

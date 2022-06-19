@@ -73,7 +73,24 @@ router.get('/', (req, res)=>{
                                     callback3(err,result,fields)
                                 })
                             }, function() {
-                                res.send(rooms)
+                                async.each(
+                                    rooms, 
+                                    function (room, callback4) {
+                                        var actuatorsQuery = `SELECT * FROM actuator WHERE actuator.a_room = ${room.id}`
+                                        pool.query(actuatorsQuery, (err, result, fields) => {
+                                            if (err) {
+                                                callback4(err)
+                                                throw new Error(err)
+                                            }
+                                            actuators = result
+                                            
+                                            room.actuators = actuators
+                                            callback4(err, result, fields)
+                                    })
+                                }, function() {
+                                        res.send(rooms)
+                                    }
+                                )
                             }
                         );
                     }

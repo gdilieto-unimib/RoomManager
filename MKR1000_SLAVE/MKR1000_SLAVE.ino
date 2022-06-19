@@ -100,49 +100,20 @@ void setup() {
 
   if (!MyWiFi_Credentials.valid && configureWifi)
     setupAP();
+    
+  LowPower.attachInterruptWakeup(BUTTON_OK, wakeUp, CHANGE);
 
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
-  LowPower.attachInterruptWakeup(BUTTON_OK, wakeUp, CHANGE);
 }
 
 void loop() {
   if (isLowPowerMode  &&  (getTemp() > tooHotTempThreshold == false) ) {
-    lowPowerModeMillis = millis();
-    powerModeChanged = true;
-    lowPowerModeLCD();
-    sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
-    lowPowerModeMillis = millis() - lowPowerModeMillis;
-    sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
-    Serial.println("MILLIS: " + String(lowPowerModeMillis));
-    LowPower.deepSleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
-
-    lowPowerModeMillis = millis();
-
     
-    if (getTemp() > tooHotTempThreshold) {
-      isLowPowerMode = false;
-      screen = INFO_SCREEN;
-    }
+    lowPowerModeLoop();
     
-
-
-
-
-
-
-    if (scheduleDuration > 0) {
-      if (sleepCycleDuration > scheduleDuration ){
-        isLowPowerMode = false;
-      }
-    }
-
-    lowPowerModeMillis = millis() - lowPowerModeMillis;
-    Serial.println("MILLIS2: " + String(lowPowerModeMillis));
-        Serial.println("WIFI" + String(isWifiConnected()));
-    sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
-
   } else {
+    
     if (powerModeChanged) {
       delay(1000);
       powerModeChanged = false;
@@ -196,6 +167,36 @@ void loop() {
 
   }
 }
+
+void lowPowerModeLoop() {
+  
+  lowPowerModeMillis = millis();
+  powerModeChanged = true;
+  lowPowerModeLCD();
+  sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
+  lowPowerModeMillis = millis() - lowPowerModeMillis;
+  sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
+  
+  LowPower.deepSleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
+
+  lowPowerModeMillis = millis();
+  
+  if (getTemp() > tooHotTempThreshold) {
+    isLowPowerMode = false;
+    screen = INFO_SCREEN;
+  }
+
+  if (scheduleDuration > 0) {
+    if (sleepCycleDuration > scheduleDuration ){
+      isLowPowerMode = false;
+    }
+  }
+
+  lowPowerModeMillis = millis() - lowPowerModeMillis;
+  sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
+
+}
+
 void tryWifiConnection() {
   String password;
 
@@ -268,8 +269,8 @@ void trySendRoomHearthbeat() {
   // try to get device's room configuration (with loading screen)
 
   if (((millis() - timeSendHearthbeat) > 10000) && isWifiConnected() && isMQTTBrokerConnected()) {
-    // try to send an hearthbeat to master
-    mqttSendMac();
+    // try to send a welcome message or hearthbeat to master
+    mqttSendMacOrId();
 
     timeSendHearthbeat = millis();
   }

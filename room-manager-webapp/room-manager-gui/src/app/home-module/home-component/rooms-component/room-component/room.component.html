@@ -24,6 +24,6 @@
         <mat-label>ALARM: </mat-label>{{alarm.datetime | date:'shortTime'}} - {{alarm.message}}  
     </mat-card>
     <div>
-        <app-sensors [sensors]='room.sensors' [roomConnected]="room.connected?room.connected:false" [roomId]="room.id?room.id:-1"></app-sensors>
+        <app-sensors [sensors]='room.sensors' [actuators]='room.actuators' [roomConnected]="room.connected?room.connected:false" [roomId]="room.id?room.id:-1"></app-sensors>
     </div> 
 </mat-card>

@@ -21,7 +21,7 @@ boolean getDevices(int* devices);
 
 boolean getConfiguration(boolean* singleMode, boolean* ecoMode, String * schedule, boolean * sleepMode);
 
-boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], boolean* monitoringActivated);
+boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], int actuatorsId[3], boolean* monitoringActivated);
 
 boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MAX_ROOMS_NUMBER*2]);
 
@@ -29,13 +29,15 @@ boolean createRoomConfig(String mac);
 
 boolean createSensorsConfig(String mac);
 
+boolean createActuatorsConfig(String mac);
+
 boolean updateLastHBTimestamp(int roomId);
 
 boolean updateLastHBTimestamp(String mac);
 
 boolean updateRoomMonitoring(int roomId, boolean monitoring);
 
-boolean updateSensorConfig(int sensorId, String configuration);
+boolean updateActuatorConfig(int actuatorId, String configuration);
 
 boolean logSensorMeasure(int sensor, char* value);
 
