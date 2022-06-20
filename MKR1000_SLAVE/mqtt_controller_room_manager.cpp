@@ -109,7 +109,8 @@ void mqttMessageReceived(String &topic, String &payload) {
 
       //subscribe to actuators control queue
       for (int i = 0; i < 2; i++) {
-        mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
+        Serial.println(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
+        mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
       }
 
       //subscribe to singleMode queue for light
@@ -148,7 +149,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       *monitoringActivatedRef = false;
     }
 
-  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control") {
+  } else if (topic == String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control") {
 
     if (payload == "ON") {
       *lightConfigRef = CONFIG_ON;
@@ -158,7 +159,7 @@ void mqttMessageReceived(String &topic, String &payload) {
       *lightConfigRef = CONFIG_OFF;
     }
 
-  } else if (topic == String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control") {
+  } else if (topic == String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control") {
 
     if (payload == "ON") {
       *tempConfigRef = CONFIG_ON;
@@ -223,8 +224,8 @@ void mqttSendAlarm(char* message, int code) {
   mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/alarm")[0], buffer, n);
 }
 
-void mqttSendMacOrId() {
-  mqttClient.publish(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC, MQTT_roomId == -1 ? getMac() : MQTT_roomId);
+void mqttSendHeartbeat() {
+  mqttClient.publish(MQTT_roomId == -1 ? MQTT_WELCOME_TOPIC : MQTT_HEARTBEAT_TOPIC, MQTT_roomId == -1 ? getMac() : String(MQTT_roomId));
   
   if (MQTT_roomId == -1) {
     Serial.println("SENT MAC TO " + String(MQTT_WELCOME_TOPIC) + " " + getMac()); 

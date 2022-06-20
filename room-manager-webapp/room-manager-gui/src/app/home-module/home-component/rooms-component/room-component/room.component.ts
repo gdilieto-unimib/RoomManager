@@ -31,7 +31,7 @@ export class RoomComponent {
             this.setMonitoringStop(this.room.id?this.room.id:-1).subscribe(
                 stopped => {
                     this.roomsService.updatingControl = false
-                    this.room.monitoring = stopped.monitoringActivated
+                    this.room.monitoring = stopped.monitoring
                     this.isConnecting = false
                 },
                 err => {
@@ -44,7 +44,7 @@ export class RoomComponent {
             this.setMonitoringStart(this.room.id?this.room.id:-1).subscribe(
                 started => {
                     this.roomsService.updatingControl = false
-                    this.room.monitoring = started.monitoringActivated
+                    this.room.monitoring = started.monitoring
                     this.isConnecting = false
                 },
                 err => {

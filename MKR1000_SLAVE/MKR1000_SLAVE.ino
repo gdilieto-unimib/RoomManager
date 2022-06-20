@@ -270,7 +270,7 @@ void trySendRoomHearthbeat() {
 
   if (((millis() - timeSendHearthbeat) > 10000) && isWifiConnected() && isMQTTBrokerConnected()) {
     // try to send a welcome message or hearthbeat to master
-    mqttSendMacOrId();
+    mqttSendHeartbeat();
 
     timeSendHearthbeat = millis();
   }

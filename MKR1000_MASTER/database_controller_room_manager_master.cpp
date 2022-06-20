@@ -43,7 +43,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], int actuatorsId
   }
 
   char query[256] = {0};
-  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id, a.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room LEFT OUTER JOIN gdilieto.actuator a ON a.type = s.type WHERE r.mac='%s'";
+  char SELECT_ROOM[] = "SELECT r.id, r.monitoring, s.type, s.id, a.id FROM gdilieto.room r LEFT OUTER JOIN gdilieto.sensor s ON r.id = s.room LEFT OUTER JOIN gdilieto.actuator a ON a.type = s.type AND a.a_room = r.id WHERE r.mac='%s'";
 
   sprintf(query, SELECT_ROOM, &mac[0]);
 
@@ -53,6 +53,7 @@ boolean getRoomConfig(String mac, int* roomId, int sensorsId[3], int actuatorsId
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
 
+  // Cicles over columns (not to get the related warning on the serial)
   for (int f = 0; f < columns->num_fields; f++) {
     if (f < columns->num_fields - 1) {
     } else {
@@ -200,6 +201,7 @@ boolean getRoomId(String mac, int* roomId) {
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
 
+  // Cicles over columns (not to get the related warning on the serial)
   for (int f = 0; f < columns->num_fields; f++) {
     if (f < columns->num_fields - 1) {
     } else {
@@ -242,7 +244,7 @@ boolean createRoomConfig(String mac) {
   return true;
 }
 
-boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MAX_ROOMS_NUMBER*2]) {
+boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MAX_ROOMS_NUMBER][2]) {
   // Gets id of all rooms and relative sensors
   
   if (!connectToMySql()) {
@@ -250,7 +252,7 @@ boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MA
   }
 
   char query[256];
-  char GET_ROOMS_ACTUATORS[] = "SELECT r.id, s.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`actuator` a ON a.a_room = r.id ORDER BY r.id";
+  char GET_ROOMS_ACTUATORS[] = "SELECT r.id, a.id FROM `gdilieto`.`room` r LEFT OUTER JOIN `gdilieto`.`actuator` a ON a.a_room = r.id ORDER BY r.id";
 
   sprintf(query, GET_ROOMS_ACTUATORS);
   Serial.println(query);
@@ -261,6 +263,7 @@ boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MA
   row_values *row = NULL;
   column_names *columns = cur_mem->get_columns();
 
+  // Cicles over columns (not to get the related warning on the serial) 
   for (int f = 0; f < columns->num_fields; f++) {
     if (f < columns->num_fields - 1) {
     } else {
@@ -275,10 +278,15 @@ boolean getRoomsAndActuatorsId(int roomsId[MAX_ROOMS_NUMBER], int actuatorsId[MA
 
       if(roomIndex==0 || atoi(row->values[0]) != roomsId[roomIndex-1]) {
         roomsId[roomIndex] = atoi(row->values[0]);
-        roomIndex++;  
+        roomIndex++;
+        actuatorIndex=0;
       }
-      actuatorsId[actuatorIndex] = atoi(row->values[1]);
-      actuatorIndex++;
+      if(atoi(row->values[1])!=0) {
+        actuatorsId[roomIndex-1][actuatorIndex] = atoi(row->values[1]);
+        Serial.println(roomsId[roomIndex-1]);
+        Serial.println(actuatorsId[roomsId[roomIndex-1]][actuatorIndex]);
+        actuatorIndex++;  
+      }
 
     }
   } while (row != NULL);

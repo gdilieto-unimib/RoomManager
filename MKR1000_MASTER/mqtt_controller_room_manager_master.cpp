@@ -8,7 +8,7 @@ int* externalTemperatureR;
 
 boolean initialConfiguration = false;
 int configuredRoomsId[MAX_ROOMS_NUMBER] = {};
-int configuredActuatorsId[MAX_ROOMS_NUMBER * 2] = {};
+int configuredActuatorsId[MAX_ROOMS_NUMBER][2] = {};
 
 MQTTClient mqttClient(MQTT_BUFFER_SIZE);   // handles the MQTT communication protocol
 WiFiClient networkClient;   // handles the network connection to the MQTT broker
@@ -40,10 +40,10 @@ int subscribeToRoomQueues(int roomId) {
 
 }
 
-int subscribeToActuatorQueues(int sensorId) {
+int subscribeToActuatorQueues(int roomId, int actuatorId) {
 
-  //subscribe to sensor's control queue
-  mqttClient.subscribe(String(MQTT_ACTUATORS_TOPIC) + "/" + String(sensorId) + "/control");
+  //subscribe to actuators's control queue
+  mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control");
 
 }
 
@@ -54,13 +54,14 @@ int subscribeToConfiguredRoomsAndActuators() {
   for (int i = 0; i < MAX_ROOMS_NUMBER && configuredRoomsId[i] != 0; i++) {
     Serial.println(configuredRoomsId[i]);
     subscribeToRoomQueues(configuredRoomsId[i]);
+    
+    //subscribe to configured actuators queues
+    for (int j = 0; j < 2 && configuredActuatorsId[i][j] != 0; j++) {
+      Serial.println(configuredActuatorsId[i][j]);
+      subscribeToActuatorQueues(configuredRoomsId[i], configuredActuatorsId[i][j]);
+    }
   }
 
-  //subscribe to configured actuators queues
-  for (int i = 0; i < MAX_ROOMS_NUMBER * 2 && configuredActuatorsId[i] != 0; i++) {
-    Serial.println(configuredActuatorsId[i]);
-    subscribeToActuatorQueues(configuredActuatorsId[i]);
-  }
 }
 
 void connectToMQTTBroker() {
@@ -108,7 +109,7 @@ boolean isMQTTBrokerConnected() {
   return mqttClient.connected();
 }
 
-void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoringActivated) {
+void mqttSendConfig(String mac, int roomId, int sensorsId[3], int actuatorsId[2], boolean monitoringActivated) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
 
   doc["mac"] = mac;
@@ -120,6 +121,10 @@ void mqttSendConfig(String mac, int roomId, int sensorsId[3], boolean monitoring
 
   for (int i = 0; i < 3; i++) {
     doc["sensors"][i] = sensorsId[i];
+  }
+  
+  for (int i = 0; i < 2; i++) {
+    doc["actuators"][i] = actuatorsId[i];
   }
 
   char buffer[MQTT_BUFFER_SIZE] = {0};
@@ -143,8 +148,8 @@ void mqttSendSleepSchedule(int Time) {
   mqttClient.publish(MQTT_SLEEP_SCHEDULE_TOPIC, String(Time));
 }
 
-void mqttSendActuatorControl(int actuatorId, String control) {
-  mqttClient.publish(String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control", control);
+void mqttSendActuatorControl(int roomId, int actuatorId, String control) {
+  mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control", control);
 }
 
 void mqttSendExternalTemperature(int temperature) {
@@ -176,16 +181,16 @@ void mqttMessageReceived(String &topic, String &payload) {
 
     subscribeToRoomQueues(roomId);
 
-    //subscribe to sensor's monitoring queue
-    for (int i = 0; i < 3; i++) {
-      subscribeToRoomQueues(sensorsId[i]);
+    //subscribe to actuators's monitoring queue
+    for (int i = 0; i < 2; i++) {
+      subscribeToActuatorQueues(roomId, actuatorsId[i]);
     }
 
     // update timestamp of tha last heartbeat
     updateLastHBTimestamp(roomId);
 
     // send room config to the slave
-    mqttSendConfig(payload, roomId, sensorsId, monitoringActivated);
+    mqttSendConfig(payload, roomId, sensorsId, actuatorsId, monitoringActivated);
 
   } else {
 
