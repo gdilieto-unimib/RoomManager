@@ -157,7 +157,7 @@ void mqttSendActuatorControl(int roomId, int actuatorId, String control) {
 void mqttSendActuatorControlOnSingleMode(int roomId, int actuatorId, String control) {
   DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
 
-  doc["room"] = roomId;
+  doc["roomId"] = roomId;
   doc["actuatorId"] = actuatorId;
   doc["config"] = control;
 
