@@ -46,7 +46,7 @@
       -->
 
       <mat-step>
-        <ng-template matStepLabel>Sensors</ng-template>
+        <ng-template matStepLabel>Sensors/Actuators</ng-template>
         <mat-button-toggle-group name="sensors" aria-label="Sensors" formControlName="sensors" multiple>
           <mat-button-toggle *ngFor="let sensorType of typesOfSensors;" [value]="getSensor(sensorType)"><mat-icon>{{sensorType | sensorIcon}}</mat-icon></mat-button-toggle>
         </mat-button-toggle-group>

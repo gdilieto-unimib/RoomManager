@@ -109,7 +109,6 @@ void mqttMessageReceived(String &topic, String &payload) {
 
       //subscribe to actuators control queue
       for (int i = 0; i < 2; i++) {
-        Serial.println(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
         mqttClient.subscribe(String(MQTT_ROOM_TOPIC)+"/"+String(MQTT_roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[i]) + "/control");
       }
 

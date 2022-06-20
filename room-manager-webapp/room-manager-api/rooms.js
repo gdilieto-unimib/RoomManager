@@ -132,6 +132,18 @@ router.get('/:roomId', (req, res)=>{
 
 router.put('/', (req, res)=>{
     var room = req.body;
+    var roomQuery = `UPDATE room SET name = '${room.name}', mac = '${room.mac}' WHERE room.id = ${room.id}`
+    pool.query(roomQuery, (err, result, fields) => {
+        if (err) {
+            throw new Error(err)
+        }
+        res.send(room)
+    })
+
+})
+
+router.post('/', (req, res)=>{
+    var room = req.body;
 
     var roomQuery = "INSERT INTO room (`name`, `mac`) " + `VALUES ('${room.name}','${room.mac}')`
     pool.query(roomQuery, (err, result, fields) => {
@@ -159,17 +171,6 @@ router.put('/', (req, res)=>{
         )
     })
 
-})
-
-router.post('/', (req, res)=>{
-    var room = req.body;
-    var roomQuery = `UPDATE room SET name = '${room.name}', mac = '${room.mac}' WHERE room.id = ${room.id}`
-    pool.query(roomQuery, (err, result, fields) => {
-        if (err) {
-            throw new Error(err)
-        }
-        res.send(room)
-    })
 })
 
 router.delete('/:roomId', (req, res)=>{
