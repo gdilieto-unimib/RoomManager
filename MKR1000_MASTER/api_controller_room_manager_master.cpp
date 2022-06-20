@@ -127,6 +127,7 @@ void listenForClients() {
           DynamicJsonDocument doc(HTTP_BUFFER_SIZE);
           deserializeJson(doc, postContent);
           mqttError = !isMQTTBrokerConnected();
+          Serial.println(*singleModeRef);
 
           switch (doc["config"].as < int > ()) {
             case 0: {
