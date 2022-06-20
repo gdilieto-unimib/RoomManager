@@ -37,6 +37,28 @@ byte ecoIcon[] = {
   B00100
 };
 
+byte singleIcon[] = {
+  B00100,
+  B01010,
+  B00100,
+  B11111,
+  B00100,
+  B00100,
+  B01010,
+  B01010
+};
+
+byte sleepIcon[] = {
+  B11111,
+  B10001,
+  B11111,
+  B10001,
+  B10001,
+  B10001,
+  B10001,
+  B11111
+};
+
 void setupLcd() {
   // setup lcd initial state
 
@@ -45,6 +67,8 @@ void setupLcd() {
   lcd.createChar(0, wifiIcon);
   lcd.createChar(1, databaseIcon);
   lcd.createChar(2, ecoIcon);
+  lcd.createChar(3, singleIcon);
+  lcd.createChar(4, sleepIcon);
 
 }
 
@@ -136,13 +160,12 @@ void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, b
   }
 
   lcd.setCursor(0, 1);
-  lcd.write(2); // show database connection
+  lcd.write(3); // show single mode
+  lcd.setCursor(1, 1);
+  lcd.write(2); // show eco mode
+  lcd.setCursor(2, 1);
+  lcd.write(4); // show sleep mode
 
-  if (ecoMode) {
-    lcd.print(": ON");
-  } else {
-    lcd.print(": OFF");
-  }
 
   lcd.setCursor(9, 1);
   lcd.print("Dev: "); // show devices number
