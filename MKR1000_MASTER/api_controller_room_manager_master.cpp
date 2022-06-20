@@ -4,9 +4,11 @@
 WiFiServer apiServer(80);
 
 boolean * ecoModeRef;
+boolean * singleModeRef;
 
-void setupApiServer(boolean * ecoMode) {
+void setupApiServer(boolean * ecoMode, boolean * singleMode) {
   ecoModeRef = ecoMode;
+  singleModeRef = singleMode;
   apiServer.begin();
 }
 
@@ -128,18 +130,30 @@ void listenForClients() {
 
           switch (doc["config"].as < int > ()) {
             case 0: {
-                mqttSendActuatorControl(roomId, actuatorId, "OFF"); 
+                if (*singleModeRef) {
+                  
+                } else {
+                  mqttSendActuatorControl(roomId, actuatorId, "OFF");   
+                }
                 sqlError = ! updateActuatorConfig(actuatorId, "OFF");
                 break;
               }
             case 1: {
                 Serial.println("CIAO");
-                mqttSendActuatorControl(roomId, actuatorId, "ON");
+                if (*singleModeRef) {
+                  
+                } else {
+                  mqttSendActuatorControl(roomId, actuatorId, "ON");   
+                }
                 sqlError = ! updateActuatorConfig(actuatorId, "ON");
                 break;
               }
             case 2: {
-                mqttSendActuatorControl(roomId, actuatorId, "AUTO");
+                if (*singleModeRef) {
+                  
+                } else {
+                  mqttSendActuatorControl(roomId, actuatorId, "AUTO");   
+                }
                 sqlError = ! updateActuatorConfig(actuatorId, "AUTO");
                 break;
               }

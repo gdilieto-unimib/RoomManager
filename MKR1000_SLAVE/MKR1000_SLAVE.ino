@@ -56,9 +56,6 @@ int tempStatus = TEMP_STATUS_OFF;
 int tempConfig = CONFIG_OFF;
 int tempActivationThreshold = 28;
 
-int tooHotTempThreshold = 30;
-int tooColdTempThreshold = 10;
-
 int displayRow = 0;
 int lastLight = 0;
 int lastTemp = 0;
@@ -108,7 +105,7 @@ void setup() {
 }
 
 void loop() {
-  if (isLowPowerMode  &&  (getTemp() > tooHotTempThreshold == false) ) {
+  if (isLowPowerMode  &&  (getTemp() > TOO_HOT_TEMP_THRESHOLD == false) ) {
     
     lowPowerModeLoop();
     
@@ -125,7 +122,7 @@ void loop() {
     }
 
     if (scheduleDuration > 0) {
-      if (getTemp() > tooHotTempThreshold == false) {
+      if (getTemp() > TOO_HOT_TEMP_THRESHOLD == false) {
         isLowPowerMode = true;
               
         tempConfig = CONFIG_OFF;
@@ -189,7 +186,7 @@ void lowPowerModeLoop() {
 
   lowPowerModeMillis = millis();
   
-  if (getTemp() > tooHotTempThreshold) {
+  if (getTemp() > TOO_HOT_TEMP_THRESHOLD) {
     isLowPowerMode = false;
     screen = INFO_SCREEN;
   }
@@ -294,6 +291,12 @@ int getPressedButton() {
     delay(2000);
     if (val_MENO == HIGH && val_PIU == HIGH) {
       isLowPowerMode = !isLowPowerMode;
+      
+      tempConfig = CONFIG_OFF;
+      lightConfig = CONFIG_OFF;
+
+      mqttSendTempConfig(tempConfig);
+      mqttSendLightConfig(lightConfig);
       delay(3000);
     }
   }
@@ -425,7 +428,7 @@ void updateScreen() {
 
 void setHotColdAlarm(int temp) {
   // set alarm if temperature is too hot (fire risk)
-  if (temp > tooHotTempThreshold) {
+  if (temp > TOO_HOT_TEMP_THRESHOLD) {
 
     setTooHotAlarm(true);
     tooColdAlarmMonitored = false;
@@ -453,8 +456,8 @@ void setHotColdAlarm(int temp) {
     tooHotAlarmMonitored = false;
     setBuzzerAlarm(false);
 
-    // set alarm if temperature is too cold (fire risk)
-    if (temp < tooColdTempThreshold) {
+    // set alarm if temperature is too cold
+    if (temp < TOO_COLD_TEMP_THRESHOLD) {
       setTooColdAlarm(true);
 
       if (!tooColdAlarmMonitored && monitoringActivated) {

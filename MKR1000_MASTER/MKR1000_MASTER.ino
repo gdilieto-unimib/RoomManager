@@ -74,7 +74,7 @@ void loop() {
 
   // Prints is the master is correctly working
   printWorkingStatus();
-  
+
   // Connect to wifi
   tryWifiConnection();
 
@@ -98,7 +98,7 @@ void loop() {
 
   //update sleep schedule for slave
   trySendSleepSchedule();
-  
+
   //if connected send external temperature to slave
   trySendExternalTemperature();
 
@@ -115,7 +115,7 @@ void tryWifiConnection() {
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
       }
       setupRtc();
-      setupApiServer( & ecoMode);
+      setupApiServer( &ecoMode, &singleMode);
 
     } else {
 
@@ -125,7 +125,7 @@ void tryWifiConnection() {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
         setupRtc();
-        setupApiServer( & ecoMode);
+        setupApiServer( &ecoMode, &singleMode);
       } else {
         while (!isWifiConnected()) {
           // activate the access point until wifi is connected
@@ -220,6 +220,9 @@ void trySendSleepSchedule() {
 
 }
 
-void printWorkingStatus(){
-    if(millis() - workingTime > 10000) {Serial.println("Master is Working..."); workingTime = millis();} 
+void printWorkingStatus() {
+  if (millis() - workingTime > 10000) {
+    Serial.println("Master is Working...");
+    workingTime = millis();
+  }
 }

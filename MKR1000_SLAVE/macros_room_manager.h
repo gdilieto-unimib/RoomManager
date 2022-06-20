@@ -15,6 +15,9 @@
 #define HOT_TEMP_LED 5 // D5, digital pin used for the hot temp led
 #define COLD_TEMP_LED 5 // A0, analogical pin used as digital pin for the cold temp led ( PROVVISORIO SU PIN 5 )
 
+#define TOO_HOT_TEMP_THRESHOLD 35 // Too hot threshold for the alarm
+#define TOO_COLD_TEMP_THRESHOLD 10 // Too cold threshold for the alarm
+
 #define PIU 3 // Action when button piu is pressed
 #define MENO 2 // Action when button meno is pressed
 #define OK 1 // Action when button ok is pressed
