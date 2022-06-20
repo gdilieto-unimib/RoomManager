@@ -158,25 +158,25 @@ void updateInfoScreenRows(int devices, boolean wifi, boolean isMySqlConnected, b
   } else {
     lcd.print(": OFF");
   }
+  
+  lcd.setCursor(0, 1);
+  lcd.print("Dev: "); // show devices number
+  lcd.print(devices);
 
   if(singleMode) {
-    lcd.setCursor(0, 1);
+    lcd.setCursor(9, 1);
     lcd.write(3); // show single mode
   }
   
   if(ecoMode) {
-    lcd.setCursor(1, 1);
+    lcd.setCursor(11, 1);
     lcd.write(2); // show eco mode
   }
   
   if(sleepMode) {
-    lcd.setCursor(2, 1);
+    lcd.setCursor(13, 1);
     lcd.write(4); // show sleep mode
   }
-  
-  lcd.setCursor(9, 1);
-  lcd.print("Dev: "); // show devices number
-  lcd.print(devices);
 
 }
 
