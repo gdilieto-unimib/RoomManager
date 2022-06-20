@@ -125,13 +125,10 @@ void updateTemp(int temp, int tempConfig, int* tempStatus, int tempActivationThr
     // set thermostat's status automatically based on temperature's activation threshold
 
     case CONFIG_ON: {
-        if (ecoMode == true && temp < tempActivationThreshold && externalTemperature >= tempActivationThreshold && externalTemperature >= temp + TEMPERATURE_ISOLATION_CONSTANT ) {
-          Serial.println("NON ATTIVO IL RISCALDAMENTO PERCHE SONO IN ECOMODE");
+        if (ecoMode == true && temp < tempActivationThreshold && externalTemperature >= tempActivationThreshold && externalTemperature >= (temp + TEMPERATURE_ISOLATION_CONSTANT) ) {
           *tempStatus = TEMP_STATUS_ECO;
 
-        } else if (ecoMode == true && temp > tempActivationThreshold && externalTemperature <= tempActivationThreshold && externalTemperature <= temp - TEMPERATURE_ISOLATION_CONSTANT ) {
-          Serial.println("NON ATTIVO IL CLIMATIZZATORE PERCHE SONO IN ECOMODE");
-
+        } else if (ecoMode == true && temp > tempActivationThreshold && externalTemperature <= tempActivationThreshold && externalTemperature <= (temp - TEMPERATURE_ISOLATION_CONSTANT) ) {
           *tempStatus = TEMP_STATUS_ECO;
 
         } else if (temp < tempActivationThreshold) {

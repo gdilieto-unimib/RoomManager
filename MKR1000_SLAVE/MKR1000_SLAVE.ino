@@ -125,7 +125,15 @@ void loop() {
     }
 
     if (scheduleDuration > 0) {
-      if (getTemp() > tooHotTempThreshold == false) isLowPowerMode = true;
+      if (getTemp() > tooHotTempThreshold == false) {
+        isLowPowerMode = true;
+              
+        tempConfig = CONFIG_OFF;
+        lightConfig = CONFIG_OFF;
+
+        mqttSendTempConfig(tempConfig);
+        mqttSendLightConfig(lightConfig);
+      }
     }
 
     //set hot or cold alarm

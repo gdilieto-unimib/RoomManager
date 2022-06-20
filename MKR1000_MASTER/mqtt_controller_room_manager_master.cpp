@@ -43,6 +43,8 @@ int subscribeToRoomQueues(int roomId) {
 int subscribeToActuatorQueues(int roomId, int actuatorId) {
 
   //subscribe to actuators's control queue
+  Serial.println("SUBSCRIBED TO");
+  Serial.println(String(MQTT_ROOM_TOPIC) + "/" + String(roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control");
   mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control");
 
 }
@@ -226,7 +228,7 @@ void mqttMessageReceived(String &topic, String &payload) {
     } else if (topic.endsWith("/control")) {
       // if topic is room's sensor's control
 
-      sscanf(&topic[0], &((MQTT_ACTUATORS_TOPIC + String("/%d/control"))[0]), &actuatorId);
+      sscanf(&topic[0], &(MQTT_ROOM_TOPIC +String("/%d/")+MQTT_ACTUATORS_TOPIC + String("/%d/control"))[0], &roomId, &actuatorId);
       updateActuatorConfig(actuatorId, payload);
 
     } else {

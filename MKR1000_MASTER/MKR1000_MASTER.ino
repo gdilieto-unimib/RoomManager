@@ -213,7 +213,7 @@ void trySendSleepSchedule() {
 
   if (isWifiConnected() && isMQTTBrokerConnected() && (millis() - timeSendSleepSchedule) > SEND_SLEEP_SCHEDULE_TIMER_MILLIS) {
     if (sleepMode && ( & schedule[0])[getTimeHour()] == '1') {
-      mqttSendSleepSchedule((60 - getTimeMinute()) * 3600000);
+      mqttSendSleepSchedule((60 - getTimeMinute()) * 60000);
     }
     timeSendSleepSchedule = millis();
   }

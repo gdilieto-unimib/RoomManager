@@ -37,7 +37,7 @@
 #define TEMP_STATUS_DOWN 2 // id for temp status decreasing
 #define TEMP_STATUS_ECO 3 // id for temp status eco
 
-#define TEMPERATURE_ISOLATION_CONSTANT 1 // temperature isolation constant for the eco mode
+#define TEMPERATURE_ISOLATION_CONSTANT 2 // temperature isolation constant for the eco mode
 
 #define CONFIG_OFF 0 // id for generic configuration off
 #define CONFIG_ON 1 // id for generic configuration on

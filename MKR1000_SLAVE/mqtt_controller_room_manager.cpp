@@ -201,11 +201,11 @@ void mqttSendData(int lastTemp, int lastLight, int lastWifiRssi) {
 }
 
 void mqttSendLightConfig(int lightConfig) {
-  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control")[0], lightConfig == CONFIG_AUTO ? "AUTO" : lightConfig == CONFIG_ON ? "ON" : "OFF");
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/" + String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[LIGHT_SENSOR]) + "/control")[0], lightConfig == CONFIG_AUTO ? "AUTO" : lightConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendTempConfig(int tempConfig) {
-  mqttClient.publish(&(String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control")[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/" + String(MQTT_ACTUATORS_TOPIC) + "/" + String(MQTT_actuatorsId[TEMP_SENSOR]) + "/control")[0], tempConfig == CONFIG_ON ? "ON" : "OFF");
 }
 
 void mqttSendMonitoringConfig(boolean monitoringConfig) {
