@@ -130,7 +130,6 @@ void mqttMessageReceived(String &topic, String &payload) {
     
     if (roomId == MQTT_roomId) {
       const char *lightConfig = doc["config"];
-      Serial.println("CIAO");
       if (String(lightConfig) == "ON") {
         *lightConfigRef = CONFIG_ON;
         mqttSendLightConfig(CONFIG_ON);

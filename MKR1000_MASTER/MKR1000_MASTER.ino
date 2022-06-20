@@ -195,7 +195,7 @@ void updateScreen() {
   // Update screen each SCREEN_UPDATE_TIMER_MILLIS ms
 
   if ((millis() - timeScreen) > SCREEN_UPDATE_TIMER_MILLIS) {
-    updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected(), ecoMode);
+    updateInfoScreenRows(devices, isWifiConnected(), isMySqlConnected(), singleMode, sleepMode, ecoMode);
     timeScreen = millis();
   }
 }
