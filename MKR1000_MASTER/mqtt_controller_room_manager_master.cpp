@@ -159,7 +159,7 @@ void mqttSendActuatorControlOnSingleMode(int roomId, int actuatorId, String cont
 
   doc["room"] = roomId;
   doc["actuatorId"] = actuatorId;
-  doc["config"] = control=="2"?"AUTO":control=="1"?"ON":"OFF";
+  doc["config"] = control;
 
   char buffer[MQTT_BUFFER_SIZE] = {0};
   size_t n = serializeJson(doc, buffer);
