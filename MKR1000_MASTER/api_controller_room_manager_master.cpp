@@ -131,7 +131,7 @@ void listenForClients() {
           switch (doc["config"].as < int > ()) {
             case 0: {
                 if (*singleModeRef) {
-                  
+                  mqttSendActuatorControlOnSingleMode(roomId, actuatorId, "OFF");
                 } else {
                   mqttSendActuatorControl(roomId, actuatorId, "OFF");   
                 }
@@ -139,9 +139,8 @@ void listenForClients() {
                 break;
               }
             case 1: {
-                Serial.println("CIAO");
                 if (*singleModeRef) {
-                  
+                  mqttSendActuatorControlOnSingleMode(roomId, actuatorId, "ON");                  
                 } else {
                   mqttSendActuatorControl(roomId, actuatorId, "ON");   
                 }
@@ -150,7 +149,7 @@ void listenForClients() {
               }
             case 2: {
                 if (*singleModeRef) {
-                  
+                  mqttSendActuatorControlOnSingleMode(roomId, actuatorId, "AUTO");                  
                 } else {
                   mqttSendActuatorControl(roomId, actuatorId, "AUTO");   
                 }

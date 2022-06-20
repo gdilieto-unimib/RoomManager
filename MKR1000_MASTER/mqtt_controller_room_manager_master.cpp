@@ -154,6 +154,19 @@ void mqttSendActuatorControl(int roomId, int actuatorId, String control) {
   mqttClient.publish(String(MQTT_ROOM_TOPIC)+"/"+String(roomId)+"/"+String(MQTT_ACTUATORS_TOPIC) + "/" + String(actuatorId) + "/control", control);
 }
 
+void mqttSendActuatorControlOnSingleMode(int roomId, int actuatorId, String control) {
+  DynamicJsonDocument doc(MQTT_BUFFER_SIZE);
+
+  doc["room"] = roomId;
+  doc["actuatorId"] = actuatorId;
+  doc["config"] = control=="2"?"AUTO":control=="1"?"ON":"OFF";
+
+  char buffer[MQTT_BUFFER_SIZE] = {0};
+  size_t n = serializeJson(doc, buffer);
+  
+  mqttClient.publish(MQTT_SINGLE_MODE_TOPIC, buffer, n);
+}
+
 void mqttSendExternalTemperature(int temperature) {
   mqttClient.publish(MQTT_EXTERNAL_TEMPERATURE_TOPIC, String(temperature));
 }

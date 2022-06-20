@@ -113,14 +113,14 @@ void mqttMessageReceived(String &topic, String &payload) {
       }
 
       //subscribe to singleMode queue for light
-      mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/singleMode/light/control");
+      mqttClient.subscribe(String(MQTT_SINGLE_MODE_TOPIC));
 
       Serial.println(F("\nSubscribed to specific slave topics!"));
 
       *monitoringActivatedRef = doc["monitoring"];
     }
 
-  } else if (topic == String(MQTT_ROOM_TOPIC) + "/singleMode/light/control") {
+  } else if (topic == String(MQTT_SINGLE_MODE_TOPIC)) {
 
     // deserialize the JSON object
     DynamicJsonDocument doc(2048);
