@@ -225,7 +225,7 @@ void mqttSendAlarm(char* message, int code) {
   char buffer[MQTT_BUFFER_SIZE];
   size_t n = serializeJson(doc, buffer);
 
-  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/alarm")[0], buffer, n, true, 1);
+  mqttClient.publish(&(String(MQTT_ROOM_TOPIC) + "/" + String(MQTT_roomId) + "/alarm")[0], buffer, n);
 }
 
 void mqttSendHeartbeat() {
