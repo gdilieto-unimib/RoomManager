@@ -55,19 +55,28 @@ boolean configureWifi = false;
 int devices;
 
 void setup() {
+  // Initialization of timers
   timeMqtt = timeDb = timeLogging = timeScreen = workingTime = timeConfiguration = timeExtenalTemperature = timeSendSleepSchedule = millis();
+
+  // Initialization of timer of extenral temperature (to allow initial set)
   timeExtenalTemperature -= EXTERNAL_TEMP_UPDATE_TIMER_MILLIS;
 
+  // Setup of lcd
   setupLcd();
+  
+  // Setup of mqtt
   MQTTSetup( & externalTemperature, & ecoMode, & sleepMode);
+
+  // Initialization of wifi credentials
   MyWiFi_Credentials = my_flash_store.read();
 
+  // Initialization of access point (if not wifi credentials are found)
   if (!MyWiFi_Credentials.valid && configureWifi) {
     setupAP();
   }
 
   Serial.begin(115200);
-
+  Serial.println(F("\n\nSetup completed.\n\n"));
 }
 
 void loop() {
@@ -114,6 +123,11 @@ void tryWifiConnection() {
       while (!isWifiConnected()) {
         connectWifi(MyWiFi_Credentials.ssid_RM, MyWiFi_Credentials.pssw_RM);
       }
+      // current IP
+      delay(2000);
+      Serial.print(F("IP Address: "));
+      IPAddress temp_ip = WiFi.localIP();
+      Serial.println(temp_ip);
       setupRtc();
       setupApiServer( &ecoMode, &singleMode);
 
@@ -124,6 +138,12 @@ void tryWifiConnection() {
         while (!isWifiConnected()) {
           connectWifi(SECRET_SSID, SECRET_PASS);
         }
+        
+        // current IP
+        delay(2000);
+        Serial.print(F("IP Address: "));
+        IPAddress temp_ip = WiFi.localIP();
+        Serial.println(temp_ip);
         setupRtc();
         setupApiServer( &ecoMode, &singleMode);
       } else {

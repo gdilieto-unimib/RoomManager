@@ -86,19 +86,30 @@ long timeDb, timeWifi, timeSensors, timeLogging, timeConfig, timeMqtt, timeSendH
 
 void setup() {
 
+  // Initialization of timers
   timeWifi = timeDb = timeSensors = timeLogging = timeConfig = timeMqtt = timeSendHearthbeat = millis();
  
+  // Setup of lcd
   setupLcd();
+  
+  // Setup of io devices
   setupIO();
+  
+  // Setup of mqtt
   MQTTSetup(&monitoringActivated, &tempConfig, &lightConfig, &externalTemperature, &ecoMode , &scheduleDuration);
+  
+  // Initialization of sensors measures
   updateSensors();
 
+  // Initialization of wifi credentials
   MyWiFi_Credentials = my_flash_store.read();
 
+  // Initialization of access point (if not wifi credentials are found)
   if (!MyWiFi_Credentials.valid && configureWifi)
     setupAP();
-    
-  LowPower.attachInterruptWakeup(BUTTON_OK, wakeUp, CHANGE);
+
+  // Binding of interrupt to ok button
+  LowPower.attachInterruptWakeup(BUTTON_WAKE_UP_LOWPOWERMODE, wakeUp, CHANGE);
 
   Serial.begin(115200);
   Serial.println(F("\n\nSetup completed.\n\n"));
@@ -174,18 +185,27 @@ void loop() {
 }
 
 void lowPowerModeLoop() {
-  
+  // Loop for the low power mode
   lowPowerModeMillis = millis();
+
+  
   powerModeChanged = true;
   lowPowerModeLCD();
-  sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
-  lowPowerModeMillis = millis() - lowPowerModeMillis;
-  sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
   
+  // The duration of the cicle is increased by the sleeping time
+  sleepCycleDuration = sleepCycleDuration + CONTROL_FREQUENCE_LOW_POWER_MODE;
+  
+  lowPowerModeMillis = millis() - lowPowerModeMillis;
+  
+  // The duration of the cicle is increased by the first section of alive time
+  sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
+
+  // Going in deep sleep for defined amount of time
   LowPower.deepSleep(CONTROL_FREQUENCE_LOW_POWER_MODE);
 
   lowPowerModeMillis = millis();
-  
+
+  // If the temperature is too high exit from lowPowerMode  
   if (getTemp() > TOO_HOT_TEMP_THRESHOLD) {
     isLowPowerMode = false;
     screen = INFO_SCREEN;
@@ -198,6 +218,8 @@ void lowPowerModeLoop() {
   }
 
   lowPowerModeMillis = millis() - lowPowerModeMillis;
+
+  // The duration of the cicle is increased by the second section of alive time
   sleepCycleDuration = sleepCycleDuration + lowPowerModeMillis;
 
 }

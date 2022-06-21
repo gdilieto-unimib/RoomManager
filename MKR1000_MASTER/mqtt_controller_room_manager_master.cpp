@@ -32,7 +32,7 @@ int subscribeToRoomQueues(int roomId) {
   //subscribe to room's logging queue
   mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/sensors/measures");
 
-  //subscribe to room's monitoring queue
+  //subscribe to room's alarm queue
   mqttClient.subscribe(String(MQTT_ROOM_TOPIC) + "/" + String(roomId) + "/alarm");
 
   //subscribe to room's monitoring queue
@@ -194,9 +194,10 @@ void mqttMessageReceived(String &topic, String &payload) {
       getRoomConfig(payload, &roomId, sensorsId, actuatorsId, &monitoringActivated);
     }
 
+    //subscribe to room's queues
     subscribeToRoomQueues(roomId);
 
-    //subscribe to actuators's monitoring queue
+    //subscribe to actuators's monitoring queues
     for (int i = 0; i < 2; i++) {
       subscribeToActuatorQueues(roomId, actuatorsId[i]);
     }
